@@ -31,7 +31,7 @@
   #app-root .brand .mark-ring{width:100%;height:100%;border-radius:9.5px;background:#161219;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;}
   #app-root .brand-text{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;}
   #app-root .brand-sub{font-size:10.5px;color:var(--muted);font-family:'IBM Plex Mono',monospace;}
-  #app-root nav{display:flex;gap:6px;background:var(--panel-2);padding:5px;border-radius:10px;}
+  #app-root nav{display:flex;gap:6px;background:var(--panel-2);padding:5px;border-radius:10px;flex-wrap:wrap;}
   #app-root nav button{
     font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;background:transparent;border:none;
     color:var(--muted);padding:9px 16px;border-radius:7px;cursor:pointer;
@@ -115,6 +115,21 @@
   #app-root .catalog-thumb{width:58px;height:58px;border-radius:8px;background:var(--panel-2);object-fit:cover;flex-shrink:0;}
   #app-root .catalog-price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:5px;font-size:10.5px;color:var(--muted);}
   #app-root .catalog-price-grid strong{display:block;color:var(--ink);font-size:12px;margin-top:2px;}
+  #app-root .finance-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+  #app-root .finance-kpi{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:15px;}
+  #app-root .finance-kpi .label{font:10px 'IBM Plex Mono',monospace;text-transform:uppercase;color:var(--muted);letter-spacing:.04em;}
+  #app-root .finance-kpi strong{display:block;font:700 20px 'Space Grotesk',sans-serif;margin-top:6px;}
+  #app-root .finance-kpi.green strong{color:var(--green);}
+  #app-root .finance-kpi.coral strong{color:var(--coral);}
+  #app-root .month-group{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:15px;overflow:hidden;}
+  #app-root .month-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;background:var(--panel-2);border-bottom:1px solid var(--line);}
+  #app-root .month-head h3{margin:0;font-size:15px;text-transform:capitalize;}
+  #app-root .month-totals{display:flex;gap:16px;font-size:11px;color:var(--muted);flex-wrap:wrap;}
+  #app-root .receipt-row{display:grid;grid-template-columns:90px minmax(150px,1.4fr) minmax(120px,1fr) 110px 110px auto;gap:10px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);font-size:12px;}
+  #app-root .receipt-row:last-child{border-bottom:none;}
+  #app-root .receipt-main strong{display:block;}.receipt-main small{color:var(--muted);}
+  #app-root .receipt-value{font:700 14px 'Space Grotesk',sans-serif;text-align:right;}
+  #app-root .receipt-net{font-size:10px;color:var(--muted);text-align:right;}
   @media(max-width:800px){
     #app-root .kanban{grid-template-columns:1fr;}
     #app-root .topbar{flex-direction:column;gap:14px;align-items:flex-start;}
@@ -123,6 +138,9 @@
     #app-root .quote-item{grid-template-columns:1fr auto;}
     #app-root .quote-item > *:not(:first-child):not(:last-child){display:none;}
     #app-root .quote-logo{width:90px;height:64px;}
+    #app-root .finance-kpis{grid-template-columns:repeat(2,1fr);}
+    #app-root .receipt-row{grid-template-columns:80px 1fr auto;}
+    #app-root .receipt-row .mobile-hide{display:none;}
   }
 </style>
 </head>
@@ -153,6 +171,7 @@
         <button data-view="calculadora" class="active">Calculadora</button>
         <button data-view="orcamentos">Orçamentos</button>
         <button data-view="pedidos">Fila de Pedidos</button>
+        <button data-view="recebimentos">Recebimentos</button>
         <button data-view="config">Configurações</button>
       </nav>
       <div style="display:flex;gap:7px;align-items:center;"><button type="button" id="theme-toggle-btn" title="Alternar tema claro/escuro">🌙</button><button class="btn secondary small" id="logout-btn">🚪 Sair</button></div>
@@ -163,15 +182,9 @@
       <div class="view" data-view="calculadora">
         <div class="panel">
           <h2>🧮 Calculadora de custo e preço</h2>
-          <p class="hint">Escolha o que foi usado nesta peça — mão de obra, equipamento, material, frete e extras — e o preço final é calculado na hora, com base nos seus custos cadastrados em "Configurações".</p>
+          <p class="hint">Informe o equipamento, o tempo de produção, o material, o frete e os extras. O preço final é calculado na hora com base nos custos cadastrados em "Configurações".</p>
 
           <div class="section-card"><div class="section-title"><span class="step">✦</span> Identificação do produto</div><div class="row" style="margin:0;"><div class="field"><label>Nome do produto *</label><input id="calc-product-name" placeholder="Ex.: Vasilha pet personalizada 750 ml"></div><div class="field"><label>Detalhes / personalização</label><input id="calc-product-details" placeholder="Cor, tamanho, nome, acabamento..."></div></div></div>
-
-          <h3>Mão de obra</h3>
-          <div class="row">
-            <div class="field"><label>Quem trabalhou</label><select id="calc-labor"></select></div>
-            <div class="field"><label>Horas</label><input id="calc-labor-hours" type="number" min="0" step="0.25" value="0"></div>
-          </div>
 
           <h3>Equipamento (impressora/máquina)</h3>
           <div class="row">
@@ -290,6 +303,21 @@
             <tbody id="ped-list-tbody"></tbody>
           </table>
         </div>
+      </div>
+
+      <!-- ============ RECEBIMENTOS ============ -->
+      <div class="view" data-view="recebimentos" style="display:none;">
+        <div class="panel quote-hero"><div class="quote-hero-inner"><div><div class="quote-eyebrow">Controle financeiro</div><h2>Recebimentos da empresa</h2><p class="hint">Acompanhe entradas, taxas, valores líquidos e vendas por canal, com integração aos pedidos aprovados.</p></div><div style="font-size:38px;">💰</div></div></div>
+        <div class="finance-kpis" id="rec-kpis"></div>
+        <div class="panel">
+          <h3>Novo lançamento</h3><p class="hint">A data de hoje é preenchida automaticamente. Vincule um pedido aprovado para completar cliente, descrição, valor e entrega.</p>
+          <div class="row"><div class="field" style="flex:2;"><label>Pedido / orçamento vinculado</label><select id="rec-order"><option value="">Recebimento avulso</option></select></div><div class="field"><label>Data do recebimento</label><input id="rec-date" type="date"></div><div class="field"><label>Situação</label><select id="rec-status"><option>Recebido</option><option>Pendente</option><option>Estornado</option></select></div></div>
+          <div class="row"><div class="field"><label>Cliente</label><input id="rec-client" placeholder="Nome do cliente"></div><div class="field" style="flex:2;"><label>Descrição</label><input id="rec-description" placeholder="Produto, serviço ou referência"></div><div class="field"><label>Entrega prevista</label><input id="rec-delivery" type="date"></div></div>
+          <div class="row"><div class="field"><label>Valor bruto (R$) *</label><input id="rec-value" type="number" min="0" step="0.01" placeholder="0,00"></div><div class="field"><label>Taxa/desconto (R$)</label><input id="rec-fee" type="number" min="0" step="0.01" value="0"></div><div class="field"><label>Forma de pagamento</label><select id="rec-payment"><option>PIX</option><option>Dinheiro</option><option>Cartão de débito</option><option>Cartão de crédito</option><option>Transferência</option><option>Saldo de marketplace</option><option>Boleto</option><option>Outro</option></select></div><div class="field"><label>Canal da venda</label><select id="rec-channel"><option>Mercado Livre</option><option>Instagram</option><option>WhatsApp</option><option>Venda presencial</option><option>Shopee</option><option>Consignação</option><option>Outro</option></select></div></div>
+          <div class="row"><div class="field"><label>Observações</label><input id="rec-notes" placeholder="Parcela, comprovante, detalhe da venda..."></div><div class="field" style="flex:0;align-self:flex-end;"><button class="btn" id="rec-add-btn" type="button">+ Registrar recebimento</button></div></div><div id="rec-msg"></div>
+        </div>
+        <div class="panel"><div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;"><div><h3 style="margin-bottom:4px;">Histórico mensal</h3><p class="hint" style="margin:0;">O mês atual aparece primeiro. Valores recebidos consideram apenas lançamentos confirmados.</p></div><div class="row" style="margin:0;"><div class="field"><label>Canal</label><select id="rec-filter-channel"><option value="">Todos</option></select></div><div class="field"><label>Situação</label><select id="rec-filter-status"><option value="">Todas</option><option>Recebido</option><option>Pendente</option><option>Estornado</option></select></div><div class="field"><label>Pesquisar</label><input id="rec-search" placeholder="Cliente, pedido, descrição..."></div></div></div></div>
+        <div id="rec-months"></div>
       </div>
 
       <!-- ============ CONFIGURAÇÕES ============ -->
@@ -440,6 +468,7 @@
   let ORCAMENTOS = [];
   let PEDIDOS = [];
   let PRODUCTS = [];
+  let RECEBIMENTOS = [];
   let calcExtrasCart = [];
   let orcItemsCart = [];
 
@@ -454,6 +483,7 @@
     ORCAMENTOS = await getJSON('orcamentos', []);
     PEDIDOS = await getJSON('producao_pedidos', []);
     PRODUCTS = await getJSON('products', []);
+    RECEBIMENTOS = await getJSON('empresa_recebimentos', []);
     EMPRESA = await getJSON('empresa_config', EMPRESA);
   }
 
@@ -495,6 +525,7 @@
     populateCatalogProducts();
     renderOrcamentos();
     renderPedidos();
+    renderRecebimentos();
     updateCalcSummary();
     document.getElementById('cfg-empresa-pix').value = EMPRESA.pix || '';
     document.getElementById('cfg-empresa-prazo').value = EMPRESA.prazo || '';
@@ -589,6 +620,7 @@
       btn.classList.add('active');
       root.querySelectorAll('.view').forEach(v=>v.style.display='none');
       root.querySelector(`.view[data-view="${btn.dataset.view}"]`).style.display='block';
+      if(btn.dataset.view==='recebimentos') renderRecebimentos();
     });
   });
 
@@ -752,12 +784,14 @@
   // CALCULADORA
   // ============================================================
   function populateCalcSelects(){
-    const laborSel = document.getElementById('calc-labor');
-    laborSel.innerHTML = '<option value="">— nenhum —</option>' + CFG.labor.map((l,i)=>`<option value="${i}">${escapeHtml(l.name)} (${fmtMoney(laborHourlyRate(l))}/h)</option>`).join('');
     const equipSel = document.getElementById('calc-equip');
     equipSel.innerHTML = '<option value="">— nenhum —</option>' + CFG.equip.map((e,i)=>`<option value="${i}">${escapeHtml(e.name)} (${fmtMoney(equipHourlyRate(e))}/h)</option>`).join('');
     const materialSel = document.getElementById('calc-material');
     materialSel.innerHTML = '<option value="">— nenhum —</option>' + CFG.materials.map((m,i)=>`<option value="${i}">${escapeHtml(m.name)} (${fmtMoney(materialUnitCost(m))}/g)</option>`).join('');
+    const bambuIdx = CFG.equip.findIndex(e=>/bambu/i.test(e.name||''));
+    if(bambuIdx>=0) equipSel.value=String(bambuIdx);
+    const plaIdx = CFG.materials.findIndex(m=>/^pla\b/i.test((m.name||'').trim()));
+    if(plaIdx>=0) materialSel.value=String(plaIdx);
     const shippingSel = document.getElementById('calc-shipping');
     shippingSel.innerHTML = '<option value="">— combinar com o cliente —</option>' + CFG.shipping.map((s,i)=>`<option value="${i}">${escapeHtml(s.name)} (${fmtMoney(s.value)})</option>`).join('');
     const extraSel = document.getElementById('calc-extra');
@@ -785,10 +819,6 @@
   }
 
   function computeCalc(){
-    const laborIdx = document.getElementById('calc-labor').value;
-    const laborHours = parseFloat(document.getElementById('calc-labor-hours').value)||0;
-    const laborCost = laborIdx !== '' ? laborHourlyRate(CFG.labor[laborIdx]) * laborHours : 0;
-
     const equipIdx = document.getElementById('calc-equip').value;
     const equipHours = parseFloat(document.getElementById('calc-equip-hours').value)||0;
     const equipCost = equipIdx !== '' ? equipHourlyRate(CFG.equip[equipIdx]) * equipHours : 0;
@@ -802,10 +832,10 @@
 
     const extrasCost = calcExtrasCart.reduce((s,x)=>s+x.qty*x.unitValue, 0);
 
-    // custo fixo alocado às horas de mão de obra deste job (mesma lógica da planilha original)
-    const fixedCost = fixedHourlyRate() * laborHours;
+    // sem mão de obra na calculadora, os custos fixos são alocados pelo tempo de produção da máquina
+    const fixedCost = fixedHourlyRate() * equipHours;
 
-    const custosTotal = laborCost + equipCost + materialCost + shippingCost + extrasCost + fixedCost;
+    const custosTotal = equipCost + materialCost + shippingCost + extrasCost + fixedCost;
 
     const qtyPieces = Math.max(1, parseFloat(document.getElementById('calc-qty-pieces').value)||1);
     const margin = parseFloat(document.getElementById('calc-margin').value)||0;
@@ -818,13 +848,12 @@
     const lucro = valorFinal - tributoValor - custosTotal;
     const precoPorPeca = valorFinal / qtyPieces;
 
-    return { laborCost, equipCost, materialCost, shippingCost, extrasCost, fixedCost, custosTotal, valorFinal, tributoValor, lucro, precoPorPeca, qtyPieces };
+    return { equipCost, materialCost, shippingCost, extrasCost, fixedCost, custosTotal, valorFinal, tributoValor, lucro, precoPorPeca, qtyPieces };
   }
 
   function updateCalcSummary(){
     const r = computeCalc();
     document.getElementById('calc-summary').innerHTML = `
-      <div class="summary-row"><span>Mão de obra</span><span>${fmtMoney(r.laborCost)}</span></div>
       <div class="summary-row"><span>Equipamento</span><span>${fmtMoney(r.equipCost)}</span></div>
       <div class="summary-row"><span>Material</span><span>${fmtMoney(r.materialCost)}</span></div>
       <div class="summary-row"><span>Custo fixo alocado</span><span>${fmtMoney(r.fixedCost)}</span></div>
@@ -837,7 +866,7 @@
       <div class="summary-row big" style="color:var(--violet);"><span>Preço por peça</span><span>${fmtMoney(r.precoPorPeca)}</span></div>
     `;
   }
-  ['calc-labor','calc-labor-hours','calc-equip','calc-equip-hours','calc-material','calc-material-qty','calc-shipping','calc-qty-pieces','calc-margin','calc-tax','calc-safety'].forEach(id=>{
+  ['calc-equip','calc-equip-hours','calc-material','calc-material-qty','calc-shipping','calc-qty-pieces','calc-margin','calc-tax','calc-safety'].forEach(id=>{
     document.getElementById(id).addEventListener('input', updateCalcSummary);
     document.getElementById(id).addEventListener('change', updateCalcSummary);
   });
@@ -995,6 +1024,7 @@
       if(o2) o2.convertedToPedido = true;
       await setJSON('orcamentos', ORCAMENTOS);
       renderOrcamentos();
+      renderRecebimentos();
       alert(`Pronto! Criado o pedido ${id} na Fila de Produção. Você pode ajustar a data de entrega por lá.`);
     }));
     document.querySelectorAll('[data-del-orc]').forEach(b=>b.addEventListener('click', async ()=>{
@@ -1159,6 +1189,65 @@
     renderPedidosKanban();
     renderPedidosList();
   }
+
+  // ============================================================
+  // RECEBIMENTOS
+  // ============================================================
+  const RECEIPT_CHANNELS=['Mercado Livre','Instagram','WhatsApp','Venda presencial','Shopee','Consignação','Outro'];
+  function receiptNet(r){ return Math.max(0,Number(r.value||0)-Number(r.fee||0)); }
+  function monthKey(date){ return (date||todayISO()).slice(0,7); }
+  function monthLabel(key){ const [y,m]=key.split('-'); return new Intl.DateTimeFormat('pt-BR',{month:'long',year:'numeric'}).format(new Date(Number(y),Number(m)-1,1)); }
+  function receivedForOrder(orderId){ return RECEBIMENTOS.filter(r=>r.orderId===orderId&&r.status==='Recebido').reduce((s,r)=>s+Number(r.value||0),0); }
+  async function updateOrderPaidStatus(orderId){
+    if(!orderId)return; PEDIDOS=await getJSON('producao_pedidos',PEDIDOS); const p=PEDIDOS.find(x=>x.id===orderId);
+    if(p&&receivedForOrder(orderId)>=Number(p.value||0)){p.status='Pago';await setJSON('producao_pedidos',PEDIDOS);renderPedidos();}
+  }
+  function populateReceiptOrders(){
+    const sel=document.getElementById('rec-order'); if(!sel) return;
+    sel.innerHTML='<option value="">Recebimento avulso</option>'+PEDIDOS.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(p=>{
+      const paid=receivedForOrder(p.id), remaining=Math.max(0,Number(p.value||0)-paid);
+      return `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} · ${escapeHtml(p.client||p.desc)} · ${remaining>0?'restam '+fmtMoney(remaining):'quitado'}</option>`;
+    }).join('');
+  }
+  document.getElementById('rec-order').addEventListener('change',e=>{
+    const p=PEDIDOS.find(x=>x.id===e.target.value); if(!p) return;
+    document.getElementById('rec-client').value=p.client||''; document.getElementById('rec-description').value=p.desc||''; document.getElementById('rec-delivery').value=p.deliveryDate||'';
+    const remaining=Math.max(0,Number(p.value||0)-receivedForOrder(p.id)); document.getElementById('rec-value').value=(remaining||Number(p.value)||0).toFixed(2);
+  });
+  document.getElementById('rec-add-btn').addEventListener('click',async()=>{
+    const value=parseFloat(document.getElementById('rec-value').value), fee=parseFloat(document.getElementById('rec-fee').value)||0, msg=document.getElementById('rec-msg');
+    if(isNaN(value)||value<=0){msg.innerHTML='<div class="msg err">Informe um valor de recebimento válido.</div>';return;}
+    const orderId=document.getElementById('rec-order').value||null;
+    RECEBIMENTOS=await getJSON('empresa_recebimentos',RECEBIMENTOS); const id=nextSeqId(RECEBIMENTOS,'REC');
+    const rec={id,date:document.getElementById('rec-date').value||todayISO(),createdAt:new Date().toISOString(),value,fee,status:document.getElementById('rec-status').value,payment:document.getElementById('rec-payment').value,channel:document.getElementById('rec-channel').value,client:document.getElementById('rec-client').value.trim(),description:document.getElementById('rec-description').value.trim(),deliveryDate:document.getElementById('rec-delivery').value||null,notes:document.getElementById('rec-notes').value.trim(),orderId};
+    RECEBIMENTOS.push(rec); await setJSON('empresa_recebimentos',RECEBIMENTOS);
+    if(orderId&&rec.status==='Recebido') await updateOrderPaidStatus(orderId);
+    ['rec-client','rec-description','rec-delivery','rec-value','rec-notes'].forEach(id=>document.getElementById(id).value=''); document.getElementById('rec-order').value='';document.getElementById('rec-fee').value='0';document.getElementById('rec-date').value=todayISO();
+    msg.innerHTML='<div class="msg ok">Recebimento registrado com sucesso.</div>';renderRecebimentos();
+  });
+  function filteredReceipts(){
+    const channel=document.getElementById('rec-filter-channel').value,status=document.getElementById('rec-filter-status').value,q=document.getElementById('rec-search').value.trim().toLowerCase();
+    return RECEBIMENTOS.filter(r=>(!channel||r.channel===channel)&&(!status||r.status===status)&&(!q||[r.client,r.description,r.orderId,r.id,r.notes].filter(Boolean).join(' ').toLowerCase().includes(q)));
+  }
+  function renderReceiptKpis(){
+    const current=monthKey(todayISO()), rows=RECEBIMENTOS.filter(r=>monthKey(r.date)===current), received=rows.filter(r=>r.status==='Recebido'), pending=rows.filter(r=>r.status==='Pendente');
+    const gross=received.reduce((s,r)=>s+Number(r.value||0),0),fees=received.reduce((s,r)=>s+Number(r.fee||0),0),net=received.reduce((s,r)=>s+receiptNet(r),0),pendingTotal=pending.reduce((s,r)=>s+Number(r.value||0),0);
+    document.getElementById('rec-kpis').innerHTML=`<div class="finance-kpi green"><span class="label">Recebido no mês</span><strong>${fmtMoney(gross)}</strong><small>${received.length} lançamento${received.length===1?'':'s'}</small></div><div class="finance-kpi"><span class="label">Líquido no mês</span><strong>${fmtMoney(net)}</strong><small>após ${fmtMoney(fees)} em taxas</small></div><div class="finance-kpi coral"><span class="label">Pendente no mês</span><strong>${fmtMoney(pendingTotal)}</strong><small>${pending.length} lançamento${pending.length===1?'':'s'}</small></div><div class="finance-kpi"><span class="label">Ticket médio</span><strong>${fmtMoney(received.length?gross/received.length:0)}</strong><small>por recebimento confirmado</small></div>`;
+  }
+  function renderReceiptMonths(){
+    const rows=filteredReceipts().slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||'').localeCompare(a.createdAt||''));
+    const current=monthKey(todayISO()), groups=new Map([[current,[]]]); rows.forEach(r=>{const k=monthKey(r.date);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(r);});
+    const keys=[current,...[...groups.keys()].filter(k=>k!==current).sort((a,b)=>b.localeCompare(a))];
+    document.getElementById('rec-months').innerHTML=keys.map(key=>{const items=groups.get(key),confirmed=items.filter(r=>r.status==='Recebido'),gross=confirmed.reduce((s,r)=>s+Number(r.value||0),0),net=confirmed.reduce((s,r)=>s+receiptNet(r),0),pending=items.filter(r=>r.status==='Pendente').reduce((s,r)=>s+Number(r.value||0),0);return `<div class="month-group"><div class="month-head"><h3>${monthLabel(key)}${key===current?' · mês atual':''}</h3><div class="month-totals"><span>Recebido: <strong>${fmtMoney(gross)}</strong></span><span>Líquido: <strong>${fmtMoney(net)}</strong></span>${pending?`<span>Pendente: <strong style="color:var(--coral);">${fmtMoney(pending)}</strong></span>`:''}</div></div>${items.length?items.map(r=>`<div class="receipt-row"><span>${fmtDate(r.date)}</span><div class="receipt-main"><strong>${escapeHtml(r.client||'Venda avulsa')}</strong><small>${escapeHtml(r.description||r.orderId||r.id)}${r.deliveryDate?' · entrega '+fmtDate(r.deliveryDate):''}</small></div><span class="mobile-hide">${escapeHtml(r.channel)}<br><small style="color:var(--muted);">${escapeHtml(r.payment)}</small></span><span class="tag ${r.status==='Recebido'?'pago':r.status==='Pendente'?'pendente':'producao'} mobile-hide">${escapeHtml(r.status)}</span><div><div class="receipt-value">${fmtMoney(r.value)}</div>${Number(r.fee)>0?`<div class="receipt-net">líquido ${fmtMoney(receiptNet(r))}</div>`:''}</div><div class="actions">${r.status==='Pendente'?`<button data-confirm-rec="${r.id}">Confirmar</button>`:''}<button data-del-rec="${r.id}">Remover</button></div></div>`).join(''):'<div class="empty">Nenhum recebimento lançado neste mês.</div>'}</div>`;}).join('');
+    document.querySelectorAll('[data-confirm-rec]').forEach(b=>b.addEventListener('click',async()=>{RECEBIMENTOS=await getJSON('empresa_recebimentos',RECEBIMENTOS);const r=RECEBIMENTOS.find(x=>x.id===b.dataset.confirmRec);if(r){r.status='Recebido';await setJSON('empresa_recebimentos',RECEBIMENTOS);await updateOrderPaidStatus(r.orderId);renderRecebimentos();}}));
+    document.querySelectorAll('[data-del-rec]').forEach(b=>b.addEventListener('click',async()=>{if(!confirm('Remover este lançamento financeiro?'))return;RECEBIMENTOS=await getJSON('empresa_recebimentos',RECEBIMENTOS);RECEBIMENTOS=RECEBIMENTOS.filter(r=>r.id!==b.dataset.delRec);await setJSON('empresa_recebimentos',RECEBIMENTOS);renderRecebimentos();}));
+  }
+  function renderRecebimentos(){
+    const date=document.getElementById('rec-date');if(date&&!date.value)date.value=todayISO();populateReceiptOrders();
+    const channelFilter=document.getElementById('rec-filter-channel');if(channelFilter&&channelFilter.options.length===1)channelFilter.innerHTML='<option value="">Todos</option>'+RECEIPT_CHANNELS.map(c=>`<option>${c}</option>`).join('');
+    renderReceiptKpis();renderReceiptMonths();
+  }
+  ['rec-filter-channel','rec-filter-status'].forEach(id=>document.getElementById(id).addEventListener('change',renderReceiptMonths));document.getElementById('rec-search').addEventListener('input',renderReceiptMonths);
 
   // ---------- tema claro/escuro compartilhado com o portal de produtos ----------
   const THEME_KEY = 'hl_theme';
