@@ -127,6 +127,10 @@
   #app-root .month-totals{display:flex;gap:16px;font-size:11px;color:var(--muted);flex-wrap:wrap;}
   #app-root .receipt-row{display:grid;grid-template-columns:90px minmax(150px,1.4fr) minmax(120px,1fr) 110px 110px auto;gap:10px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);font-size:12px;}
   #app-root .receipt-row:last-child{border-bottom:none;}
+  #app-root .client-rank{display:grid;grid-template-columns:42px minmax(150px,1.5fr) repeat(4,minmax(95px,1fr));gap:10px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);font-size:12px;}
+  #app-root .client-rank:last-child{border-bottom:none;}
+  #app-root .client-rank.head{font:10px 'IBM Plex Mono',monospace;text-transform:uppercase;color:var(--muted);background:var(--soft);}
+  #app-root .rank-number{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--soft);font-weight:700;}
   #app-root .receipt-main strong{display:block;}.receipt-main small{color:var(--muted);}
   #app-root .receipt-value{font:700 14px 'Space Grotesk',sans-serif;text-align:right;}
   #app-root .receipt-net{font-size:10px;color:var(--muted);text-align:right;}
@@ -141,6 +145,8 @@
     #app-root .finance-kpis{grid-template-columns:repeat(2,1fr);}
     #app-root .receipt-row{grid-template-columns:80px 1fr auto;}
     #app-root .receipt-row .mobile-hide{display:none;}
+    #app-root .client-rank{grid-template-columns:34px 1fr auto;}
+    #app-root .client-rank .mobile-hide{display:none;}
   }
 </style>
 </head>
@@ -171,7 +177,7 @@
         <button data-view="calculadora" class="active">Calculadora</button>
         <button data-view="orcamentos">Orçamentos</button>
         <button data-view="pedidos">Fila de Pedidos</button>
-        <button data-view="recebimentos">Recebimentos</button>
+        <button data-view="recebimentos">Financeiro</button>
         <button data-view="config">Configurações</button>
       </nav>
       <div style="display:flex;gap:7px;align-items:center;"><button type="button" id="theme-toggle-btn" title="Alternar tema claro/escuro">🌙</button><button class="btn secondary small" id="logout-btn">🚪 Sair</button></div>
@@ -305,18 +311,22 @@
         </div>
       </div>
 
-      <!-- ============ RECEBIMENTOS ============ -->
+      <!-- ============ FLUXO DE CAIXA ============ -->
       <div class="view" data-view="recebimentos" style="display:none;">
-        <div class="panel quote-hero"><div class="quote-hero-inner"><div><div class="quote-eyebrow">Controle financeiro</div><h2>Recebimentos da empresa</h2><p class="hint">Acompanhe entradas, taxas, valores líquidos e vendas por canal, com integração aos pedidos aprovados.</p></div><div style="font-size:38px;">💰</div></div></div>
+        <div class="panel quote-hero"><div class="quote-hero-inner"><div><div class="quote-eyebrow">Controle financeiro</div><h2>Entradas e saídas da empresa</h2><p class="hint">Acompanhe vendas, impostos, filamentos, insumos e demais movimentações, com visão mensal do saldo.</p></div><div style="font-size:38px;">📊</div></div></div>
         <div class="finance-kpis" id="rec-kpis"></div>
         <div class="panel">
-          <h3>Novo lançamento</h3><p class="hint">A data de hoje é preenchida automaticamente. Vincule um pedido aprovado para completar cliente, descrição, valor e entrega.</p>
-          <div class="row"><div class="field" style="flex:2;"><label>Pedido / orçamento vinculado</label><select id="rec-order"><option value="">Recebimento avulso</option></select></div><div class="field"><label>Data do recebimento</label><input id="rec-date" type="date"></div><div class="field"><label>Situação</label><select id="rec-status"><option>Recebido</option><option>Pendente</option><option>Estornado</option></select></div></div>
-          <div class="row"><div class="field"><label>Cliente</label><input id="rec-client" placeholder="Nome do cliente"></div><div class="field" style="flex:2;"><label>Descrição</label><input id="rec-description" placeholder="Produto, serviço ou referência"></div><div class="field"><label>Entrega prevista</label><input id="rec-delivery" type="date"></div></div>
-          <div class="row"><div class="field"><label>Valor bruto (R$) *</label><input id="rec-value" type="number" min="0" step="0.01" placeholder="0,00"></div><div class="field"><label>Taxa/desconto (R$)</label><input id="rec-fee" type="number" min="0" step="0.01" value="0"></div><div class="field"><label>Forma de pagamento</label><select id="rec-payment"><option>PIX</option><option>Dinheiro</option><option>Cartão de débito</option><option>Cartão de crédito</option><option>Transferência</option><option>Saldo de marketplace</option><option>Boleto</option><option>Outro</option></select></div><div class="field"><label>Canal da venda</label><select id="rec-channel"><option>Mercado Livre</option><option>Instagram</option><option>WhatsApp</option><option>Venda presencial</option><option>Shopee</option><option>Consignação</option><option>Outro</option></select></div></div>
-          <div class="row"><div class="field"><label>Observações</label><input id="rec-notes" placeholder="Parcela, comprovante, detalhe da venda..."></div><div class="field" style="flex:0;align-self:flex-end;"><button class="btn" id="rec-add-btn" type="button">+ Registrar recebimento</button></div></div><div id="rec-msg"></div>
+          <h3>Novo lançamento</h3><p class="hint">A data de hoje é preenchida automaticamente. Entradas podem ser vinculadas a pedidos; saídas ficam classificadas por tipo de despesa.</p>
+          <div class="row"><div class="field"><label>Movimentação</label><select id="rec-type"><option>Entrada</option><option>Saída</option></select></div><div class="field"><label>Categoria</label><select id="rec-category"></select></div><div class="field" style="flex:2;" id="rec-order-wrap"><label>Pedido / orçamento vinculado</label><select id="rec-order"><option value="">Entrada avulsa</option></select></div><div class="field"><label>Data</label><input id="rec-date" type="date"></div><div class="field"><label>Situação</label><select id="rec-status"></select></div></div>
+          <div class="row"><div class="field"><label id="rec-party-label">Cliente</label><input id="rec-client" list="rec-client-list" placeholder="Digite ou selecione um cliente"><datalist id="rec-client-list"></datalist></div><div class="field" style="flex:2;"><label>Produto / descrição</label><input id="rec-description" placeholder="Produto, compra, imposto ou referência"></div><div class="field" id="rec-product-qty-wrap"><label>Quantidade</label><input id="rec-product-qty" type="number" min="1" step="1" value="1"></div><div class="field" id="rec-delivery-wrap"><label>Entrega prevista</label><input id="rec-delivery" type="date"></div></div>
+          <div class="row"><div class="field"><label>Valor (R$) *</label><input id="rec-value" type="number" min="0" step="0.01" placeholder="0,00"></div><div class="field" id="rec-fee-wrap"><label>Taxa/desconto (R$)</label><input id="rec-fee" type="number" min="0" step="0.01" value="0"></div><div class="field" id="rec-cost-wrap"><label>Custo da venda (R$)</label><input id="rec-cost" type="number" min="0" step="0.01" placeholder="Opcional"></div><div class="field"><label>Forma de pagamento</label><select id="rec-payment"><option>PIX</option><option>Dinheiro</option><option>Cartão de débito</option><option>Cartão de crédito</option><option>Transferência</option><option>Saldo de marketplace</option><option>Boleto</option><option>Débito automático</option><option>Outro</option></select></div><div class="field"><label>Canal / destino</label><select id="rec-channel"></select></div></div>
+          <div class="row"><div class="field"><label>Observações</label><input id="rec-notes" placeholder="Parcela, comprovante, fornecedor ou detalhe..."></div><div class="field" style="flex:0;align-self:flex-end;"><button class="btn" id="rec-add-btn" type="button">+ Registrar lançamento</button></div></div><div id="rec-msg"></div>
         </div>
-        <div class="panel"><div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;"><div><h3 style="margin-bottom:4px;">Histórico mensal</h3><p class="hint" style="margin:0;">O mês atual aparece primeiro. Valores recebidos consideram apenas lançamentos confirmados.</p></div><div class="row" style="margin:0;"><div class="field"><label>Canal</label><select id="rec-filter-channel"><option value="">Todos</option></select></div><div class="field"><label>Situação</label><select id="rec-filter-status"><option value="">Todas</option><option>Recebido</option><option>Pendente</option><option>Estornado</option></select></div><div class="field"><label>Pesquisar</label><input id="rec-search" placeholder="Cliente, pedido, descrição..."></div></div></div></div>
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;"><div><h3 style="margin-bottom:4px;">Clientes e desempenho</h3><p class="hint" style="margin:0;">Clientes são salvos automaticamente pelo nome. O ranking considera apenas entradas recebidas.</p></div><div class="row" style="margin:0;"><div class="field"><label>Período</label><select id="client-period"><option value="all">Todo o histórico</option><option value="12">Últimos 12 meses</option><option value="6">Últimos 6 meses</option><option value="3">Últimos 3 meses</option><option value="current">Mês atual</option></select></div><div class="field"><label>Pesquisar cliente</label><input id="client-search" placeholder="Nome do cliente..."></div></div></div>
+          <div id="client-summary" class="summary-box" style="margin-top:14px;"></div><div id="client-ranking" style="margin-top:14px;border:1px solid var(--line);border-radius:10px;overflow:hidden;"></div>
+        </div>
+        <div class="panel"><div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;"><div><h3 style="margin-bottom:4px;">Fluxo de caixa mensal</h3><p class="hint" style="margin:0;">O mês atual aparece primeiro. O saldo considera apenas entradas recebidas e saídas pagas.</p></div><div class="row" style="margin:0;"><div class="field"><label>Tipo</label><select id="rec-filter-type"><option value="">Todos</option><option>Entrada</option><option>Saída</option></select></div><div class="field"><label>Categoria</label><select id="rec-filter-category"><option value="">Todas</option></select></div><div class="field"><label>Canal / destino</label><select id="rec-filter-channel"><option value="">Todos</option></select></div><div class="field"><label>Situação</label><select id="rec-filter-status"><option value="">Todas</option><option>Recebido</option><option>Pago</option><option>Pendente</option><option>Estornado</option><option>Cancelado</option></select></div><div class="field"><label>Pesquisar</label><input id="rec-search" placeholder="Cliente, fornecedor, categoria..."></div></div></div></div>
         <div id="rec-months"></div>
       </div>
 
@@ -469,6 +479,7 @@
   let PEDIDOS = [];
   let PRODUCTS = [];
   let RECEBIMENTOS = [];
+  let CLIENTES = [];
   let calcExtrasCart = [];
   let orcItemsCart = [];
 
@@ -484,6 +495,7 @@
     PEDIDOS = await getJSON('producao_pedidos', []);
     PRODUCTS = await getJSON('products', []);
     RECEBIMENTOS = await getJSON('empresa_recebimentos', []);
+    CLIENTES = await getJSON('empresa_clientes', []);
     EMPRESA = await getJSON('empresa_config', EMPRESA);
   }
 
@@ -1193,18 +1205,34 @@
   // ============================================================
   // RECEBIMENTOS
   // ============================================================
-  const RECEIPT_CHANNELS=['Mercado Livre','Instagram','WhatsApp','Venda presencial','Shopee','Consignação','Outro'];
-  function receiptNet(r){ return Math.max(0,Number(r.value||0)-Number(r.fee||0)); }
+  const RECEIPT_CHANNELS=['Mercado Livre','Instagram','WhatsApp','Venda presencial','Shopee','Consignação','Fornecedor','Receita Federal / impostos','Banco','Plataforma / serviço','Outro'];
+  const ENTRY_CATEGORIES=['Venda','Aporte','Reembolso','Outros'];
+  const EXIT_CATEGORIES=['Impostos','Filamentos','Insumos','Embalagens','Fretes','Equipamentos / manutenção','Marketing / plataformas','Serviços','Retirada pessoal','Outros'];
+  const transactionType=r=>r.type==='Saída'?'Saída':'Entrada';
+  const isConfirmed=r=>transactionType(r)==='Entrada'?r.status==='Recebido':r.status==='Pago';
+  function receiptNet(r){ return transactionType(r)==='Entrada'?Math.max(0,Number(r.value||0)-Number(r.fee||0)):Number(r.value||0); }
+  function clientKey(name){ return (name||'').trim().toLocaleLowerCase('pt-BR').replace(/\s+/g,' '); }
+  function productKey(name){ return (name||'Produto não informado').trim().toLocaleLowerCase('pt-BR').replace(/\s+/g,' '); }
+  async function saveClientName(name){
+    name=(name||'').trim(); if(!name)return;
+    CLIENTES=await getJSON('empresa_clientes',CLIENTES); const key=clientKey(name),found=CLIENTES.find(c=>clientKey(c.name)===key);
+    if(found){found.name=name;found.updatedAt=new Date().toISOString();}else CLIENTES.push({id:nextSeqId(CLIENTES,'CLI'),name,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});
+    await setJSON('empresa_clientes',CLIENTES);populateClientList();
+  }
+  function populateClientList(){
+    const names=new Map(); CLIENTES.forEach(c=>{if(c.name)names.set(clientKey(c.name),c.name)}); RECEBIMENTOS.filter(r=>transactionType(r)==='Entrada'&&r.client).forEach(r=>names.set(clientKey(r.client),r.client));
+    document.getElementById('rec-client-list').innerHTML=[...names.values()].sort((a,b)=>a.localeCompare(b,'pt-BR')).map(n=>`<option value="${escapeHtml(n)}"></option>`).join('');
+  }
   function monthKey(date){ return (date||todayISO()).slice(0,7); }
   function monthLabel(key){ const [y,m]=key.split('-'); return new Intl.DateTimeFormat('pt-BR',{month:'long',year:'numeric'}).format(new Date(Number(y),Number(m)-1,1)); }
-  function receivedForOrder(orderId){ return RECEBIMENTOS.filter(r=>r.orderId===orderId&&r.status==='Recebido').reduce((s,r)=>s+Number(r.value||0),0); }
+  function receivedForOrder(orderId){ return RECEBIMENTOS.filter(r=>transactionType(r)==='Entrada'&&r.orderId===orderId&&r.status==='Recebido').reduce((s,r)=>s+Number(r.value||0),0); }
   async function updateOrderPaidStatus(orderId){
     if(!orderId)return; PEDIDOS=await getJSON('producao_pedidos',PEDIDOS); const p=PEDIDOS.find(x=>x.id===orderId);
     if(p&&receivedForOrder(orderId)>=Number(p.value||0)){p.status='Pago';await setJSON('producao_pedidos',PEDIDOS);renderPedidos();}
   }
   function populateReceiptOrders(){
     const sel=document.getElementById('rec-order'); if(!sel) return;
-    sel.innerHTML='<option value="">Recebimento avulso</option>'+PEDIDOS.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(p=>{
+    sel.innerHTML='<option value="">Entrada avulsa</option>'+PEDIDOS.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(p=>{
       const paid=receivedForOrder(p.id), remaining=Math.max(0,Number(p.value||0)-paid);
       return `<option value="${escapeHtml(p.id)}">${escapeHtml(p.id)} · ${escapeHtml(p.client||p.desc)} · ${remaining>0?'restam '+fmtMoney(remaining):'quitado'}</option>`;
     }).join('');
@@ -1214,40 +1242,68 @@
     document.getElementById('rec-client').value=p.client||''; document.getElementById('rec-description').value=p.desc||''; document.getElementById('rec-delivery').value=p.deliveryDate||'';
     const remaining=Math.max(0,Number(p.value||0)-receivedForOrder(p.id)); document.getElementById('rec-value').value=(remaining||Number(p.value)||0).toFixed(2);
   });
+  function updateTransactionForm(){
+    const type=document.getElementById('rec-type').value,exit=type==='Saída',categories=exit?EXIT_CATEGORIES:ENTRY_CATEGORIES;
+    document.getElementById('rec-category').innerHTML=categories.map(c=>`<option>${c}</option>`).join('');
+    document.getElementById('rec-status').innerHTML=(exit?['Pago','Pendente','Cancelado']:['Recebido','Pendente','Estornado']).map(s=>`<option>${s}</option>`).join('');
+    document.getElementById('rec-order-wrap').style.display=exit?'none':''; document.getElementById('rec-delivery-wrap').style.display=exit?'none':''; document.getElementById('rec-product-qty-wrap').style.display=exit?'none':''; document.getElementById('rec-fee-wrap').style.display=exit?'none':''; document.getElementById('rec-cost-wrap').style.display=exit?'none':'';
+    document.getElementById('rec-party-label').textContent=exit?'Fornecedor / favorecido':'Cliente'; document.getElementById('rec-client').placeholder=exit?'Nome do fornecedor ou favorecido':'Nome do cliente';
+    if(exit){document.getElementById('rec-order').value='';document.getElementById('rec-product-qty').value='1';document.getElementById('rec-fee').value='0';document.getElementById('rec-cost').value='';document.getElementById('rec-delivery').value='';}
+  }
+  document.getElementById('rec-type').addEventListener('change',updateTransactionForm);
   document.getElementById('rec-add-btn').addEventListener('click',async()=>{
-    const value=parseFloat(document.getElementById('rec-value').value), fee=parseFloat(document.getElementById('rec-fee').value)||0, msg=document.getElementById('rec-msg');
-    if(isNaN(value)||value<=0){msg.innerHTML='<div class="msg err">Informe um valor de recebimento válido.</div>';return;}
-    const orderId=document.getElementById('rec-order').value||null;
+    const type=document.getElementById('rec-type').value,value=parseFloat(document.getElementById('rec-value').value), fee=type==='Entrada'?(parseFloat(document.getElementById('rec-fee').value)||0):0,costRaw=document.getElementById('rec-cost').value,cost=type==='Entrada'&&costRaw!==''?Math.max(0,parseFloat(costRaw)||0):null,msg=document.getElementById('rec-msg');
+    if(isNaN(value)||value<=0){msg.innerHTML='<div class="msg err">Informe um valor válido.</div>';return;}
+    const orderId=type==='Entrada'?(document.getElementById('rec-order').value||null):null;
     RECEBIMENTOS=await getJSON('empresa_recebimentos',RECEBIMENTOS); const id=nextSeqId(RECEBIMENTOS,'REC');
-    const rec={id,date:document.getElementById('rec-date').value||todayISO(),createdAt:new Date().toISOString(),value,fee,status:document.getElementById('rec-status').value,payment:document.getElementById('rec-payment').value,channel:document.getElementById('rec-channel').value,client:document.getElementById('rec-client').value.trim(),description:document.getElementById('rec-description').value.trim(),deliveryDate:document.getElementById('rec-delivery').value||null,notes:document.getElementById('rec-notes').value.trim(),orderId};
+    const rec={id,type,category:document.getElementById('rec-category').value,date:document.getElementById('rec-date').value||todayISO(),createdAt:new Date().toISOString(),value,fee,cost,productQty:type==='Entrada'?Math.max(1,parseInt(document.getElementById('rec-product-qty').value,10)||1):null,status:document.getElementById('rec-status').value,payment:document.getElementById('rec-payment').value,channel:document.getElementById('rec-channel').value,client:document.getElementById('rec-client').value.trim(),description:document.getElementById('rec-description').value.trim(),deliveryDate:type==='Entrada'?(document.getElementById('rec-delivery').value||null):null,notes:document.getElementById('rec-notes').value.trim(),orderId};
     RECEBIMENTOS.push(rec); await setJSON('empresa_recebimentos',RECEBIMENTOS);
+    if(type==='Entrada'&&rec.client)await saveClientName(rec.client);
     if(orderId&&rec.status==='Recebido') await updateOrderPaidStatus(orderId);
-    ['rec-client','rec-description','rec-delivery','rec-value','rec-notes'].forEach(id=>document.getElementById(id).value=''); document.getElementById('rec-order').value='';document.getElementById('rec-fee').value='0';document.getElementById('rec-date').value=todayISO();
-    msg.innerHTML='<div class="msg ok">Recebimento registrado com sucesso.</div>';renderRecebimentos();
+    ['rec-client','rec-description','rec-delivery','rec-value','rec-cost','rec-notes'].forEach(id=>document.getElementById(id).value=''); document.getElementById('rec-order').value='';document.getElementById('rec-product-qty').value='1';document.getElementById('rec-fee').value='0';document.getElementById('rec-date').value=todayISO();
+    msg.innerHTML=`<div class="msg ok">${type} registrada com sucesso.</div>`;renderRecebimentos();
   });
   function filteredReceipts(){
-    const channel=document.getElementById('rec-filter-channel').value,status=document.getElementById('rec-filter-status').value,q=document.getElementById('rec-search').value.trim().toLowerCase();
-    return RECEBIMENTOS.filter(r=>(!channel||r.channel===channel)&&(!status||r.status===status)&&(!q||[r.client,r.description,r.orderId,r.id,r.notes].filter(Boolean).join(' ').toLowerCase().includes(q)));
+    const type=document.getElementById('rec-filter-type').value,category=document.getElementById('rec-filter-category').value,channel=document.getElementById('rec-filter-channel').value,status=document.getElementById('rec-filter-status').value,q=document.getElementById('rec-search').value.trim().toLowerCase();
+    return RECEBIMENTOS.filter(r=>(!type||transactionType(r)===type)&&(!category||(r.category||(transactionType(r)==='Entrada'?'Venda':'Outros'))===category)&&(!channel||r.channel===channel)&&(!status||r.status===status)&&(!q||[r.client,r.description,r.category,transactionType(r),r.orderId,r.id,r.notes].filter(Boolean).join(' ').toLowerCase().includes(q)));
   }
   function renderReceiptKpis(){
-    const current=monthKey(todayISO()), rows=RECEBIMENTOS.filter(r=>monthKey(r.date)===current), received=rows.filter(r=>r.status==='Recebido'), pending=rows.filter(r=>r.status==='Pendente');
-    const gross=received.reduce((s,r)=>s+Number(r.value||0),0),fees=received.reduce((s,r)=>s+Number(r.fee||0),0),net=received.reduce((s,r)=>s+receiptNet(r),0),pendingTotal=pending.reduce((s,r)=>s+Number(r.value||0),0);
-    document.getElementById('rec-kpis').innerHTML=`<div class="finance-kpi green"><span class="label">Recebido no mês</span><strong>${fmtMoney(gross)}</strong><small>${received.length} lançamento${received.length===1?'':'s'}</small></div><div class="finance-kpi"><span class="label">Líquido no mês</span><strong>${fmtMoney(net)}</strong><small>após ${fmtMoney(fees)} em taxas</small></div><div class="finance-kpi coral"><span class="label">Pendente no mês</span><strong>${fmtMoney(pendingTotal)}</strong><small>${pending.length} lançamento${pending.length===1?'':'s'}</small></div><div class="finance-kpi"><span class="label">Ticket médio</span><strong>${fmtMoney(received.length?gross/received.length:0)}</strong><small>por recebimento confirmado</small></div>`;
+    const current=monthKey(todayISO()),rows=RECEBIMENTOS.filter(r=>monthKey(r.date)===current),entries=rows.filter(r=>transactionType(r)==='Entrada'&&isConfirmed(r)),exits=rows.filter(r=>transactionType(r)==='Saída'&&isConfirmed(r)),pending=rows.filter(r=>r.status==='Pendente');
+    const income=entries.reduce((s,r)=>s+receiptNet(r),0),expenses=exits.reduce((s,r)=>s+Number(r.value||0),0),pendingTotal=pending.reduce((s,r)=>s+Number(r.value||0),0);
+    document.getElementById('rec-kpis').innerHTML=`<div class="finance-kpi green"><span class="label">Entradas no mês</span><strong>${fmtMoney(income)}</strong><small>${entries.length} confirmada${entries.length===1?'':'s'}</small></div><div class="finance-kpi coral"><span class="label">Saídas no mês</span><strong>${fmtMoney(expenses)}</strong><small>${exits.length} paga${exits.length===1?'':'s'}</small></div><div class="finance-kpi"><span class="label">Saldo do mês</span><strong style="color:${income-expenses<0?'var(--red)':'var(--green)'};">${fmtMoney(income-expenses)}</strong><small>entradas menos saídas</small></div><div class="finance-kpi"><span class="label">Pendentes</span><strong>${fmtMoney(pendingTotal)}</strong><small>${pending.length} lançamento${pending.length===1?'':'s'}</small></div>`;
   }
   function renderReceiptMonths(){
     const rows=filteredReceipts().slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||'').localeCompare(a.createdAt||''));
     const current=monthKey(todayISO()), groups=new Map([[current,[]]]); rows.forEach(r=>{const k=monthKey(r.date);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(r);});
     const keys=[current,...[...groups.keys()].filter(k=>k!==current).sort((a,b)=>b.localeCompare(a))];
-    document.getElementById('rec-months').innerHTML=keys.map(key=>{const items=groups.get(key),confirmed=items.filter(r=>r.status==='Recebido'),gross=confirmed.reduce((s,r)=>s+Number(r.value||0),0),net=confirmed.reduce((s,r)=>s+receiptNet(r),0),pending=items.filter(r=>r.status==='Pendente').reduce((s,r)=>s+Number(r.value||0),0);return `<div class="month-group"><div class="month-head"><h3>${monthLabel(key)}${key===current?' · mês atual':''}</h3><div class="month-totals"><span>Recebido: <strong>${fmtMoney(gross)}</strong></span><span>Líquido: <strong>${fmtMoney(net)}</strong></span>${pending?`<span>Pendente: <strong style="color:var(--coral);">${fmtMoney(pending)}</strong></span>`:''}</div></div>${items.length?items.map(r=>`<div class="receipt-row"><span>${fmtDate(r.date)}</span><div class="receipt-main"><strong>${escapeHtml(r.client||'Venda avulsa')}</strong><small>${escapeHtml(r.description||r.orderId||r.id)}${r.deliveryDate?' · entrega '+fmtDate(r.deliveryDate):''}</small></div><span class="mobile-hide">${escapeHtml(r.channel)}<br><small style="color:var(--muted);">${escapeHtml(r.payment)}</small></span><span class="tag ${r.status==='Recebido'?'pago':r.status==='Pendente'?'pendente':'producao'} mobile-hide">${escapeHtml(r.status)}</span><div><div class="receipt-value">${fmtMoney(r.value)}</div>${Number(r.fee)>0?`<div class="receipt-net">líquido ${fmtMoney(receiptNet(r))}</div>`:''}</div><div class="actions">${r.status==='Pendente'?`<button data-confirm-rec="${r.id}">Confirmar</button>`:''}<button data-del-rec="${r.id}">Remover</button></div></div>`).join(''):'<div class="empty">Nenhum recebimento lançado neste mês.</div>'}</div>`;}).join('');
-    document.querySelectorAll('[data-confirm-rec]').forEach(b=>b.addEventListener('click',async()=>{RECEBIMENTOS=await getJSON('empresa_recebimentos',RECEBIMENTOS);const r=RECEBIMENTOS.find(x=>x.id===b.dataset.confirmRec);if(r){r.status='Recebido';await setJSON('empresa_recebimentos',RECEBIMENTOS);await updateOrderPaidStatus(r.orderId);renderRecebimentos();}}));
+    document.getElementById('rec-months').innerHTML=keys.map(key=>{const items=groups.get(key),entries=items.filter(r=>transactionType(r)==='Entrada'&&isConfirmed(r)),exits=items.filter(r=>transactionType(r)==='Saída'&&isConfirmed(r)),income=entries.reduce((s,r)=>s+receiptNet(r),0),expenses=exits.reduce((s,r)=>s+Number(r.value||0),0),pending=items.filter(r=>r.status==='Pendente').reduce((s,r)=>s+Number(r.value||0),0);return `<div class="month-group"><div class="month-head"><h3>${monthLabel(key)}${key===current?' · mês atual':''}</h3><div class="month-totals"><span>Entradas: <strong style="color:var(--green);">${fmtMoney(income)}</strong></span><span>Saídas: <strong style="color:var(--red);">${fmtMoney(expenses)}</strong></span><span>Saldo: <strong>${fmtMoney(income-expenses)}</strong></span>${pending?`<span>Pendente: <strong style="color:var(--coral);">${fmtMoney(pending)}</strong></span>`:''}</div></div>${items.length?items.map(r=>{const type=transactionType(r),exit=type==='Saída',category=r.category||(exit?'Outros':'Venda');return `<div class="receipt-row"><span>${fmtDate(r.date)}</span><div class="receipt-main"><strong><span class="tag ${exit?'cancelado':'pago'}">${type}</span> ${escapeHtml(r.client||(exit?'Despesa avulsa':'Venda avulsa'))}</strong><small>${escapeHtml(category)} · ${escapeHtml(r.description||r.orderId||r.id)}${r.deliveryDate?' · entrega '+fmtDate(r.deliveryDate):''}</small></div><span class="mobile-hide">${escapeHtml(r.channel||'—')}<br><small style="color:var(--muted);">${escapeHtml(r.payment||'—')}</small></span><span class="tag ${isConfirmed(r)?'pago':r.status==='Pendente'?'pendente':'producao'} mobile-hide">${escapeHtml(r.status)}</span><div><div class="receipt-value" style="color:${exit?'var(--red)':'var(--green)'};">${exit?'−':'+'} ${fmtMoney(exit?r.value:receiptNet(r))}</div>${!exit&&Number(r.fee)>0?`<div class="receipt-net">bruto ${fmtMoney(r.value)} · taxa ${fmtMoney(r.fee)}</div>`:''}</div><div class="actions">${r.status==='Pendente'?`<button data-confirm-rec="${r.id}">Confirmar</button>`:''}<button data-del-rec="${r.id}">Remover</button></div></div>`;}).join(''):'<div class="empty">Nenhum lançamento neste mês.</div>'}</div>`;}).join('');
+    document.querySelectorAll('[data-confirm-rec]').forEach(b=>b.addEventListener('click',async()=>{RECEBIMENTOS=await getJSON('empresa_recebimentos',RECEBIMENTOS);const r=RECEBIMENTOS.find(x=>x.id===b.dataset.confirmRec);if(r){r.status=transactionType(r)==='Saída'?'Pago':'Recebido';await setJSON('empresa_recebimentos',RECEBIMENTOS);if(transactionType(r)==='Entrada')await updateOrderPaidStatus(r.orderId);renderRecebimentos();}}));
     document.querySelectorAll('[data-del-rec]').forEach(b=>b.addEventListener('click',async()=>{if(!confirm('Remover este lançamento financeiro?'))return;RECEBIMENTOS=await getJSON('empresa_recebimentos',RECEBIMENTOS);RECEBIMENTOS=RECEBIMENTOS.filter(r=>r.id!==b.dataset.delRec);await setJSON('empresa_recebimentos',RECEBIMENTOS);renderRecebimentos();}));
   }
-  function renderRecebimentos(){
-    const date=document.getElementById('rec-date');if(date&&!date.value)date.value=todayISO();populateReceiptOrders();
-    const channelFilter=document.getElementById('rec-filter-channel');if(channelFilter&&channelFilter.options.length===1)channelFilter.innerHTML='<option value="">Todos</option>'+RECEIPT_CHANNELS.map(c=>`<option>${c}</option>`).join('');
-    renderReceiptKpis();renderReceiptMonths();
+  function clientPeriodStart(){
+    const p=document.getElementById('client-period').value;if(p==='all')return null;if(p==='current')return monthKey(todayISO())+'-01';
+    const d=new Date();d.setMonth(d.getMonth()-Number(p));return d.toISOString().slice(0,10);
   }
-  ['rec-filter-channel','rec-filter-status'].forEach(id=>document.getElementById(id).addEventListener('change',renderReceiptMonths));document.getElementById('rec-search').addEventListener('input',renderReceiptMonths);
+  function renderClientAnalytics(){
+    const start=clientPeriodStart(),q=document.getElementById('client-search').value.trim().toLocaleLowerCase('pt-BR');
+    const rows=RECEBIMENTOS.filter(r=>transactionType(r)==='Entrada'&&r.status==='Recebido'&&r.client&&(!start||(r.date||'')>=start));
+    const groups=new Map();
+    rows.forEach(r=>{const key=clientKey(r.client);if(!groups.has(key))groups.set(key,{name:r.client,purchases:0,revenue:0,profit:0,profitKnown:0,products:new Map(),lastDate:''});const g=groups.get(key),qty=Math.max(1,Number(r.productQty||1));g.purchases++;g.revenue+=receiptNet(r);if(r.cost!==null&&r.cost!==undefined&&r.cost!==''){g.profit+=receiptNet(r)-Number(r.cost||0);g.profitKnown++;}const pk=productKey(r.description),prod=g.products.get(pk)||{name:r.description||'Produto não informado',qty:0};prod.qty+=qty;g.products.set(pk,prod);if((r.date||'')>g.lastDate)g.lastDate=r.date||'';});
+    let clients=[...groups.values()].filter(g=>!q||g.name.toLocaleLowerCase('pt-BR').includes(q)).sort((a,b)=>b.revenue-a.revenue);
+    const total=clients.reduce((s,g)=>s+g.revenue,0),knownProfit=clients.reduce((s,g)=>s+g.profit,0),knownSales=clients.reduce((s,g)=>s+g.profitKnown,0),top=clients[0];
+    const allProducts=new Map();clients.forEach(g=>g.products.forEach((p,k)=>{const item=allProducts.get(k)||{name:p.name,qty:0};item.qty+=p.qty;allProducts.set(k,item)}));const topProduct=[...allProducts.values()].sort((a,b)=>b.qty-a.qty)[0];
+    document.getElementById('client-summary').innerHTML=`<div class="summary-row"><span>Clientes no período</span><strong>${clients.length}</strong></div><div class="summary-row"><span>Faturamento líquido</span><strong>${fmtMoney(total)}</strong></div><div class="summary-row"><span>Melhor cliente</span><strong>${top?escapeHtml(top.name)+' · '+fmtMoney(top.revenue):'—'}</strong></div><div class="summary-row"><span>Produto mais comprado</span><strong>${topProduct?escapeHtml(topProduct.name)+' · '+topProduct.qty+' venda'+(topProduct.qty===1?'':'s'):'—'}</strong></div><div class="summary-row"><span>Lucro apurado</span><strong>${knownSales?fmtMoney(knownProfit):'Informe o custo das vendas'}</strong></div>`;
+    document.getElementById('client-ranking').innerHTML=clients.length?`<div class="client-rank head"><span>#</span><span>Cliente</span><span class="mobile-hide">Compras</span><span class="mobile-hide">Faturamento</span><span class="mobile-hide">Lucro apurado</span><span>Produto favorito</span></div>`+clients.map((g,i)=>{const favorite=[...g.products.values()].sort((a,b)=>b.qty-a.qty)[0];return `<div class="client-rank"><span class="rank-number">${i+1}</span><div><strong>${escapeHtml(g.name)}</strong><small style="display:block;color:var(--muted);">Última compra: ${g.lastDate?fmtDate(g.lastDate):'—'}</small></div><span class="mobile-hide">${g.purchases}</span><strong class="mobile-hide">${fmtMoney(g.revenue)}</strong><span class="mobile-hide">${g.profitKnown?fmtMoney(g.profit):'<small>não apurado</small>'}</span><span>${favorite?escapeHtml(favorite.name)+' · '+favorite.qty+'x':'—'}</span></div>`}).join(''):'<div class="empty">Nenhuma compra confirmada para os filtros selecionados.</div>';
+  }
+  function renderRecebimentos(){
+    const date=document.getElementById('rec-date');if(date&&!date.value)date.value=todayISO();populateReceiptOrders();updateTransactionForm();
+    const channel=document.getElementById('rec-channel');if(channel&&channel.options.length===0)channel.innerHTML=RECEIPT_CHANNELS.map(c=>`<option>${c}</option>`).join('');
+    const channelFilter=document.getElementById('rec-filter-channel');if(channelFilter&&channelFilter.options.length===1)channelFilter.innerHTML='<option value="">Todos</option>'+RECEIPT_CHANNELS.map(c=>`<option>${c}</option>`).join('');
+    const categoryFilter=document.getElementById('rec-filter-category');if(categoryFilter&&categoryFilter.options.length===1)categoryFilter.innerHTML='<option value="">Todas</option>'+[...new Set([...ENTRY_CATEGORIES,...EXIT_CATEGORIES])].map(c=>`<option>${c}</option>`).join('');
+    populateClientList();renderReceiptKpis();renderReceiptMonths();renderClientAnalytics();
+  }
+  ['rec-filter-type','rec-filter-category','rec-filter-channel','rec-filter-status'].forEach(id=>document.getElementById(id).addEventListener('change',renderReceiptMonths));document.getElementById('rec-search').addEventListener('input',renderReceiptMonths);
+  document.getElementById('client-period').addEventListener('change',renderClientAnalytics);document.getElementById('client-search').addEventListener('input',renderClientAnalytics);
 
   // ---------- tema claro/escuro compartilhado com o portal de produtos ----------
   const THEME_KEY = 'hl_theme';
