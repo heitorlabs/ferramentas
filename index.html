@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -231,6 +232,8 @@
         <div class="panel">
           <h2>⚙️ Configurações de custo</h2>
           <p class="hint">Esses valores alimentam a calculadora. Preencha uma vez e ajuste sempre que seus custos mudarem.</p>
+          <button class="btn secondary small" id="cfg-import-btn" type="button">📥 Importar valores da planilha original</button>
+          <p class="hint" style="margin-top:8px;">Só use isso se a lista abaixo estiver vazia ou incompleta — rodar de novo <strong>duplica</strong> os itens já cadastrados.</p>
         </div>
 
         <div class="panel">
@@ -390,12 +393,87 @@
     document.getElementById('gate-box').style.display = 'none';
     document.getElementById('app-shell').style.display = 'block';
     await loadAllData();
+    // se a configuração ainda está totalmente vazia (primeiro acesso), traz os valores reais da sua planilha
+    const tudoVazio = CFG.labor.length===0 && CFG.fixed.length===0 && CFG.equip.length===0 && CFG.materials.length===0 && CFG.shipping.length===0 && CFG.extras.length===0;
+    if(tudoVazio){
+      await seedFromSpreadsheet();
+    }
     renderConfigTables();
     populateCalcSelects();
     renderOrcamentos();
     renderPedidos();
     updateCalcSummary();
   }
+
+  // valores extraídos diretamente da sua planilha CALCULAR_VALOR_PRODUTOS.xlsx (aba "Base")
+  async function seedFromSpreadsheet(){
+    CFG.labor = [
+      { name:'Estagiário', salaryMonth:1500, hoursMonth:120 },
+      { name:'Assistente', salaryMonth:3000, hoursMonth:160 },
+      { name:'Analista', salaryMonth:8000, hoursMonth:160 },
+      { name:'Coordenador', salaryMonth:16000, hoursMonth:160 },
+    ];
+    CFG.fixed = [
+      { name:'Luz', value:500 },
+      { name:'Água', value:100 },
+      { name:'Site e plataformas', value:100 },
+      { name:'Mei', value:60 },
+      { name:'Fusion 360', value:200 },
+    ];
+    // só trouxe Ender 3 / Bambolab A1 / Cortadora a laser, que eram os únicos realmente
+    // usados no seu orçamento — "Fresadora" e "Máquina 1/2/3" pareciam linhas de exemplo
+    // do modelo original, nunca preenchidas de verdade (nomes genéricos, sem uso real na planilha)
+    CFG.equip = [
+      { name:'Ender 3', purchaseValue:3000, watts:270, maintenanceYear:200 },
+      { name:'Bambolab A1', purchaseValue:5200, watts:301, maintenanceYear:300 },
+      { name:'Cortadora a laser', purchaseValue:5000, watts:302, maintenanceYear:100 },
+    ];
+    CFG.materials = [
+      { name:'PLA', cost:125, qty:1000 },
+      { name:'TPU', cost:125, qty:1000 },
+      { name:'PETG', cost:125, qty:1000 },
+      { name:'ABS', cost:80, qty:1000 },
+      { name:'NYLON', cost:140, qty:1000 },
+      { name:'CFPET', cost:260, qty:1000 },
+      { name:'Polipropileno', cost:200, qty:1000 },
+    ];
+    CFG.shipping = [
+      { name:'Gratuito', value:0 },
+      { name:'Sedex Sul/Sudeste', value:100 },
+      { name:'Pac Sul/Sudeste', value:30 },
+      { name:'Sedex Centro/Norte/Nordeste', value:100 },
+      { name:'Pac Centro/Norte/Nordeste', value:60 },
+    ];
+    CFG.extras = [
+      { name:'Adesivos', value:2.3 },
+      { name:'Embalagens', value:1.7 },
+      { name:'LEDS', value:1 },
+      { name:'Fonte 12v 3a', value:7 },
+      { name:'Botões on/off', value:1.32 },
+      { name:'Lâmpada Bambu Lab branca', value:27 },
+      { name:'Lâmpada Bambu Lab preta', value:30 },
+      { name:'Mosquetão chaveiro', value:0.5 },
+      { name:'Clicker teclado', value:1 },
+      { name:'Tag NFC', value:0.4 },
+      { name:'Vasilha inox', value:6 },
+    ];
+    CFG.globals = { energyKwh:1.34, paybackMonths:12, depreciationPct:10, fixedHoursBase:160 };
+    await setJSON('custos_labor', CFG.labor);
+    await setJSON('custos_fixed', CFG.fixed);
+    await setJSON('custos_equip', CFG.equip);
+    await setJSON('custos_materials', CFG.materials);
+    await setJSON('custos_shipping', CFG.shipping);
+    await setJSON('custos_extras', CFG.extras);
+    await setJSON('custos_globals', CFG.globals);
+  }
+  document.getElementById('cfg-import-btn').addEventListener('click', async ()=>{
+    if(!confirm('Importar os valores da planilha original? Isso vai ADICIONAR os itens (mão de obra, equipamentos, materiais, fretes, extras) da sua planilha CALCULAR_VALOR_PRODUTOS.xlsx. Se você já tem itens parecidos cadastrados, eles vão ficar duplicados — remova os antigos antes, se for o caso.')) return;
+    await seedFromSpreadsheet();
+    renderConfigTables();
+    populateCalcSelects();
+    updateCalcSummary();
+    alert('Valores importados! Confira as tabelas abaixo.');
+  });
 
   root.querySelectorAll('nav button').forEach(btn=>{
     btn.addEventListener('click', ()=>{
