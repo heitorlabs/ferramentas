@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HL 3D Solutions — Ferramentas Internas</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#F7F4EF;font-family:'Inter',-apple-system,sans-serif;}
+  #app-root{
+    --bg:#F7F4EF; --panel:#FFFFFF; --panel-2:#F1ECE3; --line:#E2DCCF; --ink:#211E1A; --muted:#726C62;
+    --cyan:#0E8A96; --violet:#6947C7; --magenta:#B62E82; --coral:#C85A28; --teal:#0E8A96; --red:#C23349; --green:#1E9463;
+    --grad: linear-gradient(90deg, var(--cyan), var(--violet) 45%, var(--magenta) 75%, var(--coral));
+    color:var(--ink); min-height:100vh;
+  }
+  #app-root .topbar{
+    display:flex;align-items:center;justify-content:space-between;padding:20px 28px;
+    border-bottom:1px solid var(--line);background:var(--panel);
+  }
+  #app-root .brand{display:flex;align-items:center;gap:12px;}
+  #app-root .brand .mark{
+    width:42px;height:42px;border-radius:12px;background:var(--grad);padding:2.5px;flex-shrink:0;
+  }
+  #app-root .brand .mark-ring{width:100%;height:100%;border-radius:9.5px;background:#161219;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;}
+  #app-root .brand-text{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;}
+  #app-root .brand-sub{font-size:10.5px;color:var(--muted);font-family:'IBM Plex Mono',monospace;}
+  #app-root nav{display:flex;gap:6px;background:var(--panel-2);padding:5px;border-radius:10px;}
+  #app-root nav button{
+    font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;background:transparent;border:none;
+    color:var(--muted);padding:9px 16px;border-radius:7px;cursor:pointer;
+  }
+  #app-root nav button.active{background:var(--grad);color:#0A0A0D;}
+  #app-root main{max-width:1100px;margin:0 auto;padding:28px;}
+  #app-root .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px;margin-bottom:20px;}
+  #app-root h2{font-family:'Space Grotesk',sans-serif;font-size:19px;margin:0 0 6px 0;}
+  #app-root h3{font-family:'Space Grotesk',sans-serif;font-size:14px;margin:0 0 12px 0;}
+  #app-root p.hint{color:var(--muted);font-size:12px;margin:0 0 16px 0;}
+  #app-root .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+  #app-root .field{flex:1;min-width:140px;display:flex;flex-direction:column;gap:4px;}
+  #app-root .field label{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.03em;}
+  #app-root input, #app-root select, #app-root textarea{
+    background:var(--panel-2);border:1px solid var(--line);color:var(--ink);padding:8px 10px;border-radius:8px;font-size:13px;font-family:inherit;
+  }
+  #app-root .btn{
+    background:var(--grad);color:#0A0A0D;border:none;padding:10px 18px;border-radius:9px;font-weight:700;
+    font-family:'Space Grotesk',sans-serif;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+  }
+  #app-root .btn.secondary{background:var(--panel-2);color:var(--ink);border:1px solid var(--line);}
+  #app-root .btn.danger{background:var(--red);color:#fff;}
+  #app-root .btn.small{padding:6px 12px;font-size:11px;}
+  #app-root table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  #app-root th{text-align:left;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;padding:6px 8px;border-bottom:1px solid var(--line);}
+  #app-root td{padding:6px 8px;border-bottom:1px solid var(--line);}
+  #app-root td input{width:100%;padding:5px 7px;font-size:12.5px;}
+  #app-root .msg{padding:10px 14px;border-radius:8px;font-size:12.5px;margin:10px 0;}
+  #app-root .msg.ok{background:rgba(30,148,99,.12);color:var(--green);border:1px solid rgba(30,148,99,.3);}
+  #app-root .msg.err{background:rgba(194,51,73,.12);color:var(--red);border:1px solid rgba(194,51,73,.3);}
+  #app-root .summary-box{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:16px;}
+  #app-root .summary-row{display:flex;justify-content:space-between;padding:5px 0;font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--muted);}
+  #app-root .summary-row.big{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--ink);border-top:1px solid var(--line);margin-top:8px;padding-top:10px;}
+  #app-root .summary-row.profit{color:var(--green);font-weight:700;}
+  #app-root .tag{display:inline-block;padding:3px 9px;border-radius:999px;font-size:10.5px;font-family:'Space Grotesk',sans-serif;font-weight:700;}
+  #app-root .tag.pendente{background:rgba(200,90,40,.16);color:var(--coral);}
+  #app-root .tag.producao{background:rgba(105,71,199,.16);color:var(--violet);}
+  #app-root .tag.concluido{background:rgba(14,138,150,.16);color:var(--teal);}
+  #app-root .tag.pago{background:rgba(30,148,99,.16);color:var(--green);}
+  #app-root .kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+  #app-root .kanban-col{background:var(--panel-2);border-radius:12px;padding:12px;min-height:80px;}
+  #app-root .kanban-col h4{font-family:'Space Grotesk',sans-serif;font-size:12.5px;margin:0 0 10px 0;display:flex;justify-content:space-between;}
+  #app-root .kanban-card{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:8px;font-size:12px;}
+  #app-root .kanban-card .kc-name{font-weight:700;font-family:'Space Grotesk',sans-serif;margin-bottom:2px;}
+  #app-root .kanban-card .kc-value{color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:11px;}
+  #app-root .kanban-card .kc-actions{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap;}
+  #app-root .kanban-card .kc-actions button{
+    flex:1;font-size:10px;padding:5px 6px;border-radius:6px;border:1px solid var(--line);background:var(--panel-2);color:var(--muted);cursor:pointer;
+  }
+  #app-root .gate-box{max-width:380px;margin:80px auto;text-align:center;}
+  #app-root .gate-box .mark{width:64px;height:64px;margin:0 auto 18px auto;}
+  #app-root .list-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:12.5px;gap:10px;flex-wrap:wrap;}
+  #app-root .list-row:last-child{border-bottom:none;}
+  #app-root .actions{display:flex;gap:6px;}
+  #app-root .actions button{background:var(--panel-2);border:1px solid var(--line);color:var(--muted);padding:5px 10px;border-radius:6px;font-size:11px;cursor:pointer;}
+  #app-root .empty{text-align:center;padding:30px;color:var(--muted);font-size:12.5px;}
+  @media(max-width:800px){
+    #app-root .kanban{grid-template-columns:1fr;}
+    #app-root .topbar{flex-direction:column;gap:14px;align-items:flex-start;}
+  }
+</style>
+</head>
+<body>
+<div id="app-root">
+
+  <div class="gate-box" id="gate-box">
+    <div class="mark"><div style="width:100%;height:100%;border-radius:16px;background:linear-gradient(90deg,#0E8A96,#6947C7 45%,#B62E82 75%,#C85A28);padding:3px;">
+      <div style="width:100%;height:100%;border-radius:13px;background:#161219;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;">3D</div>
+    </div></div>
+    <h2 style="margin-bottom:6px;">Ferramentas Internas</h2>
+    <p class="hint">Acesso restrito — HL 3D Solutions</p>
+    <input type="password" id="gate-pass" placeholder="Sua senha de admin" style="width:100%;margin-bottom:10px;text-align:center;">
+    <button class="btn" id="gate-btn" style="width:100%;justify-content:center;">Entrar</button>
+    <div id="gate-msg"></div>
+  </div>
+
+  <div id="app-shell" style="display:none;">
+    <div class="topbar">
+      <div class="brand">
+        <div class="mark"><div class="mark-ring">3D</div></div>
+        <div>
+          <div class="brand-text">HL 3D Solutions</div>
+          <div class="brand-sub">Ferramentas internas</div>
+        </div>
+      </div>
+      <nav>
+        <button data-view="calculadora" class="active">Calculadora</button>
+        <button data-view="orcamentos">Orçamentos</button>
+        <button data-view="pedidos">Fila de Pedidos</button>
+        <button data-view="config">Configurações</button>
+      </nav>
+      <button class="btn secondary small" id="logout-btn">🚪 Sair</button>
+    </div>
+
+    <main>
+      <!-- ============ CALCULADORA ============ -->
+      <div class="view" data-view="calculadora">
+        <div class="panel">
+          <h2>🧮 Calculadora de custo e preço</h2>
+          <p class="hint">Escolha o que foi usado nesta peça — mão de obra, equipamento, material, frete e extras — e o preço final é calculado na hora, com base nos seus custos cadastrados em "Configurações".</p>
+
+          <h3>Mão de obra</h3>
+          <div class="row">
+            <div class="field"><label>Quem trabalhou</label><select id="calc-labor"></select></div>
+            <div class="field"><label>Horas</label><input id="calc-labor-hours" type="number" min="0" step="0.25" value="0"></div>
+          </div>
+
+          <h3>Equipamento (impressora/máquina)</h3>
+          <div class="row">
+            <div class="field"><label>Qual equipamento</label><select id="calc-equip"></select></div>
+            <div class="field"><label>Horas de uso</label><input id="calc-equip-hours" type="number" min="0" step="0.25" value="0"></div>
+          </div>
+
+          <h3>Material</h3>
+          <div class="row">
+            <div class="field"><label>Qual material</label><select id="calc-material"></select></div>
+            <div class="field"><label>Quantidade (g)</label><input id="calc-material-qty" type="number" min="0" step="1" value="0"></div>
+          </div>
+
+          <h3>Frete</h3>
+          <div class="row">
+            <div class="field"><label>Opção de envio</label><select id="calc-shipping"></select></div>
+          </div>
+
+          <h3>Extras / serviços de terceiros</h3>
+          <div class="row">
+            <div class="field"><label>Item</label><select id="calc-extra"></select></div>
+            <div class="field"><label>Quantidade</label><input id="calc-extra-qty" type="number" min="0" step="1" value="0"></div>
+            <div class="field" style="flex:0;align-self:flex-end;"><button class="btn secondary small" id="calc-add-extra-btn" type="button">+ Adicionar</button></div>
+          </div>
+          <div id="calc-extras-list"></div>
+
+          <div class="divider" style="height:1px;background:var(--line);margin:16px 0;"></div>
+
+          <h3>Peças e margens</h3>
+          <div class="row">
+            <div class="field"><label>Quantidade de peças</label><input id="calc-qty-pieces" type="number" min="1" step="1" value="1"></div>
+            <div class="field"><label>Margem de lucro (ex.: 1 = 100%)</label><input id="calc-margin" type="number" min="0" step="0.1" value="1"></div>
+            <div class="field"><label>Tributo (%, opcional)</label><input id="calc-tax" type="number" min="0" step="0.1" value="0"></div>
+            <div class="field"><label>Margem de segurança (%)</label><input id="calc-safety" type="number" min="0" step="0.5" value="5"></div>
+          </div>
+
+          <div class="summary-box" id="calc-summary" style="margin-top:16px;"></div>
+
+          <div style="display:flex;gap:10px;margin-top:16px;">
+            <button class="btn" id="calc-to-orcamento-btn">Usar este cálculo num orçamento →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ ORÇAMENTOS ============ -->
+      <div class="view" data-view="orcamentos" style="display:none;">
+        <div class="panel">
+          <h2>📋 Novo orçamento</h2>
+          <p class="hint">Monte o orçamento com um ou mais itens, e gere o PDF pra entregar ao cliente com sua identidade visual.</p>
+          <div class="row">
+            <div class="field"><label>Cliente</label><input id="orc-client-name" placeholder="Nome do cliente"></div>
+            <div class="field"><label>Contato (opcional)</label><input id="orc-client-contact" placeholder="WhatsApp / e-mail"></div>
+            <div class="field"><label>Validade da proposta</label><input id="orc-validity" placeholder="Ex.: 7 dias"></div>
+          </div>
+          <h3 style="margin-top:14px;">Itens do orçamento</h3>
+          <div class="row">
+            <div class="field" style="flex:2;"><label>Descrição</label><input id="orc-item-desc" placeholder="Ex.: Chaveiro personalizado 3D"></div>
+            <div class="field"><label>Quantidade</label><input id="orc-item-qty" type="number" min="1" value="1"></div>
+            <div class="field"><label>Valor unitário (R$)</label><input id="orc-item-value" type="number" min="0" step="0.01" placeholder="0.00"></div>
+            <div class="field" style="flex:0;align-self:flex-end;"><button class="btn secondary small" id="orc-add-item-btn" type="button">+ Adicionar item</button></div>
+          </div>
+          <div id="orc-items-list"></div>
+          <div class="summary-box" id="orc-summary" style="margin-top:14px;display:none;"></div>
+          <div class="row" style="margin-top:14px;">
+            <div class="field" style="flex:1 1 100%;"><label>Observações (aparecem no PDF)</label><textarea id="orc-notes" rows="2" placeholder="Ex.: Prazo de entrega, forma de pagamento aceita..."></textarea></div>
+          </div>
+          <div id="orc-msg"></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn" id="orc-save-btn">Salvar orçamento</button>
+            <button class="btn secondary" id="orc-clear-btn" type="button">Limpar formulário</button>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Orçamentos salvos</h3>
+          <div id="orc-list"></div>
+        </div>
+      </div>
+
+      <!-- ============ FILA DE PEDIDOS ============ -->
+      <div class="view" data-view="pedidos" style="display:none;">
+        <div class="panel">
+          <h2>🗂️ Fila de produção</h2>
+          <p class="hint">Acompanhe cada pedido, movendo entre as etapas conforme avança.</p>
+          <div class="row">
+            <div class="field" style="flex:2;"><label>Cliente / descrição</label><input id="ped-desc" placeholder="Ex.: Maria — 3x chaveiro personagem"></div>
+            <div class="field"><label>Valor (R$)</label><input id="ped-value" type="number" min="0" step="0.01" placeholder="0.00"></div>
+            <div class="field" style="flex:0;align-self:flex-end;"><button class="btn" id="ped-add-btn" type="button">+ Adicionar à fila</button></div>
+          </div>
+        </div>
+        <div class="kanban" id="ped-kanban"></div>
+      </div>
+
+      <!-- ============ CONFIGURAÇÕES ============ -->
+      <div class="view" data-view="config" style="display:none;">
+        <div class="panel">
+          <h2>⚙️ Configurações de custo</h2>
+          <p class="hint">Esses valores alimentam a calculadora. Preencha uma vez e ajuste sempre que seus custos mudarem.</p>
+        </div>
+
+        <div class="panel">
+          <h3>Mão de obra</h3>
+          <table id="cfg-labor-table"><thead><tr><th>Nome</th><th>Salário/mês (R$)</th><th>Horas/mês</th><th>R$/hora</th><th></th></tr></thead><tbody></tbody></table>
+          <div class="row" style="margin-top:10px;">
+            <div class="field"><label>Nome</label><input id="cfg-labor-name" placeholder="Ex.: Eu mesmo"></div>
+            <div class="field"><label>Salário/mês (R$)</label><input id="cfg-labor-salary" type="number" min="0" step="0.01"></div>
+            <div class="field"><label>Horas/mês</label><input id="cfg-labor-hours" type="number" min="1" step="1" value="160"></div>
+            <div class="field" style="flex:0;align-self:flex-end;"><button class="btn secondary small" id="cfg-labor-add-btn" type="button">+ Adicionar</button></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Custos fixos mensais</h3>
+          <p class="hint">Luz, água, aluguel, MEI, assinaturas de software, etc. São somados e divididos pelas horas trabalhadas no mês pra achar um custo fixo por hora.</p>
+          <table id="cfg-fixed-table"><thead><tr><th>Item</th><th>Valor/mês (R$)</th><th></th></tr></thead><tbody></tbody></table>
+          <div class="row" style="margin-top:10px;">
+            <div class="field"><label>Item</label><input id="cfg-fixed-name" placeholder="Ex.: Luz"></div>
+            <div class="field"><label>Valor/mês (R$)</label><input id="cfg-fixed-value" type="number" min="0" step="0.01"></div>
+            <div class="field" style="flex:0;align-self:flex-end;"><button class="btn secondary small" id="cfg-fixed-add-btn" type="button">+ Adicionar</button></div>
+          </div>
+          <div class="summary-box" style="margin-top:10px;">
+            <div class="summary-row"><span>Total fixo/mês</span><span id="cfg-fixed-total">R$ 0,00</span></div>
+            <div class="summary-row"><span>Horas de trabalho consideradas/mês</span><span><input id="cfg-fixed-hours-base" type="number" value="160" style="width:70px;"></span></div>
+            <div class="summary-row big"><span>Custo fixo por hora</span><span id="cfg-fixed-hourly">R$ 0,00</span></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Parâmetros gerais</h3>
+          <div class="row">
+            <div class="field"><label>Energia (R$/kWh)</label><input id="cfg-energy-kwh" type="number" min="0" step="0.01" value="1.34"></div>
+            <div class="field"><label>Tempo de retorno do equipamento (meses)</label><input id="cfg-payback-months" type="number" min="1" step="1" value="12"></div>
+            <div class="field"><label>Depreciação ao ano (%)</label><input id="cfg-depreciation-pct" type="number" min="0" step="1" value="10"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Equipamentos</h3>
+          <table id="cfg-equip-table"><thead><tr><th>Nome</th><th>Valor compra</th><th>Potência (W)</th><th>Manutenção/ano</th><th>R$/hora</th><th></th></tr></thead><tbody></tbody></table>
+          <div class="row" style="margin-top:10px;">
+            <div class="field"><label>Nome</label><input id="cfg-equip-name" placeholder="Ex.: Bambu Lab A1"></div>
+            <div class="field"><label>Valor compra (R$)</label><input id="cfg-equip-value" type="number" min="0" step="0.01"></div>
+            <div class="field"><label>Potência (W)</label><input id="cfg-equip-watts" type="number" min="0" step="1"></div>
+            <div class="field"><label>Manutenção/ano (R$)</label><input id="cfg-equip-maint" type="number" min="0" step="0.01" value="0"></div>
+            <div class="field" style="flex:0;align-self:flex-end;"><button class="btn secondary small" id="cfg-equip-add-btn" type="button">+ Adicionar</button></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Materiais (filamentos, resinas...)</h3>
+          <table id="cfg-material-table"><thead><tr><th>Nome</th><th>Custo do pacote (R$)</th><th>Quantidade (g)</th><th>R$/g</th><th></th></tr></thead><tbody></tbody></table>
+          <div class="row" style="margin-top:10px;">
+            <div class="field"><label>Nome</label><input id="cfg-material-name" placeholder="Ex.: PLA"></div>
+            <div class="field"><label>Custo do pacote (R$)</label><input id="cfg-material-cost" type="number" min="0" step="0.01"></div>
+            <div class="field"><label>Quantidade (g)</label><input id="cfg-material-qty" type="number" min="1" step="1" value="1000"></div>
+            <div class="field" style="flex:0;align-self:flex-end;"><button class="btn secondary small" id="cfg-material-add-btn" type="button">+ Adicionar</button></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Frete</h3>
+          <table id="cfg-shipping-table"><thead><tr><th>Opção</th><th>Valor (R$)</th><th></th></tr></thead><tbody></tbody></table>
+          <div class="row" style="margin-top:10px;">
+            <div class="field"><label>Opção</label><input id="cfg-shipping-name" placeholder="Ex.: PAC Sul/Sudeste"></div>
+            <div class="field"><label>Valor (R$)</label><input id="cfg-shipping-value" type="number" min="0" step="0.01"></div>
+            <div class="field" style="flex:0;align-self:flex-end;"><button class="btn secondary small" id="cfg-shipping-add-btn" type="button">+ Adicionar</button></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Extras / serviços de terceiros</h3>
+          <p class="hint">Adesivos, embalagens, LEDs, mosquetões — qualquer item comprado pronto que entra na peça.</p>
+          <table id="cfg-extras-table"><thead><tr><th>Item</th><th>Valor unitário (R$)</th><th></th></tr></thead><tbody></tbody></table>
+          <div class="row" style="margin-top:10px;">
+            <div class="field"><label>Item</label><input id="cfg-extra-name" placeholder="Ex.: Mosquetão"></div>
+            <div class="field"><label>Valor unitário (R$)</label><input id="cfg-extra-value" type="number" min="0" step="0.01"></div>
+            <div class="field" style="flex:0;align-self:flex-end;"><button class="btn secondary small" id="cfg-extra-add-btn" type="button">+ Adicionar</button></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+(function(){
+  const root = document.getElementById('app-root');
+  const SUPABASE_URL = "https://fgbmvagormiwgdkkiqda.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_DPHmmsLWAwopwAtv_aoPuA_72GLjuHT";
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const ADMIN_EMAIL = "hl3dsolutions@gmail.com";
+  const fmtMoney = v => 'R$ ' + (Number(v)||0).toFixed(2).replace('.', ',');
+  const todayISO = () => new Date().toISOString().slice(0,10);
+  function escapeHtml(str){
+    if(str == null) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  async function getJSON(key, fallback){
+    const { data, error } = await supabaseClient.from('kv_store').select('value').eq('key', key).maybeSingle();
+    if(error || !data) return fallback;
+    return data.value ?? fallback;
+  }
+  async function setJSON(key, value){
+    try{
+      const { error } = await supabaseClient.from('kv_store').upsert({ key, value, updated_at: new Date().toISOString() });
+      if(error){ console.error('Erro ao salvar', key, error); return null; }
+      return true;
+    }catch(e){ console.error(e); return null; }
+  }
+
+  // ---------- estado ----------
+  let CFG = { labor:[], fixed:[], equip:[], materials:[], shipping:[], extras:[], globals:{energyKwh:1.34, paybackMonths:12, depreciationPct:10, fixedHoursBase:160} };
+  let ORCAMENTOS = [];
+  let PEDIDOS = [];
+  let calcExtrasCart = [];
+  let orcItemsCart = [];
+
+  async function loadAllData(){
+    CFG.labor = await getJSON('custos_labor', []);
+    CFG.fixed = await getJSON('custos_fixed', []);
+    CFG.equip = await getJSON('custos_equip', []);
+    CFG.materials = await getJSON('custos_materials', []);
+    CFG.shipping = await getJSON('custos_shipping', []);
+    CFG.extras = await getJSON('custos_extras', []);
+    CFG.globals = await getJSON('custos_globals', CFG.globals);
+    ORCAMENTOS = await getJSON('orcamentos', []);
+    PEDIDOS = await getJSON('producao_pedidos', []);
+  }
+
+  function nextSeqId(list, prefix){
+    let maxNum = 0;
+    const re = new RegExp('^'+prefix+'-(\\d+)$');
+    list.forEach(item=>{ const m = re.exec(item.id); if(m){ const n=parseInt(m[1],10); if(n>maxNum) maxNum=n; } });
+    return prefix + '-' + String(maxNum+1).padStart(3,'0');
+  }
+
+  // ---------- LOGIN ----------
+  document.getElementById('gate-btn').addEventListener('click', async ()=>{
+    const pass = document.getElementById('gate-pass').value;
+    const msg = document.getElementById('gate-msg');
+    if(!pass){ msg.innerHTML = '<div class="msg err">Digite a senha.</div>'; return; }
+    const { error } = await supabaseClient.auth.signInWithPassword({ email: ADMIN_EMAIL, password: pass });
+    if(error){ msg.innerHTML = '<div class="msg err">Senha incorreta.</div>'; return; }
+    await enterApp();
+  });
+  document.getElementById('gate-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('gate-btn').click(); });
+  document.getElementById('logout-btn').addEventListener('click', async ()=>{
+    await supabaseClient.auth.signOut();
+    document.getElementById('app-shell').style.display = 'none';
+    document.getElementById('gate-box').style.display = 'block';
+  });
+
+  async function enterApp(){
+    document.getElementById('gate-box').style.display = 'none';
+    document.getElementById('app-shell').style.display = 'block';
+    await loadAllData();
+    renderConfigTables();
+    populateCalcSelects();
+    renderOrcamentos();
+    renderPedidos();
+    updateCalcSummary();
+  }
+
+  root.querySelectorAll('nav button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      root.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      root.querySelectorAll('.view').forEach(v=>v.style.display='none');
+      root.querySelector(`.view[data-view="${btn.dataset.view}"]`).style.display='block';
+    });
+  });
+
+  // ============================================================
+  // CONFIGURAÇÕES
+  // ============================================================
+  function laborHourlyRate(l){ return Number(l.hoursMonth) > 0 ? Number(l.salaryMonth)/Number(l.hoursMonth) : 0; }
+  function equipHourlyRate(e){
+    const g = CFG.globals;
+    const depreciationAno = Number(e.purchaseValue) * (Number(g.depreciationPct)/100);
+    const custoAnual = depreciationAno + Number(e.maintenanceYear||0);
+    const energiaHora = (Number(e.watts)/1000) * Number(g.energyKwh);
+    const amortizacaoHora = Number(e.purchaseValue) * (Number(g.depreciationPct)/100) / (Number(g.paybackMonths) * 160);
+    const custoAnualHora = custoAnual / 1920;
+    return energiaHora + amortizacaoHora + custoAnualHora;
+  }
+  function materialUnitCost(m){ return Number(m.qty) > 0 ? Number(m.cost)/Number(m.qty) : 0; }
+  function fixedHourlyRate(){
+    const total = CFG.fixed.reduce((s,f)=>s+Number(f.value),0);
+    const base = Number(document.getElementById('cfg-fixed-hours-base').value) || CFG.globals.fixedHoursBase || 160;
+    return base > 0 ? total/base : 0;
+  }
+
+  function renderConfigTables(){
+    document.getElementById('cfg-energy-kwh').value = CFG.globals.energyKwh;
+    document.getElementById('cfg-payback-months').value = CFG.globals.paybackMonths;
+    document.getElementById('cfg-depreciation-pct').value = CFG.globals.depreciationPct;
+    document.getElementById('cfg-fixed-hours-base').value = CFG.globals.fixedHoursBase || 160;
+
+    document.querySelector('#cfg-labor-table tbody').innerHTML = CFG.labor.map((l,i)=>`
+      <tr><td>${escapeHtml(l.name)}</td><td>${fmtMoney(l.salaryMonth)}</td><td>${l.hoursMonth}</td><td>${fmtMoney(laborHourlyRate(l))}</td>
+      <td><button class="actions" data-del-labor="${i}" style="background:none;border:none;color:var(--red);cursor:pointer;">✕</button></td></tr>
+    `).join('') || '<tr><td colspan="5" style="color:var(--muted);">Nenhum cadastrado ainda.</td></tr>';
+
+    document.querySelector('#cfg-fixed-table tbody').innerHTML = CFG.fixed.map((f,i)=>`
+      <tr><td>${escapeHtml(f.name)}</td><td>${fmtMoney(f.value)}</td>
+      <td><button data-del-fixed="${i}" style="background:none;border:none;color:var(--red);cursor:pointer;">✕</button></td></tr>
+    `).join('') || '<tr><td colspan="3" style="color:var(--muted);">Nenhum cadastrado ainda.</td></tr>';
+    document.getElementById('cfg-fixed-total').textContent = fmtMoney(CFG.fixed.reduce((s,f)=>s+Number(f.value),0));
+    document.getElementById('cfg-fixed-hourly').textContent = fmtMoney(fixedHourlyRate());
+
+    document.querySelector('#cfg-equip-table tbody').innerHTML = CFG.equip.map((e,i)=>`
+      <tr><td>${escapeHtml(e.name)}</td><td>${fmtMoney(e.purchaseValue)}</td><td>${e.watts}W</td><td>${fmtMoney(e.maintenanceYear)}</td><td>${fmtMoney(equipHourlyRate(e))}</td>
+      <td><button data-del-equip="${i}" style="background:none;border:none;color:var(--red);cursor:pointer;">✕</button></td></tr>
+    `).join('') || '<tr><td colspan="6" style="color:var(--muted);">Nenhum cadastrado ainda.</td></tr>';
+
+    document.querySelector('#cfg-material-table tbody').innerHTML = CFG.materials.map((m,i)=>`
+      <tr><td>${escapeHtml(m.name)}</td><td>${fmtMoney(m.cost)}</td><td>${m.qty}g</td><td>${fmtMoney(materialUnitCost(m))}</td>
+      <td><button data-del-material="${i}" style="background:none;border:none;color:var(--red);cursor:pointer;">✕</button></td></tr>
+    `).join('') || '<tr><td colspan="5" style="color:var(--muted);">Nenhum cadastrado ainda.</td></tr>';
+
+    document.querySelector('#cfg-shipping-table tbody').innerHTML = CFG.shipping.map((s,i)=>`
+      <tr><td>${escapeHtml(s.name)}</td><td>${fmtMoney(s.value)}</td>
+      <td><button data-del-shipping="${i}" style="background:none;border:none;color:var(--red);cursor:pointer;">✕</button></td></tr>
+    `).join('') || '<tr><td colspan="3" style="color:var(--muted);">Nenhuma cadastrada ainda.</td></tr>';
+
+    document.querySelector('#cfg-extras-table tbody').innerHTML = CFG.extras.map((x,i)=>`
+      <tr><td>${escapeHtml(x.name)}</td><td>${fmtMoney(x.value)}</td>
+      <td><button data-del-extra="${i}" style="background:none;border:none;color:var(--red);cursor:pointer;">✕</button></td></tr>
+    `).join('') || '<tr><td colspan="3" style="color:var(--muted);">Nenhum cadastrado ainda.</td></tr>';
+
+    root.querySelectorAll('[data-del-labor]').forEach(b=>b.addEventListener('click', async ()=>{ CFG.labor.splice(+b.dataset.delLabor,1); await setJSON('custos_labor', CFG.labor); renderConfigTables(); populateCalcSelects(); }));
+    root.querySelectorAll('[data-del-fixed]').forEach(b=>b.addEventListener('click', async ()=>{ CFG.fixed.splice(+b.dataset.delFixed,1); await setJSON('custos_fixed', CFG.fixed); renderConfigTables(); }));
+    root.querySelectorAll('[data-del-equip]').forEach(b=>b.addEventListener('click', async ()=>{ CFG.equip.splice(+b.dataset.delEquip,1); await setJSON('custos_equip', CFG.equip); renderConfigTables(); populateCalcSelects(); }));
+    root.querySelectorAll('[data-del-material]').forEach(b=>b.addEventListener('click', async ()=>{ CFG.materials.splice(+b.dataset.delMaterial,1); await setJSON('custos_materials', CFG.materials); renderConfigTables(); populateCalcSelects(); }));
+    root.querySelectorAll('[data-del-shipping]').forEach(b=>b.addEventListener('click', async ()=>{ CFG.shipping.splice(+b.dataset.delShipping,1); await setJSON('custos_shipping', CFG.shipping); renderConfigTables(); populateCalcSelects(); }));
+    root.querySelectorAll('[data-del-extra]').forEach(b=>b.addEventListener('click', async ()=>{ CFG.extras.splice(+b.dataset.delExtra,1); await setJSON('custos_extras', CFG.extras); renderConfigTables(); populateCalcSelects(); }));
+  }
+
+  document.getElementById('cfg-labor-add-btn').addEventListener('click', async ()=>{
+    const name = document.getElementById('cfg-labor-name').value.trim();
+    const salaryMonth = parseFloat(document.getElementById('cfg-labor-salary').value);
+    const hoursMonth = parseFloat(document.getElementById('cfg-labor-hours').value);
+    if(!name || isNaN(salaryMonth) || !hoursMonth) return;
+    CFG.labor.push({name, salaryMonth, hoursMonth});
+    await setJSON('custos_labor', CFG.labor);
+    document.getElementById('cfg-labor-name').value=''; document.getElementById('cfg-labor-salary').value='';
+    renderConfigTables(); populateCalcSelects();
+  });
+  document.getElementById('cfg-fixed-add-btn').addEventListener('click', async ()=>{
+    const name = document.getElementById('cfg-fixed-name').value.trim();
+    const value = parseFloat(document.getElementById('cfg-fixed-value').value);
+    if(!name || isNaN(value)) return;
+    CFG.fixed.push({name, value});
+    await setJSON('custos_fixed', CFG.fixed);
+    document.getElementById('cfg-fixed-name').value=''; document.getElementById('cfg-fixed-value').value='';
+    renderConfigTables();
+  });
+  document.getElementById('cfg-equip-add-btn').addEventListener('click', async ()=>{
+    const name = document.getElementById('cfg-equip-name').value.trim();
+    const purchaseValue = parseFloat(document.getElementById('cfg-equip-value').value);
+    const watts = parseFloat(document.getElementById('cfg-equip-watts').value);
+    const maintenanceYear = parseFloat(document.getElementById('cfg-equip-maint').value) || 0;
+    if(!name || isNaN(purchaseValue) || isNaN(watts)) return;
+    CFG.equip.push({name, purchaseValue, watts, maintenanceYear});
+    await setJSON('custos_equip', CFG.equip);
+    document.getElementById('cfg-equip-name').value=''; document.getElementById('cfg-equip-value').value=''; document.getElementById('cfg-equip-watts').value=''; document.getElementById('cfg-equip-maint').value='0';
+    renderConfigTables(); populateCalcSelects();
+  });
+  document.getElementById('cfg-material-add-btn').addEventListener('click', async ()=>{
+    const name = document.getElementById('cfg-material-name').value.trim();
+    const cost = parseFloat(document.getElementById('cfg-material-cost').value);
+    const qty = parseFloat(document.getElementById('cfg-material-qty').value);
+    if(!name || isNaN(cost) || !qty) return;
+    CFG.materials.push({name, cost, qty});
+    await setJSON('custos_materials', CFG.materials);
+    document.getElementById('cfg-material-name').value=''; document.getElementById('cfg-material-cost').value='';
+    renderConfigTables(); populateCalcSelects();
+  });
+  document.getElementById('cfg-shipping-add-btn').addEventListener('click', async ()=>{
+    const name = document.getElementById('cfg-shipping-name').value.trim();
+    const value = parseFloat(document.getElementById('cfg-shipping-value').value);
+    if(!name || isNaN(value)) return;
+    CFG.shipping.push({name, value});
+    await setJSON('custos_shipping', CFG.shipping);
+    document.getElementById('cfg-shipping-name').value=''; document.getElementById('cfg-shipping-value').value='';
+    renderConfigTables(); populateCalcSelects();
+  });
+  document.getElementById('cfg-extra-add-btn').addEventListener('click', async ()=>{
+    const name = document.getElementById('cfg-extra-name').value.trim();
+    const value = parseFloat(document.getElementById('cfg-extra-value').value);
+    if(!name || isNaN(value)) return;
+    CFG.extras.push({name, value});
+    await setJSON('custos_extras', CFG.extras);
+    document.getElementById('cfg-extra-name').value=''; document.getElementById('cfg-extra-value').value='';
+    renderConfigTables(); populateCalcSelects();
+  });
+  ['cfg-energy-kwh','cfg-payback-months','cfg-depreciation-pct','cfg-fixed-hours-base'].forEach(id=>{
+    document.getElementById(id).addEventListener('change', async ()=>{
+      CFG.globals.energyKwh = parseFloat(document.getElementById('cfg-energy-kwh').value)||0;
+      CFG.globals.paybackMonths = parseFloat(document.getElementById('cfg-payback-months').value)||12;
+      CFG.globals.depreciationPct = parseFloat(document.getElementById('cfg-depreciation-pct').value)||0;
+      CFG.globals.fixedHoursBase = parseFloat(document.getElementById('cfg-fixed-hours-base').value)||160;
+      await setJSON('custos_globals', CFG.globals);
+      renderConfigTables(); updateCalcSummary();
+    });
+  });
+
+  // ============================================================
+  // CALCULADORA
+  // ============================================================
+  function populateCalcSelects(){
+    const laborSel = document.getElementById('calc-labor');
+    laborSel.innerHTML = '<option value="">— nenhum —</option>' + CFG.labor.map((l,i)=>`<option value="${i}">${escapeHtml(l.name)} (${fmtMoney(laborHourlyRate(l))}/h)</option>`).join('');
+    const equipSel = document.getElementById('calc-equip');
+    equipSel.innerHTML = '<option value="">— nenhum —</option>' + CFG.equip.map((e,i)=>`<option value="${i}">${escapeHtml(e.name)} (${fmtMoney(equipHourlyRate(e))}/h)</option>`).join('');
+    const materialSel = document.getElementById('calc-material');
+    materialSel.innerHTML = '<option value="">— nenhum —</option>' + CFG.materials.map((m,i)=>`<option value="${i}">${escapeHtml(m.name)} (${fmtMoney(materialUnitCost(m))}/g)</option>`).join('');
+    const shippingSel = document.getElementById('calc-shipping');
+    shippingSel.innerHTML = '<option value="">— combinar com o cliente —</option>' + CFG.shipping.map((s,i)=>`<option value="${i}">${escapeHtml(s.name)} (${fmtMoney(s.value)})</option>`).join('');
+    const extraSel = document.getElementById('calc-extra');
+    extraSel.innerHTML = CFG.extras.map((x,i)=>`<option value="${i}">${escapeHtml(x.name)} (${fmtMoney(x.value)})</option>`).join('') || '<option value="">Cadastre extras em Configurações</option>';
+  }
+
+  document.getElementById('calc-add-extra-btn').addEventListener('click', ()=>{
+    const idx = document.getElementById('calc-extra').value;
+    const qty = parseFloat(document.getElementById('calc-extra-qty').value);
+    if(idx === '' || !qty) return;
+    const item = CFG.extras[idx];
+    calcExtrasCart.push({ name:item.name, qty, unitValue:item.value });
+    renderCalcExtras();
+    document.getElementById('calc-extra-qty').value = '';
+  });
+  function renderCalcExtras(){
+    document.getElementById('calc-extras-list').innerHTML = calcExtrasCart.map((x,i)=>`
+      <div class="list-row"><span>${x.qty}x ${escapeHtml(x.name)} — ${fmtMoney(x.qty*x.unitValue)}</span>
+      <span class="actions"><button data-del-calc-extra="${i}">Remover</button></span></div>
+    `).join('');
+    document.querySelectorAll('[data-del-calc-extra]').forEach(b=>b.addEventListener('click', ()=>{
+      calcExtrasCart.splice(+b.dataset.delCalcExtra,1); renderCalcExtras(); updateCalcSummary();
+    }));
+    updateCalcSummary();
+  }
+
+  function computeCalc(){
+    const laborIdx = document.getElementById('calc-labor').value;
+    const laborHours = parseFloat(document.getElementById('calc-labor-hours').value)||0;
+    const laborCost = laborIdx !== '' ? laborHourlyRate(CFG.labor[laborIdx]) * laborHours : 0;
+
+    const equipIdx = document.getElementById('calc-equip').value;
+    const equipHours = parseFloat(document.getElementById('calc-equip-hours').value)||0;
+    const equipCost = equipIdx !== '' ? equipHourlyRate(CFG.equip[equipIdx]) * equipHours : 0;
+
+    const materialIdx = document.getElementById('calc-material').value;
+    const materialQty = parseFloat(document.getElementById('calc-material-qty').value)||0;
+    const materialCost = materialIdx !== '' ? materialUnitCost(CFG.materials[materialIdx]) * materialQty : 0;
+
+    const shippingIdx = document.getElementById('calc-shipping').value;
+    const shippingCost = shippingIdx !== '' ? Number(CFG.shipping[shippingIdx].value) : 0;
+
+    const extrasCost = calcExtrasCart.reduce((s,x)=>s+x.qty*x.unitValue, 0);
+
+    // custo fixo alocado às horas de mão de obra deste job (mesma lógica da planilha original)
+    const fixedCost = fixedHourlyRate() * laborHours;
+
+    const custosTotal = laborCost + equipCost + materialCost + shippingCost + extrasCost + fixedCost;
+
+    const qtyPieces = Math.max(1, parseFloat(document.getElementById('calc-qty-pieces').value)||1);
+    const margin = parseFloat(document.getElementById('calc-margin').value)||0;
+    const taxPct = parseFloat(document.getElementById('calc-tax').value)||0;
+    const safetyPct = parseFloat(document.getElementById('calc-safety').value)||0;
+
+    const precoComMargem = custosTotal * (1+margin);
+    const valorFinal = precoComMargem * (1 + safetyPct/100);
+    const tributoValor = valorFinal * (taxPct/100);
+    const lucro = valorFinal - tributoValor - custosTotal;
+    const precoPorPeca = valorFinal / qtyPieces;
+
+    return { laborCost, equipCost, materialCost, shippingCost, extrasCost, fixedCost, custosTotal, valorFinal, tributoValor, lucro, precoPorPeca, qtyPieces };
+  }
+
+  function updateCalcSummary(){
+    const r = computeCalc();
+    document.getElementById('calc-summary').innerHTML = `
+      <div class="summary-row"><span>Mão de obra</span><span>${fmtMoney(r.laborCost)}</span></div>
+      <div class="summary-row"><span>Equipamento</span><span>${fmtMoney(r.equipCost)}</span></div>
+      <div class="summary-row"><span>Material</span><span>${fmtMoney(r.materialCost)}</span></div>
+      <div class="summary-row"><span>Custo fixo alocado</span><span>${fmtMoney(r.fixedCost)}</span></div>
+      <div class="summary-row"><span>Frete</span><span>${fmtMoney(r.shippingCost)}</span></div>
+      <div class="summary-row"><span>Extras</span><span>${fmtMoney(r.extrasCost)}</span></div>
+      <div class="summary-row" style="border-top:1px solid var(--line);margin-top:6px;padding-top:8px;"><span>Custos totais</span><span>${fmtMoney(r.custosTotal)}</span></div>
+      <div class="summary-row"><span>Tributo</span><span>${fmtMoney(r.tributoValor)}</span></div>
+      <div class="summary-row profit"><span>Lucro</span><span>${fmtMoney(r.lucro)}</span></div>
+      <div class="summary-row big"><span>Valor final (${r.qtyPieces}x)</span><span>${fmtMoney(r.valorFinal)}</span></div>
+      <div class="summary-row big" style="color:var(--violet);"><span>Preço por peça</span><span>${fmtMoney(r.precoPorPeca)}</span></div>
+    `;
+  }
+  ['calc-labor','calc-labor-hours','calc-equip','calc-equip-hours','calc-material','calc-material-qty','calc-shipping','calc-qty-pieces','calc-margin','calc-tax','calc-safety'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', updateCalcSummary);
+    document.getElementById(id).addEventListener('change', updateCalcSummary);
+  });
+
+  document.getElementById('calc-to-orcamento-btn').addEventListener('click', ()=>{
+    const r = computeCalc();
+    const materialIdx = document.getElementById('calc-material').value;
+    const materialName = materialIdx !== '' ? CFG.materials[materialIdx].name : 'Peça';
+    orcItemsCart.push({ desc: `Peça em 3D (${materialName})`, qty: r.qtyPieces, unitValue: r.precoPorPeca });
+    root.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+    root.querySelector('[data-view="orcamentos"]').classList.add('active');
+    root.querySelectorAll('.view').forEach(v=>v.style.display='none');
+    root.querySelector('.view[data-view="orcamentos"]').style.display='block';
+    renderOrcItems();
+  });
+
+  // ============================================================
+  // ORÇAMENTOS
+  // ============================================================
+  document.getElementById('orc-add-item-btn').addEventListener('click', ()=>{
+    const desc = document.getElementById('orc-item-desc').value.trim();
+    const qty = parseFloat(document.getElementById('orc-item-qty').value)||1;
+    const unitValue = parseFloat(document.getElementById('orc-item-value').value);
+    if(!desc || isNaN(unitValue)) return;
+    orcItemsCart.push({desc, qty, unitValue});
+    document.getElementById('orc-item-desc').value=''; document.getElementById('orc-item-value').value='';
+    renderOrcItems();
+  });
+  function renderOrcItems(){
+    const list = document.getElementById('orc-items-list');
+    const summary = document.getElementById('orc-summary');
+    if(orcItemsCart.length === 0){ list.innerHTML=''; summary.style.display='none'; return; }
+    list.innerHTML = orcItemsCart.map((it,i)=>`
+      <div class="list-row"><span>${it.qty}x ${escapeHtml(it.desc)} — ${fmtMoney(it.unitValue)} cada = ${fmtMoney(it.qty*it.unitValue)}</span>
+      <span class="actions"><button data-del-orc-item="${i}">Remover</button></span></div>
+    `).join('');
+    document.querySelectorAll('[data-del-orc-item]').forEach(b=>b.addEventListener('click', ()=>{
+      orcItemsCart.splice(+b.dataset.delOrcItem,1); renderOrcItems();
+    }));
+    const total = orcItemsCart.reduce((s,it)=>s+it.qty*it.unitValue,0);
+    summary.style.display = 'block';
+    summary.innerHTML = `<div class="summary-row big"><span>Total do orçamento</span><span>${fmtMoney(total)}</span></div>`;
+  }
+  document.getElementById('orc-clear-btn').addEventListener('click', ()=>{
+    orcItemsCart = [];
+    document.getElementById('orc-client-name').value = '';
+    document.getElementById('orc-client-contact').value = '';
+    document.getElementById('orc-validity').value = '';
+    document.getElementById('orc-notes').value = '';
+    renderOrcItems();
+    document.getElementById('orc-msg').innerHTML = '';
+  });
+
+  document.getElementById('orc-save-btn').addEventListener('click', async ()=>{
+    const clientName = document.getElementById('orc-client-name').value.trim();
+    const clientContact = document.getElementById('orc-client-contact').value.trim();
+    const validity = document.getElementById('orc-validity').value.trim();
+    const notes = document.getElementById('orc-notes').value.trim();
+    const msg = document.getElementById('orc-msg');
+    if(!clientName){ msg.innerHTML = '<div class="msg err">Preencha o nome do cliente.</div>'; return; }
+    if(orcItemsCart.length === 0){ msg.innerHTML = '<div class="msg err">Adicione pelo menos um item.</div>'; return; }
+    ORCAMENTOS = await getJSON('orcamentos', ORCAMENTOS);
+    const id = nextSeqId(ORCAMENTOS, 'ORC');
+    const total = orcItemsCart.reduce((s,it)=>s+it.qty*it.unitValue,0);
+    const orc = { id, date: todayISO(), clientName, clientContact, validity, notes, items: orcItemsCart.slice(), total };
+    ORCAMENTOS.push(orc);
+    await setJSON('orcamentos', ORCAMENTOS);
+    msg.innerHTML = '<div class="msg ok">Orçamento salvo!</div>';
+    orcItemsCart = [];
+    document.getElementById('orc-client-name').value = '';
+    document.getElementById('orc-client-contact').value = '';
+    document.getElementById('orc-validity').value = '';
+    document.getElementById('orc-notes').value = '';
+    renderOrcItems();
+    renderOrcamentos();
+  });
+
+  function renderOrcamentos(){
+    document.getElementById('orc-list').innerHTML = ORCAMENTOS.length ? ORCAMENTOS.slice().reverse().map(o=>`
+      <div class="list-row">
+        <span><strong>${o.id}</strong> · ${escapeHtml(o.clientName)} · ${fmtDate(o.date)} · ${fmtMoney(o.total)}</span>
+        <span class="actions">
+          <button data-pdf-orc="${o.id}">📄 Gerar PDF</button>
+          <button data-del-orc="${o.id}">Remover</button>
+        </span>
+      </div>
+    `).join('') : '<div class="empty">Nenhum orçamento salvo ainda.</div>';
+
+    document.querySelectorAll('[data-pdf-orc]').forEach(b=>b.addEventListener('click', ()=>{
+      const orc = ORCAMENTOS.find(o=>o.id===b.dataset.pdfOrc);
+      if(orc) gerarPdfOrcamento(orc);
+    }));
+    document.querySelectorAll('[data-del-orc]').forEach(b=>b.addEventListener('click', async ()=>{
+      if(!confirm('Remover este orçamento?')) return;
+      ORCAMENTOS = await getJSON('orcamentos', ORCAMENTOS);
+      ORCAMENTOS = ORCAMENTOS.filter(o=>o.id!==b.dataset.delOrc);
+      await setJSON('orcamentos', ORCAMENTOS);
+      renderOrcamentos();
+    }));
+  }
+  function fmtDate(iso){ if(!iso) return '—'; const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }
+
+  function gerarPdfOrcamento(orc){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    // cabeçalho com identidade visual (faixa gradiente aproximada + nome da marca)
+    doc.setFillColor(14,138,150); doc.rect(0,0,70,38,'F');
+    doc.setFillColor(105,71,199); doc.rect(70,0,70,38,'F');
+    doc.setFillColor(182,46,130); doc.rect(140,0,35,38,'F');
+    doc.setFillColor(200,90,40); doc.rect(175,0,35,38,'F');
+    doc.setTextColor(255,255,255);
+    doc.setFont('helvetica','bold'); doc.setFontSize(20);
+    doc.text('HL 3D SOLUTIONS', 14, 22);
+    doc.setFontSize(10); doc.setFont('helvetica','normal');
+    doc.text('Peças e impressões 3D sob medida', 14, 30);
+
+    doc.setTextColor(30,30,30);
+    doc.setFontSize(16); doc.setFont('helvetica','bold');
+    doc.text('ORÇAMENTO', 14, 52);
+    doc.setFontSize(10); doc.setFont('helvetica','normal');
+    doc.text(`${orc.id}  ·  ${fmtDate(orc.date)}`, 14, 59);
+
+    doc.setFontSize(11); doc.setFont('helvetica','bold');
+    doc.text('Cliente:', 14, 70);
+    doc.setFont('helvetica','normal');
+    doc.text(orc.clientName || '—', 40, 70);
+    if(orc.clientContact){ doc.setFont('helvetica','bold'); doc.text('Contato:', 14, 77); doc.setFont('helvetica','normal'); doc.text(orc.clientContact, 40, 77); }
+    if(orc.validity){ doc.setFont('helvetica','bold'); doc.text('Validade:', 14, 84); doc.setFont('helvetica','normal'); doc.text(orc.validity, 40, 84); }
+
+    const rows = orc.items.map(it => [it.desc, String(it.qty), fmtMoney(it.unitValue), fmtMoney(it.qty*it.unitValue)]);
+    doc.autoTable({
+      startY: 92,
+      head: [['Descrição','Qtd','Valor unit.','Subtotal']],
+      body: rows,
+      theme: 'grid',
+      headStyles: { fillColor: [105,71,199], textColor: 255, fontStyle: 'bold' },
+      styles: { fontSize: 10, cellPadding: 4 },
+      columnStyles: { 1: {halign:'center'}, 2: {halign:'right'}, 3: {halign:'right'} }
+    });
+
+    let finalY = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(13); doc.setFont('helvetica','bold');
+    doc.text(`TOTAL: ${fmtMoney(orc.total)}`, 196, finalY, { align:'right' });
+
+    if(orc.notes){
+      finalY += 14;
+      doc.setFontSize(10); doc.setFont('helvetica','bold');
+      doc.text('Observações:', 14, finalY);
+      doc.setFont('helvetica','normal');
+      const splitNotes = doc.splitTextToSize(orc.notes, 180);
+      doc.text(splitNotes, 14, finalY+6);
+    }
+
+    doc.setFontSize(9); doc.setTextColor(120,120,120);
+    doc.text('HL 3D Solutions  ·  (34) 99941-6973  ·  hl3dsolutions@gmail.com  ·  @hl3dsolutions  ·  Uberaba/MG', 14, 285);
+
+    doc.save(`Orcamento_${orc.id}_${(orc.clientName||'cliente').replace(/\\s+/g,'_')}.pdf`);
+  }
+
+  // ============================================================
+  // FILA DE PEDIDOS
+  // ============================================================
+  const STATUSES = ['Pendente','Em produção','Concluído','Pago'];
+  document.getElementById('ped-add-btn').addEventListener('click', async ()=>{
+    const desc = document.getElementById('ped-desc').value.trim();
+    const value = parseFloat(document.getElementById('ped-value').value)||0;
+    if(!desc) return;
+    PEDIDOS = await getJSON('producao_pedidos', PEDIDOS);
+    const id = nextSeqId(PEDIDOS, 'PRD');
+    PEDIDOS.push({ id, desc, value, status:'Pendente', date: todayISO() });
+    await setJSON('producao_pedidos', PEDIDOS);
+    document.getElementById('ped-desc').value=''; document.getElementById('ped-value').value='';
+    renderPedidos();
+  });
+
+  function renderPedidos(){
+    const kanban = document.getElementById('ped-kanban');
+    kanban.innerHTML = STATUSES.map(status=>{
+      const items = PEDIDOS.filter(p=>p.status===status);
+      return `
+      <div class="kanban-col">
+        <h4>${status} <span style="color:var(--muted);">${items.length}</span></h4>
+        ${items.map(p=>{
+          const statusIdx = STATUSES.indexOf(p.status);
+          const prevStatus = statusIdx > 0 ? STATUSES[statusIdx-1] : null;
+          const nextStatus = statusIdx < STATUSES.length-1 ? STATUSES[statusIdx+1] : null;
+          return `
+          <div class="kanban-card">
+            <div class="kc-name">${escapeHtml(p.desc)}</div>
+            <div class="kc-value">${fmtMoney(p.value)} · ${fmtDate(p.date)}</div>
+            <div class="kc-actions">
+              ${prevStatus ? `<button data-move-ped="${p.id}|${prevStatus}">← ${prevStatus}</button>` : ''}
+              ${nextStatus ? `<button data-move-ped="${p.id}|${nextStatus}">${nextStatus} →</button>` : ''}
+              <button data-del-ped="${p.id}" style="color:var(--red);">✕</button>
+            </div>
+          </div>`;
+        }).join('') || '<div style="color:var(--muted);font-size:11px;">Vazio</div>'}
+      </div>`;
+    }).join('');
+
+    root.querySelectorAll('[data-move-ped]').forEach(b=>b.addEventListener('click', async ()=>{
+      const [id, newStatus] = b.dataset.movePed.split('|');
+      PEDIDOS = await getJSON('producao_pedidos', PEDIDOS);
+      const p = PEDIDOS.find(p=>p.id===id);
+      if(p){ p.status = newStatus; await setJSON('producao_pedidos', PEDIDOS); renderPedidos(); }
+    }));
+    root.querySelectorAll('[data-del-ped]').forEach(b=>b.addEventListener('click', async ()=>{
+      if(!confirm('Remover este pedido da fila?')) return;
+      PEDIDOS = await getJSON('producao_pedidos', PEDIDOS);
+      PEDIDOS = PEDIDOS.filter(p=>p.id!==b.dataset.delPed);
+      await setJSON('producao_pedidos', PEDIDOS);
+      renderPedidos();
+    }));
+  }
+
+  // ---------- inicialização ----------
+  (async function init(){
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if(session) await enterApp();
+  })();
+})();
+</script>
+</body>
+</html>
