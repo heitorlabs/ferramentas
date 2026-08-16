@@ -219,16 +219,55 @@
           <h2>🗂️ Fila de produção</h2>
           <p class="hint">Acompanhe cada pedido, movendo entre as etapas conforme avança.</p>
           <div class="row">
-            <div class="field" style="flex:2;"><label>Cliente / descrição</label><input id="ped-desc" placeholder="Ex.: Maria — 3x chaveiro personagem"></div>
+            <div class="field" style="flex:2;"><label>Cliente</label><input id="ped-client" placeholder="Ex.: Maria"></div>
+            <div class="field" style="flex:2;"><label>Descrição</label><input id="ped-desc" placeholder="Ex.: 3x chaveiro personagem"></div>
             <div class="field"><label>Valor (R$)</label><input id="ped-value" type="number" min="0" step="0.01" placeholder="0.00"></div>
+            <div class="field"><label>Entrega prevista</label><input id="ped-delivery" type="date"></div>
             <div class="field" style="flex:0;align-self:flex-end;"><button class="btn" id="ped-add-btn" type="button">+ Adicionar à fila</button></div>
           </div>
         </div>
+
+        <div class="summary-box" id="ped-summary" style="margin-bottom:20px;"></div>
+
         <div class="kanban" id="ped-kanban"></div>
+
+        <div class="panel" style="margin-top:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+            <h3 style="margin:0;">Lista completa</h3>
+            <div class="row" style="margin:0;">
+              <div class="field" style="min-width:180px;">
+                <label>Ordenar por</label>
+                <select id="ped-sort">
+                  <option value="delivery">Data de entrega</option>
+                  <option value="added">Data de inclusão</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <table id="ped-list-table">
+            <thead><tr><th>Cliente</th><th>Descrição</th><th>Valor</th><th>Incluído em</th><th>Entrega prevista</th><th>Status</th></tr></thead>
+            <tbody id="ped-list-tbody"></tbody>
+          </table>
+        </div>
       </div>
 
       <!-- ============ CONFIGURAÇÕES ============ -->
       <div class="view" data-view="config" style="display:none;">
+        <div class="panel">
+          <h3>🏢 Dados pro orçamento em PDF</h3>
+          <p class="hint">Essas informações aparecem no rodapé de todo orçamento gerado. Preencha uma vez.</p>
+          <div class="row">
+            <div class="field"><label>Chave PIX</label><input id="cfg-empresa-pix" placeholder="Telefone, e-mail ou CPF/CNPJ"></div>
+            <div class="field"><label>Prazo médio de produção</label><input id="cfg-empresa-prazo" placeholder="Ex.: 5 a 10 dias úteis"></div>
+            <div class="field"><label>Validade padrão da proposta</label><input id="cfg-empresa-validade" placeholder="Ex.: 7 dias"></div>
+          </div>
+          <div class="row">
+            <div class="field" style="flex:1 1 100%;"><label>Condições de pagamento (aparece no PDF)</label><textarea id="cfg-empresa-pagamento" rows="2" placeholder="Ex.: 50% na aprovação do orçamento, 50% na entrega. Aceito PIX e dinheiro."></textarea></div>
+          </div>
+          <button class="btn secondary small" id="cfg-empresa-save-btn" type="button">Salvar dados</button>
+          <div id="cfg-empresa-msg"></div>
+        </div>
+
         <div class="panel">
           <h2>⚙️ Configurações de custo</h2>
           <p class="hint">Esses valores alimentam a calculadora. Preencha uma vez e ajuste sempre que seus custos mudarem.</p>
@@ -245,6 +284,7 @@
             <div class="field"><label>Horas/mês</label><input id="cfg-labor-hours" type="number" min="1" step="1" value="160"></div>
             <div class="field" style="flex:0;align-self:flex-end;"><button class="btn secondary small" id="cfg-labor-add-btn" type="button">+ Adicionar</button></div>
           </div>
+          <div id="cfg-labor-add-btn-msg"></div>
         </div>
 
         <div class="panel">
@@ -256,6 +296,7 @@
             <div class="field"><label>Valor/mês (R$)</label><input id="cfg-fixed-value" type="number" min="0" step="0.01"></div>
             <div class="field" style="flex:0;align-self:flex-end;"><button class="btn secondary small" id="cfg-fixed-add-btn" type="button">+ Adicionar</button></div>
           </div>
+          <div id="cfg-fixed-add-btn-msg"></div>
           <div class="summary-box" style="margin-top:10px;">
             <div class="summary-row"><span>Total fixo/mês</span><span id="cfg-fixed-total">R$ 0,00</span></div>
             <div class="summary-row"><span>Horas de trabalho consideradas/mês</span><span><input id="cfg-fixed-hours-base" type="number" value="160" style="width:70px;"></span></div>
@@ -282,6 +323,7 @@
             <div class="field"><label>Manutenção/ano (R$)</label><input id="cfg-equip-maint" type="number" min="0" step="0.01" value="0"></div>
             <div class="field" style="flex:0;align-self:flex-end;"><button class="btn secondary small" id="cfg-equip-add-btn" type="button">+ Adicionar</button></div>
           </div>
+          <div id="cfg-equip-add-btn-msg"></div>
         </div>
 
         <div class="panel">
@@ -293,6 +335,7 @@
             <div class="field"><label>Quantidade (g)</label><input id="cfg-material-qty" type="number" min="1" step="1" value="1000"></div>
             <div class="field" style="flex:0;align-self:flex-end;"><button class="btn secondary small" id="cfg-material-add-btn" type="button">+ Adicionar</button></div>
           </div>
+          <div id="cfg-material-add-btn-msg"></div>
         </div>
 
         <div class="panel">
@@ -303,6 +346,7 @@
             <div class="field"><label>Valor (R$)</label><input id="cfg-shipping-value" type="number" min="0" step="0.01"></div>
             <div class="field" style="flex:0;align-self:flex-end;"><button class="btn secondary small" id="cfg-shipping-add-btn" type="button">+ Adicionar</button></div>
           </div>
+          <div id="cfg-shipping-add-btn-msg"></div>
         </div>
 
         <div class="panel">
@@ -314,6 +358,7 @@
             <div class="field"><label>Valor unitário (R$)</label><input id="cfg-extra-value" type="number" min="0" step="0.01"></div>
             <div class="field" style="flex:0;align-self:flex-end;"><button class="btn secondary small" id="cfg-extra-add-btn" type="button">+ Adicionar</button></div>
           </div>
+          <div id="cfg-extra-add-btn-msg"></div>
         </div>
       </div>
     </main>
@@ -349,6 +394,8 @@
 
   // ---------- estado ----------
   let CFG = { labor:[], fixed:[], equip:[], materials:[], shipping:[], extras:[], globals:{energyKwh:1.34, paybackMonths:12, depreciationPct:10, fixedHoursBase:160} };
+  let EMPRESA = { pix:'', prazo:'', validade:'', pagamento:'' };
+  const LOGO_B64 = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAEqAVMDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD8qqKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAoooo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";
   let ORCAMENTOS = [];
   let PEDIDOS = [];
   let calcExtrasCart = [];
@@ -364,6 +411,7 @@
     CFG.globals = await getJSON('custos_globals', CFG.globals);
     ORCAMENTOS = await getJSON('orcamentos', []);
     PEDIDOS = await getJSON('producao_pedidos', []);
+    EMPRESA = await getJSON('empresa_config', EMPRESA);
   }
 
   function nextSeqId(list, prefix){
@@ -403,6 +451,10 @@
     renderOrcamentos();
     renderPedidos();
     updateCalcSummary();
+    document.getElementById('cfg-empresa-pix').value = EMPRESA.pix || '';
+    document.getElementById('cfg-empresa-prazo').value = EMPRESA.prazo || '';
+    document.getElementById('cfg-empresa-validade').value = EMPRESA.validade || '';
+    document.getElementById('cfg-empresa-pagamento').value = EMPRESA.pagamento || '';
   }
 
   // valores extraídos diretamente da sua planilha CALCULAR_VALOR_PRODUTOS.xlsx (aba "Base")
@@ -466,6 +518,17 @@
     await setJSON('custos_extras', CFG.extras);
     await setJSON('custos_globals', CFG.globals);
   }
+  document.getElementById('cfg-empresa-save-btn').addEventListener('click', async ()=>{
+    EMPRESA = {
+      pix: document.getElementById('cfg-empresa-pix').value.trim(),
+      prazo: document.getElementById('cfg-empresa-prazo').value.trim(),
+      validade: document.getElementById('cfg-empresa-validade').value.trim(),
+      pagamento: document.getElementById('cfg-empresa-pagamento').value.trim(),
+    };
+    await setJSON('empresa_config', EMPRESA);
+    document.getElementById('cfg-empresa-msg').innerHTML = '<div class="msg ok">Dados salvos! Já valem pros próximos orçamentos.</div>';
+  });
+
   document.getElementById('cfg-import-btn').addEventListener('click', async ()=>{
     if(!confirm('Importar os valores da planilha original? Isso vai ADICIONAR os itens (mão de obra, equipamentos, materiais, fretes, extras) da sua planilha CALCULAR_VALOR_PRODUTOS.xlsx. Se você já tem itens parecidos cadastrados, eles vão ficar duplicados — remova os antigos antes, se for o caso.')) return;
     await seedFromSpreadsheet();
@@ -554,7 +617,11 @@
     const name = document.getElementById('cfg-labor-name').value.trim();
     const salaryMonth = parseFloat(document.getElementById('cfg-labor-salary').value);
     const hoursMonth = parseFloat(document.getElementById('cfg-labor-hours').value);
-    if(!name || isNaN(salaryMonth) || !hoursMonth) return;
+    const msg = document.getElementById('cfg-labor-add-btn-msg');
+    if(!name){ msg.innerHTML = '<div class="msg err">Preencha o nome.</div>'; return; }
+    if(isNaN(salaryMonth)){ msg.innerHTML = '<div class="msg err">Preencha o salário/mês.</div>'; return; }
+    if(!hoursMonth){ msg.innerHTML = '<div class="msg err">Preencha as horas/mês.</div>'; return; }
+    msg.innerHTML = '';
     CFG.labor.push({name, salaryMonth, hoursMonth});
     await setJSON('custos_labor', CFG.labor);
     document.getElementById('cfg-labor-name').value=''; document.getElementById('cfg-labor-salary').value='';
@@ -563,7 +630,10 @@
   document.getElementById('cfg-fixed-add-btn').addEventListener('click', async ()=>{
     const name = document.getElementById('cfg-fixed-name').value.trim();
     const value = parseFloat(document.getElementById('cfg-fixed-value').value);
-    if(!name || isNaN(value)) return;
+    const msg = document.getElementById('cfg-fixed-add-btn-msg');
+    if(!name){ msg.innerHTML = '<div class="msg err">Preencha o nome do item.</div>'; return; }
+    if(isNaN(value)){ msg.innerHTML = '<div class="msg err">Preencha o valor mensal.</div>'; return; }
+    msg.innerHTML = '';
     CFG.fixed.push({name, value});
     await setJSON('custos_fixed', CFG.fixed);
     document.getElementById('cfg-fixed-name').value=''; document.getElementById('cfg-fixed-value').value='';
@@ -572,9 +642,13 @@
   document.getElementById('cfg-equip-add-btn').addEventListener('click', async ()=>{
     const name = document.getElementById('cfg-equip-name').value.trim();
     const purchaseValue = parseFloat(document.getElementById('cfg-equip-value').value);
-    const watts = parseFloat(document.getElementById('cfg-equip-watts').value);
+    const wattsRaw = document.getElementById('cfg-equip-watts').value;
+    const watts = wattsRaw.trim() === '' ? 0 : parseFloat(wattsRaw); // opcional — itens sem motor/consumo (ex.: acessório) podem deixar em branco
     const maintenanceYear = parseFloat(document.getElementById('cfg-equip-maint').value) || 0;
-    if(!name || isNaN(purchaseValue) || isNaN(watts)) return;
+    const msg = document.getElementById('cfg-equip-add-btn-msg');
+    if(!name){ msg.innerHTML = '<div class="msg err">Preencha o nome do equipamento.</div>'; return; }
+    if(isNaN(purchaseValue)){ msg.innerHTML = '<div class="msg err">Preencha o valor de compra. Se for um acessório sem "compra própria" (ex.: mosquetão, lâmpada), cadastre em "Extras / serviços de terceiros" em vez de Equipamentos.</div>'; return; }
+    msg.innerHTML = '';
     CFG.equip.push({name, purchaseValue, watts, maintenanceYear});
     await setJSON('custos_equip', CFG.equip);
     document.getElementById('cfg-equip-name').value=''; document.getElementById('cfg-equip-value').value=''; document.getElementById('cfg-equip-watts').value=''; document.getElementById('cfg-equip-maint').value='0';
@@ -584,7 +658,11 @@
     const name = document.getElementById('cfg-material-name').value.trim();
     const cost = parseFloat(document.getElementById('cfg-material-cost').value);
     const qty = parseFloat(document.getElementById('cfg-material-qty').value);
-    if(!name || isNaN(cost) || !qty) return;
+    const msg = document.getElementById('cfg-material-add-btn-msg');
+    if(!name){ msg.innerHTML = '<div class="msg err">Preencha o nome do material.</div>'; return; }
+    if(isNaN(cost)){ msg.innerHTML = '<div class="msg err">Preencha o custo do pacote.</div>'; return; }
+    if(!qty){ msg.innerHTML = '<div class="msg err">Preencha a quantidade (g) do pacote.</div>'; return; }
+    msg.innerHTML = '';
     CFG.materials.push({name, cost, qty});
     await setJSON('custos_materials', CFG.materials);
     document.getElementById('cfg-material-name').value=''; document.getElementById('cfg-material-cost').value='';
@@ -593,7 +671,10 @@
   document.getElementById('cfg-shipping-add-btn').addEventListener('click', async ()=>{
     const name = document.getElementById('cfg-shipping-name').value.trim();
     const value = parseFloat(document.getElementById('cfg-shipping-value').value);
-    if(!name || isNaN(value)) return;
+    const msg = document.getElementById('cfg-shipping-add-btn-msg');
+    if(!name){ msg.innerHTML = '<div class="msg err">Preencha o nome da opção de envio.</div>'; return; }
+    if(isNaN(value)){ msg.innerHTML = '<div class="msg err">Preencha o valor do frete.</div>'; return; }
+    msg.innerHTML = '';
     CFG.shipping.push({name, value});
     await setJSON('custos_shipping', CFG.shipping);
     document.getElementById('cfg-shipping-name').value=''; document.getElementById('cfg-shipping-value').value='';
@@ -602,7 +683,10 @@
   document.getElementById('cfg-extra-add-btn').addEventListener('click', async ()=>{
     const name = document.getElementById('cfg-extra-name').value.trim();
     const value = parseFloat(document.getElementById('cfg-extra-value').value);
-    if(!name || isNaN(value)) return;
+    const msg = document.getElementById('cfg-extra-add-btn-msg');
+    if(!name){ msg.innerHTML = '<div class="msg err">Preencha o nome do item.</div>'; return; }
+    if(isNaN(value)){ msg.innerHTML = '<div class="msg err">Preencha o valor unitário.</div>'; return; }
+    msg.innerHTML = '';
     CFG.extras.push({name, value});
     await setJSON('custos_extras', CFG.extras);
     document.getElementById('cfg-extra-name').value=''; document.getElementById('cfg-extra-value').value='';
@@ -789,9 +873,10 @@
   function renderOrcamentos(){
     document.getElementById('orc-list').innerHTML = ORCAMENTOS.length ? ORCAMENTOS.slice().reverse().map(o=>`
       <div class="list-row">
-        <span><strong>${o.id}</strong> · ${escapeHtml(o.clientName)} · ${fmtDate(o.date)} · ${fmtMoney(o.total)}</span>
+        <span><strong>${o.id}</strong> · ${escapeHtml(o.clientName)} · ${fmtDate(o.date)} · ${fmtMoney(o.total)}${o.convertedToPedido ? ' · <span class="tag concluido">na fila de produção</span>' : ''}</span>
         <span class="actions">
           <button data-pdf-orc="${o.id}">📄 Gerar PDF</button>
+          ${!o.convertedToPedido ? `<button data-convert-orc="${o.id}">✅ Aceito → Fila de produção</button>` : ''}
           <button data-del-orc="${o.id}">Remover</button>
         </span>
       </div>
@@ -800,6 +885,21 @@
     document.querySelectorAll('[data-pdf-orc]').forEach(b=>b.addEventListener('click', ()=>{
       const orc = ORCAMENTOS.find(o=>o.id===b.dataset.pdfOrc);
       if(orc) gerarPdfOrcamento(orc);
+    }));
+    document.querySelectorAll('[data-convert-orc]').forEach(b=>b.addEventListener('click', async ()=>{
+      const orc = ORCAMENTOS.find(o=>o.id===b.dataset.convertOrc);
+      if(!orc) return;
+      const desc = orc.items.map(it=>`${it.qty}x ${it.desc}`).join(', ');
+      PEDIDOS = await getJSON('producao_pedidos', PEDIDOS);
+      const id = nextSeqId(PEDIDOS, 'PRD');
+      PEDIDOS.push({ id, client: orc.clientName, desc, value: orc.total, status:'Pendente', date: todayISO(), deliveryDate: null, orcamentoId: orc.id });
+      await setJSON('producao_pedidos', PEDIDOS);
+      ORCAMENTOS = await getJSON('orcamentos', ORCAMENTOS);
+      const o2 = ORCAMENTOS.find(o=>o.id===orc.id);
+      if(o2) o2.convertedToPedido = true;
+      await setJSON('orcamentos', ORCAMENTOS);
+      renderOrcamentos();
+      alert(`Pronto! Criado o pedido ${id} na Fila de Produção. Você pode ajustar a data de entrega por lá.`);
     }));
     document.querySelectorAll('[data-del-orc]').forEach(b=>b.addEventListener('click', async ()=>{
       if(!confirm('Remover este orçamento?')) return;
@@ -814,58 +914,102 @@
   function gerarPdfOrcamento(orc){
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    // cabeçalho com identidade visual (faixa gradiente aproximada + nome da marca)
-    doc.setFillColor(14,138,150); doc.rect(0,0,70,38,'F');
-    doc.setFillColor(105,71,199); doc.rect(70,0,70,38,'F');
-    doc.setFillColor(182,46,130); doc.rect(140,0,35,38,'F');
-    doc.setFillColor(200,90,40); doc.rect(175,0,35,38,'F');
+    const pageW = doc.internal.pageSize.getWidth();
+
+    // ---------- cabeçalho ----------
+    doc.setFillColor(22,18,25); doc.rect(0,0,pageW,42,'F');
+    // faixa gradiente aproximada por 4 blocos, igual à marca
+    doc.setFillColor(14,138,150); doc.rect(0,40,pageW*0.25,2.4,'F');
+    doc.setFillColor(105,71,199); doc.rect(pageW*0.25,40,pageW*0.25,2.4,'F');
+    doc.setFillColor(182,46,130); doc.rect(pageW*0.50,40,pageW*0.25,2.4,'F');
+    doc.setFillColor(200,90,40); doc.rect(pageW*0.75,40,pageW*0.25,2.4,'F');
+    try{ doc.addImage(LOGO_B64, 'JPEG', 14, 8, 26, 26); }catch(e){}
     doc.setTextColor(255,255,255);
-    doc.setFont('helvetica','bold'); doc.setFontSize(20);
-    doc.text('HL 3D SOLUTIONS', 14, 22);
-    doc.setFontSize(10); doc.setFont('helvetica','normal');
-    doc.text('Peças e impressões 3D sob medida', 14, 30);
+    doc.setFont('helvetica','bold'); doc.setFontSize(17);
+    doc.text('HL 3D SOLUTIONS', 46, 20);
+    doc.setFontSize(9.5); doc.setFont('helvetica','normal');
+    doc.text('Chaveiros, fidgets, itens sensoriais e peças personalizadas em 3D', 46, 27);
+    doc.setFontSize(9);
+    doc.text('@hl3dsolutions  ·  Uberaba/MG', 46, 33);
 
+    // ---------- título e identificação ----------
+    let y = 55;
     doc.setTextColor(30,30,30);
-    doc.setFontSize(16); doc.setFont('helvetica','bold');
-    doc.text('ORÇAMENTO', 14, 52);
-    doc.setFontSize(10); doc.setFont('helvetica','normal');
-    doc.text(`${orc.id}  ·  ${fmtDate(orc.date)}`, 14, 59);
+    doc.setFontSize(18); doc.setFont('helvetica','bold');
+    doc.text('ORÇAMENTO', 14, y);
+    doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(110,110,110);
+    doc.text(`Nº ${orc.id}`, pageW-14, y-5, { align:'right' });
+    doc.text(`Emitido em ${fmtDate(orc.date)}`, pageW-14, y, { align:'right' });
+    y += 10;
+    doc.setDrawColor(226,220,207); doc.line(14, y, pageW-14, y);
+    y += 10;
 
-    doc.setFontSize(11); doc.setFont('helvetica','bold');
-    doc.text('Cliente:', 14, 70);
-    doc.setFont('helvetica','normal');
-    doc.text(orc.clientName || '—', 40, 70);
-    if(orc.clientContact){ doc.setFont('helvetica','bold'); doc.text('Contato:', 14, 77); doc.setFont('helvetica','normal'); doc.text(orc.clientContact, 40, 77); }
-    if(orc.validity){ doc.setFont('helvetica','bold'); doc.text('Validade:', 14, 84); doc.setFont('helvetica','normal'); doc.text(orc.validity, 40, 84); }
+    // ---------- dados do cliente ----------
+    doc.setFontSize(10); doc.setTextColor(30,30,30);
+    doc.setFont('helvetica','bold'); doc.text('Cliente', 14, y);
+    doc.setFont('helvetica','normal'); doc.text(orc.clientName || '—', 40, y);
+    if(orc.clientContact){
+      doc.setFont('helvetica','bold'); doc.text('Contato', 110, y);
+      doc.setFont('helvetica','normal'); doc.text(orc.clientContact, 130, y);
+    }
+    y += 7;
+    const validade = orc.validity || EMPRESA.validade;
+    if(validade){ doc.setFont('helvetica','bold'); doc.text('Validade da proposta', 14, y); doc.setFont('helvetica','normal'); doc.text(validade, 55, y); y += 7; }
+    if(EMPRESA.prazo){ doc.setFont('helvetica','bold'); doc.text('Prazo estimado de produção', 14, y); doc.setFont('helvetica','normal'); doc.text(EMPRESA.prazo, 66, y); y += 7; }
+    y += 4;
 
+    // ---------- tabela de itens ----------
     const rows = orc.items.map(it => [it.desc, String(it.qty), fmtMoney(it.unitValue), fmtMoney(it.qty*it.unitValue)]);
     doc.autoTable({
-      startY: 92,
+      startY: y,
       head: [['Descrição','Qtd','Valor unit.','Subtotal']],
       body: rows,
       theme: 'grid',
-      headStyles: { fillColor: [105,71,199], textColor: 255, fontStyle: 'bold' },
-      styles: { fontSize: 10, cellPadding: 4 },
-      columnStyles: { 1: {halign:'center'}, 2: {halign:'right'}, 3: {halign:'right'} }
+      headStyles: { fillColor: [105,71,199], textColor: 255, fontStyle: 'bold', fontSize: 10 },
+      styles: { fontSize: 10, cellPadding: 4, textColor: [30,30,30] },
+      alternateRowStyles: { fillColor: [247,244,239] },
+      columnStyles: { 1: {halign:'center', cellWidth:20}, 2: {halign:'right', cellWidth:35}, 3: {halign:'right', cellWidth:35} }
     });
 
-    let finalY = doc.lastAutoTable.finalY + 10;
-    doc.setFontSize(13); doc.setFont('helvetica','bold');
-    doc.text(`TOTAL: ${fmtMoney(orc.total)}`, 196, finalY, { align:'right' });
+    let finalY = doc.lastAutoTable.finalY + 4;
+    doc.setFillColor(241,236,227); doc.rect(pageW-95, finalY, 81, 12, 'F');
+    doc.setFontSize(13); doc.setFont('helvetica','bold'); doc.setTextColor(30,30,30);
+    doc.text('TOTAL', pageW-90, finalY+8);
+    doc.text(fmtMoney(orc.total), pageW-16, finalY+8, { align:'right' });
+    finalY += 20;
 
-    if(orc.notes){
-      finalY += 14;
-      doc.setFontSize(10); doc.setFont('helvetica','bold');
-      doc.text('Observações:', 14, finalY);
-      doc.setFont('helvetica','normal');
-      const splitNotes = doc.splitTextToSize(orc.notes, 180);
-      doc.text(splitNotes, 14, finalY+6);
+    // ---------- condições de pagamento ----------
+    if(EMPRESA.pagamento || EMPRESA.pix){
+      doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(30,30,30);
+      doc.text('Condições de pagamento', 14, finalY);
+      doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+      finalY += 6;
+      if(EMPRESA.pagamento){
+        const splitPag = doc.splitTextToSize(EMPRESA.pagamento, pageW-28);
+        doc.text(splitPag, 14, finalY);
+        finalY += splitPag.length * 5 + 2;
+      }
+      if(EMPRESA.pix){ doc.text(`Chave PIX: ${EMPRESA.pix}`, 14, finalY); finalY += 7; }
+      finalY += 3;
     }
 
-    doc.setFontSize(9); doc.setTextColor(120,120,120);
-    doc.text('HL 3D Solutions  ·  (34) 99941-6973  ·  hl3dsolutions@gmail.com  ·  @hl3dsolutions  ·  Uberaba/MG', 14, 285);
+    // ---------- observações ----------
+    if(orc.notes){
+      doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(30,30,30);
+      doc.text('Observações', 14, finalY);
+      doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+      const splitNotes = doc.splitTextToSize(orc.notes, pageW-28);
+      doc.text(splitNotes, 14, finalY+6);
+      finalY += splitNotes.length * 5 + 10;
+    }
 
-    doc.save(`Orcamento_${orc.id}_${(orc.clientName||'cliente').replace(/\\s+/g,'_')}.pdf`);
+    // ---------- rodapé fixo ----------
+    doc.setDrawColor(226,220,207); doc.line(14, 278, pageW-14, 278);
+    doc.setFontSize(8.5); doc.setTextColor(120,120,120); doc.setFont('helvetica','normal');
+    doc.text('HL 3D Solutions  ·  (34) 99941-6973  ·  hl3dsolutions@gmail.com  ·  @hl3dsolutions  ·  Uberaba/MG', 14, 284);
+    doc.text('Obrigado pela preferência! Qualquer dúvida, fico à disposição pelo WhatsApp.', 14, 290);
+
+    doc.save(`Orcamento_${orc.id}_${(orc.clientName||'cliente').replace(/\s+/g,'_')}.pdf`);
   }
 
   // ============================================================
@@ -873,18 +1017,37 @@
   // ============================================================
   const STATUSES = ['Pendente','Em produção','Concluído','Pago'];
   document.getElementById('ped-add-btn').addEventListener('click', async ()=>{
+    const client = document.getElementById('ped-client').value.trim();
     const desc = document.getElementById('ped-desc').value.trim();
     const value = parseFloat(document.getElementById('ped-value').value)||0;
+    const deliveryDate = document.getElementById('ped-delivery').value || null;
     if(!desc) return;
     PEDIDOS = await getJSON('producao_pedidos', PEDIDOS);
     const id = nextSeqId(PEDIDOS, 'PRD');
-    PEDIDOS.push({ id, desc, value, status:'Pendente', date: todayISO() });
+    PEDIDOS.push({ id, client, desc, value, status:'Pendente', date: todayISO(), deliveryDate });
     await setJSON('producao_pedidos', PEDIDOS);
-    document.getElementById('ped-desc').value=''; document.getElementById('ped-value').value='';
+    document.getElementById('ped-client').value=''; document.getElementById('ped-desc').value=''; document.getElementById('ped-value').value=''; document.getElementById('ped-delivery').value='';
     renderPedidos();
   });
 
-  function renderPedidos(){
+  function isPedidoAtrasado(p){
+    if(!p.deliveryDate) return false;
+    if(p.status === 'Concluído' || p.status === 'Pago') return false;
+    return p.deliveryDate < todayISO();
+  }
+
+  function renderPedidosSummary(){
+    const ativos = PEDIDOS.filter(p=>p.status!=='Pago');
+    const valorEmFila = ativos.reduce((s,p)=>s+Number(p.value),0);
+    const atrasados = PEDIDOS.filter(isPedidoAtrasado).length;
+    document.getElementById('ped-summary').innerHTML = `
+      <div class="summary-row"><span>Pedidos ativos (não pagos)</span><span>${ativos.length}</span></div>
+      <div class="summary-row"><span>Valor total em fila</span><span>${fmtMoney(valorEmFila)}</span></div>
+      <div class="summary-row" style="${atrasados>0 ? 'color:var(--red);font-weight:700;' : ''}"><span>Atrasados</span><span>${atrasados}</span></div>
+    `;
+  }
+
+  function renderPedidosKanban(){
     const kanban = document.getElementById('ped-kanban');
     kanban.innerHTML = STATUSES.map(status=>{
       const items = PEDIDOS.filter(p=>p.status===status);
@@ -895,10 +1058,12 @@
           const statusIdx = STATUSES.indexOf(p.status);
           const prevStatus = statusIdx > 0 ? STATUSES[statusIdx-1] : null;
           const nextStatus = statusIdx < STATUSES.length-1 ? STATUSES[statusIdx+1] : null;
+          const atrasado = isPedidoAtrasado(p);
           return `
-          <div class="kanban-card">
-            <div class="kc-name">${escapeHtml(p.desc)}</div>
-            <div class="kc-value">${fmtMoney(p.value)} · ${fmtDate(p.date)}</div>
+          <div class="kanban-card" style="${atrasado ? 'border-color:var(--red);' : ''}">
+            <div class="kc-name">${p.client ? escapeHtml(p.client)+' — ' : ''}${escapeHtml(p.desc)}</div>
+            <div class="kc-value">${fmtMoney(p.value)} · incluído ${fmtDate(p.date)}</div>
+            ${p.deliveryDate ? `<div class="kc-value" style="${atrasado ? 'color:var(--red);font-weight:700;' : ''}">${atrasado ? '⚠️ atrasado — ' : '📦 entrega '}${fmtDate(p.deliveryDate)}</div>` : ''}
             <div class="kc-actions">
               ${prevStatus ? `<button data-move-ped="${p.id}|${prevStatus}">← ${prevStatus}</button>` : ''}
               ${nextStatus ? `<button data-move-ped="${p.id}|${nextStatus}">${nextStatus} →</button>` : ''}
@@ -922,6 +1087,40 @@
       await setJSON('producao_pedidos', PEDIDOS);
       renderPedidos();
     }));
+  }
+
+  const statusTagClass = { 'Pendente':'pendente', 'Em produção':'producao', 'Concluído':'concluido', 'Pago':'pago' };
+  function renderPedidosList(){
+    const sortBy = document.getElementById('ped-sort').value;
+    const sorted = PEDIDOS.slice().sort((a,b)=>{
+      if(sortBy === 'delivery'){
+        // sem data de entrega vai pro final da lista
+        if(!a.deliveryDate && !b.deliveryDate) return (a.date||'').localeCompare(b.date||'');
+        if(!a.deliveryDate) return 1;
+        if(!b.deliveryDate) return -1;
+        return a.deliveryDate.localeCompare(b.deliveryDate);
+      }
+      return (b.date||'').localeCompare(a.date||''); // inclusão: mais recente primeiro
+    });
+    document.getElementById('ped-list-tbody').innerHTML = sorted.length ? sorted.map(p=>{
+      const atrasado = isPedidoAtrasado(p);
+      return `
+      <tr style="${atrasado ? 'background:rgba(194,51,73,.06);' : ''}">
+        <td>${escapeHtml(p.client)||'—'}</td>
+        <td>${escapeHtml(p.desc)}</td>
+        <td>${fmtMoney(p.value)}</td>
+        <td>${fmtDate(p.date)}</td>
+        <td style="${atrasado ? 'color:var(--red);font-weight:700;' : ''}">${p.deliveryDate ? fmtDate(p.deliveryDate) : '—'}${atrasado ? ' ⚠️' : ''}</td>
+        <td><span class="tag ${statusTagClass[p.status]}">${p.status}</span></td>
+      </tr>`;
+    }).join('') : '<tr><td colspan="6" class="empty">Nenhum pedido na fila ainda.</td></tr>';
+  }
+  document.getElementById('ped-sort').addEventListener('change', renderPedidosList);
+
+  function renderPedidos(){
+    renderPedidosSummary();
+    renderPedidosKanban();
+    renderPedidosList();
   }
 
   // ---------- inicialização ----------
