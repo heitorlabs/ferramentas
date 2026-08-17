@@ -71,16 +71,32 @@
   #app-root .tag.producao{background:rgba(105,71,199,.16);color:var(--violet);}
   #app-root .tag.concluido{background:rgba(14,138,150,.16);color:var(--teal);}
   #app-root .tag.pago{background:rgba(30,148,99,.16);color:var(--green);}
-  #app-root .kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
-  #app-root .kanban-col{background:var(--panel-2);border-radius:12px;padding:12px;min-height:80px;}
-  #app-root .kanban-col h4{font-family:'Space Grotesk',sans-serif;font-size:12.5px;margin:0 0 10px 0;display:flex;justify-content:space-between;}
-  #app-root .kanban-card{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:8px;font-size:12px;}
-  #app-root .kanban-card .kc-name{font-weight:700;font-family:'Space Grotesk',sans-serif;margin-bottom:2px;}
-  #app-root .kanban-card .kc-value{color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:11px;}
+  #app-root .kanban{display:grid;grid-template-columns:repeat(4,minmax(220px,1fr));gap:14px;align-items:start;}
+  #app-root .kanban-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px;flex-wrap:wrap;}
+  #app-root .kanban-toolbar-actions{display:flex;gap:7px;}
+  #app-root .kanban-col{--stage:#8a8490;--stage-soft:rgba(138,132,144,.1);background:linear-gradient(180deg,var(--stage-soft),var(--panel-2) 80px);border:1px solid var(--line);border-top:4px solid var(--stage);border-radius:14px;padding:11px;min-height:80px;box-shadow:0 8px 24px rgba(22,18,25,.05);transition:.2s ease;}
+  #app-root .kanban-col[data-stage="pendente"]{--stage:#d78b14;--stage-soft:rgba(215,139,20,.12);}
+  #app-root .kanban-col[data-stage="producao"]{--stage:#6947c7;--stage-soft:rgba(105,71,199,.12);}
+  #app-root .kanban-col[data-stage="concluido"]{--stage:#0e8a96;--stage-soft:rgba(14,138,150,.12);}
+  #app-root .kanban-col[data-stage="pago"]{--stage:#21845a;--stage-soft:rgba(33,132,90,.12);}
+  #app-root .kanban-col.collapsed{min-height:0;padding-bottom:9px;}
+  #app-root .kanban-col.collapsed .kanban-body{display:none;}
+  #app-root .kanban-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;}
+  #app-root .kanban-col.collapsed .kanban-head{margin-bottom:0;}
+  #app-root .kanban-title{display:flex;align-items:center;gap:8px;font:700 12.5px 'Space Grotesk',sans-serif;}
+  #app-root .kanban-dot{width:9px;height:9px;border-radius:50%;background:var(--stage);box-shadow:0 0 0 4px var(--stage-soft);}
+  #app-root .kanban-count{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:22px;padding:0 7px;border-radius:999px;background:var(--stage);color:#fff;font:700 10px 'IBM Plex Mono',monospace;}
+  #app-root .kanban-total{display:block;color:var(--muted);font:10px 'IBM Plex Mono',monospace;margin:2px 0 0 17px;}
+  #app-root .kanban-toggle{width:29px;height:29px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);cursor:pointer;font-size:15px;}
+  #app-root .kanban-card{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--stage);border-radius:10px;padding:11px 12px;margin-bottom:8px;font-size:12px;box-shadow:0 3px 12px rgba(22,18,25,.045);}
+  #app-root .kanban-card:last-child{margin-bottom:0;}
+  #app-root .kanban-card .kc-name{font-weight:700;font-family:'Space Grotesk',sans-serif;margin-bottom:6px;line-height:1.35;}
+  #app-root .kanban-card .kc-value{color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1.55;}
   #app-root .kanban-card .kc-actions{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap;}
   #app-root .kanban-card .kc-actions button{
-    flex:1;font-size:10px;padding:5px 6px;border-radius:6px;border:1px solid var(--line);background:var(--panel-2);color:var(--muted);cursor:pointer;
+    flex:1;font-size:10px;padding:6px 7px;border-radius:7px;border:1px solid var(--line);background:var(--panel-2);color:var(--muted);cursor:pointer;
   }
+  #app-root .kanban-card .kc-actions button:hover{border-color:var(--stage);color:var(--stage);}
   #app-root .gate-box{max-width:380px;margin:80px auto;text-align:center;}
   #app-root .gate-box .mark{width:64px;height:64px;margin:0 auto 18px auto;}
   #app-root .list-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:12.5px;gap:10px;flex-wrap:wrap;}
@@ -121,6 +137,9 @@
   #app-root .finance-kpi strong{display:block;font:700 20px 'Space Grotesk',sans-serif;margin-top:6px;}
   #app-root .finance-kpi.green strong{color:var(--green);}
   #app-root .finance-kpi.coral strong{color:var(--coral);}
+  #app-root .production-kpis{grid-template-columns:repeat(4,1fr);}
+  #app-root .production-kpis .finance-kpi{position:relative;overflow:hidden;}
+  #app-root .production-kpis .finance-kpi:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--kpi-color,var(--violet));}
   #app-root .month-group{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:15px;overflow:hidden;}
   #app-root .month-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;background:var(--panel-2);border-bottom:1px solid var(--line);}
   #app-root .month-head h3{margin:0;font-size:15px;text-transform:capitalize;}
@@ -148,6 +167,7 @@
     #app-root .client-rank{grid-template-columns:34px 1fr auto;}
     #app-root .client-rank .mobile-hide{display:none;}
   }
+  @media(min-width:801px) and (max-width:1100px){#app-root .kanban{grid-template-columns:repeat(2,1fr);}}
 </style>
 </head>
 <body>
@@ -281,14 +301,17 @@
           <div class="row">
             <div class="field" style="flex:2;"><label>Cliente</label><input id="ped-client" placeholder="Ex.: Maria"></div>
             <div class="field" style="flex:2;"><label>Descrição</label><input id="ped-desc" placeholder="Ex.: 3x chaveiro personagem"></div>
-            <div class="field"><label>Valor (R$)</label><input id="ped-value" type="number" min="0" step="0.01" placeholder="0.00"></div>
+            <div class="field"><label>Finalidade</label><select id="ped-purpose"><option>Venda</option><option>Brinde</option><option>Uso próprio</option></select></div>
+            <div class="field" id="ped-value-wrap"><label>Valor da venda (R$)</label><input id="ped-value" type="number" min="0" step="0.01" placeholder="0,00"></div>
+            <div class="field" id="ped-cost-wrap"><label>Custo de produção (R$)</label><input id="ped-cost" type="number" min="0" step="0.01" placeholder="0,00"></div>
             <div class="field"><label>Entrega prevista</label><input id="ped-delivery" type="date"></div>
             <div class="field" style="flex:0;align-self:flex-end;"><button class="btn" id="ped-add-btn" type="button">+ Adicionar à fila</button></div>
           </div>
         </div>
 
-        <div class="summary-box" id="ped-summary" style="margin-bottom:20px;"></div>
+        <div class="finance-kpis production-kpis" id="ped-summary"></div>
 
+        <div class="kanban-toolbar"><div class="hint" style="margin:0;">Visão por etapa</div><div class="kanban-toolbar-actions"><button class="btn secondary small" id="ped-collapse-all" type="button">Minimizar todas</button><button class="btn secondary small" id="ped-expand-all" type="button">Expandir todas</button></div></div>
         <div class="kanban" id="ped-kanban"></div>
 
         <div class="panel" style="margin-top:20px;">
@@ -305,7 +328,7 @@
             </div>
           </div>
           <table id="ped-list-table">
-            <thead><tr><th>Cliente</th><th>Descrição</th><th>Valor</th><th>Incluído em</th><th>Entrega prevista</th><th>Status</th><th>Ação</th></tr></thead>
+            <thead><tr><th>Cliente</th><th>Descrição</th><th>Finalidade</th><th>Venda / custo</th><th>Incluído em</th><th>Entrega prevista</th><th>Status</th><th>Ação</th></tr></thead>
             <tbody id="ped-list-tbody"></tbody>
           </table>
         </div>
@@ -1104,17 +1127,32 @@
   // FILA DE PEDIDOS
   // ============================================================
   const STATUSES = ['Pendente','Em produção','Concluído','Pago'];
+  const STAGE_META={
+    'Pendente':{slug:'pendente',icon:'●'},
+    'Em produção':{slug:'producao',icon:'◆'},
+    'Concluído':{slug:'concluido',icon:'✓'},
+    'Pago':{slug:'pago',icon:'$'}
+  };
+  const KANBAN_COLLAPSE_KEY='hl_kanban_collapsed';
+  let COLLAPSED_STAGES=new Set();
+  try{COLLAPSED_STAGES=new Set(JSON.parse(localStorage.getItem(KANBAN_COLLAPSE_KEY)||'[]'));}catch(e){}
+  function saveCollapsedStages(){try{localStorage.setItem(KANBAN_COLLAPSE_KEY,JSON.stringify([...COLLAPSED_STAGES]));}catch(e){}}
+  function orderPurpose(p){return p.purpose||'Venda';}
+  function updatePedPurpose(){const purpose=document.getElementById('ped-purpose').value,isSale=purpose==='Venda',value=document.getElementById('ped-value');value.disabled=!isSale;if(!isSale)value.value='0';document.getElementById('ped-client').placeholder=isSale?'Ex.: Maria':purpose==='Brinde'?'Destinatário do brinde (opcional)':'Uso interno / responsável (opcional)';}
+  document.getElementById('ped-purpose').addEventListener('change',updatePedPurpose);updatePedPurpose();
   document.getElementById('ped-add-btn').addEventListener('click', async ()=>{
     const client = document.getElementById('ped-client').value.trim();
     const desc = document.getElementById('ped-desc').value.trim();
-    const value = parseFloat(document.getElementById('ped-value').value)||0;
+    const purpose=document.getElementById('ped-purpose').value,value=purpose==='Venda'?(parseFloat(document.getElementById('ped-value').value)||0):0,cost=parseFloat(document.getElementById('ped-cost').value)||0;
     const deliveryDate = document.getElementById('ped-delivery').value || null;
     if(!desc) return;
+    if(purpose==='Venda'&&value<=0){alert('Informe o valor da venda.');return;}
+    if(purpose!=='Venda'&&cost<=0){alert('Para brinde ou uso próprio, informe o custo de produção.');return;}
     PEDIDOS = await getJSON('producao_pedidos', PEDIDOS);
     const id = nextSeqId(PEDIDOS, 'PRD');
-    PEDIDOS.push({ id, client, desc, value, status:'Pendente', date: todayISO(), deliveryDate });
+    PEDIDOS.push({ id, client, desc, purpose, value, cost, status:'Pendente', date: todayISO(), deliveryDate });
     await setJSON('producao_pedidos', PEDIDOS);
-    document.getElementById('ped-client').value=''; document.getElementById('ped-desc').value=''; document.getElementById('ped-value').value=''; document.getElementById('ped-delivery').value='';
+    document.getElementById('ped-client').value='';document.getElementById('ped-desc').value='';document.getElementById('ped-purpose').value='Venda';document.getElementById('ped-value').value='';document.getElementById('ped-cost').value='';document.getElementById('ped-delivery').value='';updatePedPurpose();
     renderPedidos();
   });
 
@@ -1125,13 +1163,15 @@
   }
 
   function renderPedidosSummary(){
-    const ativos = PEDIDOS.filter(p=>p.status!=='Pago');
-    const valorEmFila = ativos.reduce((s,p)=>s+Number(p.value),0);
+    const ativos = PEDIDOS.filter(p=>orderPurpose(p)==='Venda'?p.status!=='Pago':!['Concluído','Pago'].includes(p.status));
+    const valorEmFila = ativos.filter(p=>orderPurpose(p)==='Venda').reduce((s,p)=>s+Number(p.value||0),0),custosInternos=ativos.filter(p=>orderPurpose(p)!=='Venda').reduce((s,p)=>s+Number(p.cost||0),0);
     const atrasados = PEDIDOS.filter(isPedidoAtrasado).length;
+    const concluidos=PEDIDOS.filter(p=>p.status==='Concluído').length;
     document.getElementById('ped-summary').innerHTML = `
-      <div class="summary-row"><span>Pedidos ativos (não pagos)</span><span>${ativos.length}</span></div>
-      <div class="summary-row"><span>Valor total em fila</span><span>${fmtMoney(valorEmFila)}</span></div>
-      <div class="summary-row" style="${atrasados>0 ? 'color:var(--red);font-weight:700;' : ''}"><span>Atrasados</span><span>${atrasados}</span></div>
+      <div class="finance-kpi" style="--kpi-color:#d78b14;"><span class="label">Itens ativos</span><strong>${ativos.length}</strong><small>aguardando andamento</small></div>
+      <div class="finance-kpi" style="--kpi-color:#6947c7;"><span class="label">Vendas em fila</span><strong>${fmtMoney(valorEmFila)}</strong><small>valor previsto</small></div>
+      <div class="finance-kpi" style="--kpi-color:#0e8a96;"><span class="label">Prontos</span><strong>${concluidos}</strong><small>itens concluídos</small></div>
+      <div class="finance-kpi" style="--kpi-color:${atrasados>0?'#c23349':'#21845a'};"><span class="label">Atrasados</span><strong style="color:${atrasados>0?'var(--red)':'var(--green)'};">${atrasados}</strong><small>custos internos: ${fmtMoney(custosInternos)}</small></div>
     `;
   }
 
@@ -1143,39 +1183,42 @@
   }
   async function sendOrderToFinance(orderId){
     PEDIDOS=await getJSON('producao_pedidos',PEDIDOS);RECEBIMENTOS=await getJSON('empresa_recebimentos',RECEBIMENTOS);const p=PEDIDOS.find(x=>x.id===orderId);if(!p)return;
-    const existing=RECEBIMENTOS.find(r=>r.orderId===orderId&&r.status!=='Estornado'&&r.status!=='Cancelado');
+    const existing=RECEBIMENTOS.find(r=>(r.orderId===orderId||r.sourceOrderId===orderId)&&r.status!=='Estornado'&&r.status!=='Cancelado');
     openFinancialView();renderRecebimentos();
     if(existing){editReceipt(existing.id);document.getElementById('rec-msg').innerHTML='<div class="msg ok">Este pedido já possui um lançamento financeiro. Você pode revisar e editar as informações abaixo.</div>';return;}
-    resetReceiptForm();document.getElementById('rec-type').value='Entrada';updateTransactionForm();document.getElementById('rec-category').value='Venda';document.getElementById('rec-order').value=p.id;document.getElementById('rec-status').value='Pendente';document.getElementById('rec-client').value=p.client||'';document.getElementById('rec-description').value=p.desc||'';document.getElementById('rec-delivery').value=p.deliveryDate||'';document.getElementById('rec-value').value=Number(p.value||0).toFixed(2);document.getElementById('rec-product-qty').value='1';document.getElementById('rec-notes').value='Importado da fila de produção · '+p.id;document.getElementById('rec-msg').innerHTML='<div class="msg ok">Pedido concluído carregado. Revise os dados, informe o custo da venda e escolha a situação antes de registrar.</div>';document.getElementById('rec-type').scrollIntoView({behavior:'smooth',block:'center'});
+    const purpose=orderPurpose(p),isSale=purpose==='Venda';resetReceiptForm();PENDING_SOURCE_ORDER_ID=p.id;document.getElementById('rec-type').value=isSale?'Entrada':'Saída';updateTransactionForm();document.getElementById('rec-category').value=isSale?'Venda':purpose==='Brinde'?'Brindes / divulgação':'Uso próprio';if(isSale)document.getElementById('rec-order').value=p.id;document.getElementById('rec-status').value='Pendente';document.getElementById('rec-client').value=p.client||'';document.getElementById('rec-description').value=p.desc||'';if(isSale)document.getElementById('rec-delivery').value=p.deliveryDate||'';document.getElementById('rec-value').value=Number(isSale?p.value:p.cost||0).toFixed(2);document.getElementById('rec-cost').value=isSale&&Number(p.cost||0)>0?Number(p.cost).toFixed(2):'';document.getElementById('rec-product-qty').value='1';document.getElementById('rec-notes').value=`${purpose} importado da fila de produção · ${p.id}`;document.getElementById('rec-msg').innerHTML=`<div class="msg ok">${isSale?'Venda':'Custo de '+purpose.toLocaleLowerCase('pt-BR')} carregado. Revise as informações antes de registrar.</div>`;document.getElementById('rec-type').scrollIntoView({behavior:'smooth',block:'center'});
   }
 
   function renderPedidosKanban(){
     const kanban = document.getElementById('ped-kanban');
     kanban.innerHTML = STATUSES.map(status=>{
       const items = PEDIDOS.filter(p=>p.status===status);
+      const meta=STAGE_META[status],collapsed=COLLAPSED_STAGES.has(status),salesTotal=items.filter(p=>orderPurpose(p)==='Venda').reduce((s,p)=>s+Number(p.value||0),0),costTotal=items.filter(p=>orderPurpose(p)!=='Venda').reduce((s,p)=>s+Number(p.cost||0),0);
       return `
-      <div class="kanban-col">
-        <h4>${status} <span style="color:var(--muted);">${items.length}</span></h4>
-        ${items.map(p=>{
+      <div class="kanban-col ${collapsed?'collapsed':''}" data-stage="${meta.slug}">
+        <div class="kanban-head"><div><div class="kanban-title"><span class="kanban-dot"></span>${meta.icon} ${status}<span class="kanban-count">${items.length}</span></div><small class="kanban-total">${salesTotal?fmtMoney(salesTotal)+' em vendas':''}${salesTotal&&costTotal?' · ':''}${costTotal?fmtMoney(costTotal)+' em custos':''}${!salesTotal&&!costTotal?'sem valores':''}</small></div><button class="kanban-toggle" type="button" data-toggle-stage="${status}" title="${collapsed?'Expandir':'Minimizar'} ${status}">${collapsed?'＋':'−'}</button></div>
+        <div class="kanban-body">${items.map(p=>{
           const statusIdx = STATUSES.indexOf(p.status);
           const prevStatus = statusIdx > 0 ? STATUSES[statusIdx-1] : null;
-          const nextStatus = statusIdx < STATUSES.length-1 ? STATUSES[statusIdx+1] : null;
+          const nextStatus = orderPurpose(p)!=='Venda'&&p.status==='Concluído'?null:(statusIdx < STATUSES.length-1 ? STATUSES[statusIdx+1] : null);
           const atrasado = isPedidoAtrasado(p);
           return `
           <div class="kanban-card" style="${atrasado ? 'border-color:var(--red);' : ''}">
             <div class="kc-name">${p.client ? escapeHtml(p.client)+' — ' : ''}${escapeHtml(p.desc)}</div>
-            <div class="kc-value">${fmtMoney(p.value)} · incluído ${fmtDate(p.date)}</div>
+            <div class="kc-value"><span class="tag ${orderPurpose(p)==='Venda'?'pago':'producao'}">${escapeHtml(orderPurpose(p))}</span> ${orderPurpose(p)==='Venda'?'venda '+fmtMoney(p.value):'custo '+fmtMoney(p.cost||0)} · incluído ${fmtDate(p.date)}</div>
             ${p.deliveryDate ? `<div class="kc-value" style="${atrasado ? 'color:var(--red);font-weight:700;' : ''}">${atrasado ? '⚠️ atrasado — ' : '📦 entrega '}${fmtDate(p.deliveryDate)}</div>` : ''}
             <div class="kc-actions">
               ${prevStatus ? `<button data-move-ped="${p.id}|${prevStatus}">← ${prevStatus}</button>` : ''}
               ${nextStatus ? `<button data-move-ped="${p.id}|${nextStatus}">${nextStatus} →</button>` : ''}
-              ${p.status==='Concluído'||p.status==='Pago'?`<button data-finance-ped="${p.id}">${RECEBIMENTOS.some(r=>r.orderId===p.id&&r.status!=='Estornado'&&r.status!=='Cancelado')?'✏️ Editar financeiro':'💰 Enviar ao financeiro'}</button>`:''}
+              ${p.status==='Concluído'||p.status==='Pago'?`<button data-finance-ped="${p.id}">${RECEBIMENTOS.some(r=>(r.orderId===p.id||r.sourceOrderId===p.id)&&r.status!=='Estornado'&&r.status!=='Cancelado')?'✏️ Editar financeiro':'💰 Enviar ao financeiro'}</button>`:''}
               <button data-del-ped="${p.id}" style="color:var(--red);">✕</button>
             </div>
           </div>`;
-        }).join('') || '<div style="color:var(--muted);font-size:11px;">Vazio</div>'}
+        }).join('') || '<div class="empty" style="padding:18px 8px;">Nenhum item nesta etapa</div>'}</div>
       </div>`;
     }).join('');
+
+    root.querySelectorAll('[data-toggle-stage]').forEach(b=>b.addEventListener('click',()=>{const status=b.dataset.toggleStage;if(COLLAPSED_STAGES.has(status))COLLAPSED_STAGES.delete(status);else COLLAPSED_STAGES.add(status);saveCollapsedStages();renderPedidosKanban();}));
 
     root.querySelectorAll('[data-move-ped]').forEach(b=>b.addEventListener('click', async ()=>{
       const [id, newStatus] = b.dataset.movePed.split('|');
@@ -1192,6 +1235,8 @@
     }));
     root.querySelectorAll('[data-finance-ped]').forEach(b=>b.addEventListener('click',()=>sendOrderToFinance(b.dataset.financePed)));
   }
+  document.getElementById('ped-collapse-all').addEventListener('click',()=>{COLLAPSED_STAGES=new Set(STATUSES);saveCollapsedStages();renderPedidosKanban();});
+  document.getElementById('ped-expand-all').addEventListener('click',()=>{COLLAPSED_STAGES.clear();saveCollapsedStages();renderPedidosKanban();});
 
   const statusTagClass = { 'Pendente':'pendente', 'Em produção':'producao', 'Concluído':'concluido', 'Pago':'pago' };
   function renderPedidosList(){
@@ -1212,12 +1257,12 @@
       <tr style="${atrasado ? 'background:rgba(194,51,73,.06);' : ''}">
         <td>${escapeHtml(p.client)||'—'}</td>
         <td>${escapeHtml(p.desc)}</td>
-        <td>${fmtMoney(p.value)}</td>
+        <td><span class="tag ${orderPurpose(p)==='Venda'?'pago':'producao'}">${escapeHtml(orderPurpose(p))}</span></td><td>${orderPurpose(p)==='Venda'?fmtMoney(p.value):'Custo '+fmtMoney(p.cost||0)}</td>
         <td>${fmtDate(p.date)}</td>
         <td style="${atrasado ? 'color:var(--red);font-weight:700;' : ''}">${p.deliveryDate ? fmtDate(p.deliveryDate) : '—'}${atrasado ? ' ⚠️' : ''}</td>
-        <td><span class="tag ${statusTagClass[p.status]}">${p.status}</span></td><td>${p.status==='Concluído'||p.status==='Pago'?`<button class="btn secondary small" data-finance-ped="${p.id}">${RECEBIMENTOS.some(r=>r.orderId===p.id&&r.status!=='Estornado'&&r.status!=='Cancelado')?'Editar financeiro':'Enviar ao financeiro'}</button>`:'—'}</td>
+        <td><span class="tag ${statusTagClass[p.status]}">${p.status}</span></td><td>${p.status==='Concluído'||p.status==='Pago'?`<button class="btn secondary small" data-finance-ped="${p.id}">${RECEBIMENTOS.some(r=>(r.orderId===p.id||r.sourceOrderId===p.id)&&r.status!=='Estornado'&&r.status!=='Cancelado')?'Editar financeiro':'Enviar ao financeiro'}</button>`:'—'}</td>
       </tr>`;
-    }).join('') : '<tr><td colspan="7" class="empty">Nenhum pedido na fila ainda.</td></tr>';
+    }).join('') : '<tr><td colspan="8" class="empty">Nenhum pedido na fila ainda.</td></tr>';
     root.querySelectorAll('#ped-list-table [data-finance-ped]').forEach(b=>b.addEventListener('click',()=>sendOrderToFinance(b.dataset.financePed)));
   }
   document.getElementById('ped-sort').addEventListener('change', renderPedidosList);
@@ -1233,8 +1278,9 @@
   // ============================================================
   const RECEIPT_CHANNELS=['Mercado Livre','Instagram','WhatsApp','Venda presencial','Shopee','Consignação','Fornecedor','Receita Federal / impostos','Banco','Plataforma / serviço','Outro'];
   const ENTRY_CATEGORIES=['Venda','Aporte','Reembolso','Outros'];
-  const EXIT_CATEGORIES=['Impostos','Filamentos','Insumos','Embalagens','Fretes','Equipamentos / manutenção','Marketing / plataformas','Serviços','Retirada pessoal','Outros'];
+  const EXIT_CATEGORIES=['Impostos','Filamentos','Insumos','Embalagens','Fretes','Equipamentos / manutenção','Marketing / plataformas','Serviços','Brindes / divulgação','Uso próprio','Retirada pessoal','Outros'];
   let EDITING_RECEIPT_ID=null;
+  let PENDING_SOURCE_ORDER_ID=null;
   const transactionType=r=>r.type==='Saída'?'Saída':'Entrada';
   const isConfirmed=r=>transactionType(r)==='Entrada'?r.status==='Recebido':r.status==='Pago';
   function receiptNet(r){ return transactionType(r)==='Entrada'?Math.max(0,Number(r.value||0)-Number(r.fee||0)):Number(r.value||0); }
@@ -1279,18 +1325,18 @@
   }
   document.getElementById('rec-type').addEventListener('change',updateTransactionForm);
   function resetReceiptForm(){
-    EDITING_RECEIPT_ID=null;['rec-client','rec-description','rec-delivery','rec-value','rec-cost','rec-notes'].forEach(id=>document.getElementById(id).value='');document.getElementById('rec-order').value='';document.getElementById('rec-product-qty').value='1';document.getElementById('rec-fee').value='0';document.getElementById('rec-date').value=todayISO();document.getElementById('rec-type').value='Entrada';updateTransactionForm();document.getElementById('rec-add-btn').textContent='+ Registrar lançamento';document.getElementById('rec-cancel-edit-btn').style.display='none';
+    EDITING_RECEIPT_ID=null;PENDING_SOURCE_ORDER_ID=null;['rec-client','rec-description','rec-delivery','rec-value','rec-cost','rec-notes'].forEach(id=>document.getElementById(id).value='');document.getElementById('rec-order').value='';document.getElementById('rec-product-qty').value='1';document.getElementById('rec-fee').value='0';document.getElementById('rec-date').value=todayISO();document.getElementById('rec-type').value='Entrada';updateTransactionForm();document.getElementById('rec-add-btn').textContent='+ Registrar lançamento';document.getElementById('rec-cancel-edit-btn').style.display='none';
   }
   document.getElementById('rec-cancel-edit-btn').addEventListener('click',()=>{resetReceiptForm();document.getElementById('rec-msg').innerHTML='';});
   function editReceipt(id){
-    const r=RECEBIMENTOS.find(x=>x.id===id);if(!r)return;EDITING_RECEIPT_ID=id;document.getElementById('rec-type').value=transactionType(r);updateTransactionForm();document.getElementById('rec-category').value=r.category||(transactionType(r)==='Entrada'?'Venda':'Outros');document.getElementById('rec-status').value=r.status;document.getElementById('rec-order').value=r.orderId||'';document.getElementById('rec-date').value=r.date||todayISO();document.getElementById('rec-client').value=r.client||'';document.getElementById('rec-description').value=r.description||'';document.getElementById('rec-product-qty').value=r.productQty||1;document.getElementById('rec-delivery').value=r.deliveryDate||'';document.getElementById('rec-value').value=Number(r.value||0).toFixed(2);document.getElementById('rec-fee').value=Number(r.fee||0).toFixed(2);document.getElementById('rec-cost').value=r.cost===null||r.cost===undefined?'':Number(r.cost||0).toFixed(2);document.getElementById('rec-payment').value=r.payment||'PIX';document.getElementById('rec-channel').value=r.channel||'Outro';document.getElementById('rec-notes').value=r.notes||'';document.getElementById('rec-add-btn').textContent='Salvar alterações';document.getElementById('rec-cancel-edit-btn').style.display='inline-flex';document.getElementById('rec-msg').innerHTML='<div class="msg ok">Editando '+escapeHtml(r.id)+'. Altere os campos e salve.</div>';document.getElementById('rec-type').scrollIntoView({behavior:'smooth',block:'center'});
+    const r=RECEBIMENTOS.find(x=>x.id===id);if(!r)return;EDITING_RECEIPT_ID=id;PENDING_SOURCE_ORDER_ID=r.sourceOrderId||r.orderId||null;document.getElementById('rec-type').value=transactionType(r);updateTransactionForm();document.getElementById('rec-category').value=r.category||(transactionType(r)==='Entrada'?'Venda':'Outros');document.getElementById('rec-status').value=r.status;document.getElementById('rec-order').value=r.orderId||'';document.getElementById('rec-date').value=r.date||todayISO();document.getElementById('rec-client').value=r.client||'';document.getElementById('rec-description').value=r.description||'';document.getElementById('rec-product-qty').value=r.productQty||1;document.getElementById('rec-delivery').value=r.deliveryDate||'';document.getElementById('rec-value').value=Number(r.value||0).toFixed(2);document.getElementById('rec-fee').value=Number(r.fee||0).toFixed(2);document.getElementById('rec-cost').value=r.cost===null||r.cost===undefined?'':Number(r.cost||0).toFixed(2);document.getElementById('rec-payment').value=r.payment||'PIX';document.getElementById('rec-channel').value=r.channel||'Outro';document.getElementById('rec-notes').value=r.notes||'';document.getElementById('rec-add-btn').textContent='Salvar alterações';document.getElementById('rec-cancel-edit-btn').style.display='inline-flex';document.getElementById('rec-msg').innerHTML='<div class="msg ok">Editando '+escapeHtml(r.id)+'. Altere os campos e salve.</div>';document.getElementById('rec-type').scrollIntoView({behavior:'smooth',block:'center'});
   }
   document.getElementById('rec-add-btn').addEventListener('click',async()=>{
     const type=document.getElementById('rec-type').value,value=parseFloat(document.getElementById('rec-value').value), fee=type==='Entrada'?(parseFloat(document.getElementById('rec-fee').value)||0):0,costRaw=document.getElementById('rec-cost').value,cost=type==='Entrada'&&costRaw!==''?Math.max(0,parseFloat(costRaw)||0):null,msg=document.getElementById('rec-msg');
     if(isNaN(value)||value<=0){msg.innerHTML='<div class="msg err">Informe um valor válido.</div>';return;}
     const orderId=type==='Entrada'?(document.getElementById('rec-order').value||null):null;
     RECEBIMENTOS=await getJSON('empresa_recebimentos',RECEBIMENTOS);const existing=EDITING_RECEIPT_ID?RECEBIMENTOS.find(r=>r.id===EDITING_RECEIPT_ID):null,id=existing?existing.id:nextSeqId(RECEBIMENTOS,'REC');
-    const rec={id,type,category:document.getElementById('rec-category').value,date:document.getElementById('rec-date').value||todayISO(),createdAt:existing?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString(),value,fee,cost,productQty:type==='Entrada'?Math.max(1,parseInt(document.getElementById('rec-product-qty').value,10)||1):null,status:document.getElementById('rec-status').value,payment:document.getElementById('rec-payment').value,channel:document.getElementById('rec-channel').value,client:document.getElementById('rec-client').value.trim(),description:document.getElementById('rec-description').value.trim(),deliveryDate:type==='Entrada'?(document.getElementById('rec-delivery').value||null):null,notes:document.getElementById('rec-notes').value.trim(),orderId};
+    const rec={id,type,category:document.getElementById('rec-category').value,date:document.getElementById('rec-date').value||todayISO(),createdAt:existing?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString(),value,fee,cost,productQty:type==='Entrada'?Math.max(1,parseInt(document.getElementById('rec-product-qty').value,10)||1):null,status:document.getElementById('rec-status').value,payment:document.getElementById('rec-payment').value,channel:document.getElementById('rec-channel').value,client:document.getElementById('rec-client').value.trim(),description:document.getElementById('rec-description').value.trim(),deliveryDate:type==='Entrada'?(document.getElementById('rec-delivery').value||null):null,notes:document.getElementById('rec-notes').value.trim(),orderId,sourceOrderId:existing?.sourceOrderId||PENDING_SOURCE_ORDER_ID||null};
     if(existing)RECEBIMENTOS[RECEBIMENTOS.findIndex(r=>r.id===existing.id)]=rec;else RECEBIMENTOS.push(rec);await setJSON('empresa_recebimentos',RECEBIMENTOS);
     if(type==='Entrada'&&rec.client)await saveClientName(rec.client);
     if(orderId&&rec.status==='Recebido') await updateOrderPaidStatus(orderId);
