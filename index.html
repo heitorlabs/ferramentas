@@ -305,7 +305,7 @@
             </div>
           </div>
           <table id="ped-list-table">
-            <thead><tr><th>Cliente</th><th>Descrição</th><th>Valor</th><th>Incluído em</th><th>Entrega prevista</th><th>Status</th></tr></thead>
+            <thead><tr><th>Cliente</th><th>Descrição</th><th>Valor</th><th>Incluído em</th><th>Entrega prevista</th><th>Status</th><th>Ação</th></tr></thead>
             <tbody id="ped-list-tbody"></tbody>
           </table>
         </div>
@@ -1135,6 +1135,20 @@
     `;
   }
 
+  function openFinancialView(){
+    root.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+    root.querySelector('nav button[data-view="recebimentos"]').classList.add('active');
+    root.querySelectorAll('.view').forEach(v=>v.style.display='none');
+    root.querySelector('.view[data-view="recebimentos"]').style.display='block';
+  }
+  async function sendOrderToFinance(orderId){
+    PEDIDOS=await getJSON('producao_pedidos',PEDIDOS);RECEBIMENTOS=await getJSON('empresa_recebimentos',RECEBIMENTOS);const p=PEDIDOS.find(x=>x.id===orderId);if(!p)return;
+    const existing=RECEBIMENTOS.find(r=>r.orderId===orderId&&r.status!=='Estornado'&&r.status!=='Cancelado');
+    openFinancialView();renderRecebimentos();
+    if(existing){editReceipt(existing.id);document.getElementById('rec-msg').innerHTML='<div class="msg ok">Este pedido já possui um lançamento financeiro. Você pode revisar e editar as informações abaixo.</div>';return;}
+    resetReceiptForm();document.getElementById('rec-type').value='Entrada';updateTransactionForm();document.getElementById('rec-category').value='Venda';document.getElementById('rec-order').value=p.id;document.getElementById('rec-status').value='Pendente';document.getElementById('rec-client').value=p.client||'';document.getElementById('rec-description').value=p.desc||'';document.getElementById('rec-delivery').value=p.deliveryDate||'';document.getElementById('rec-value').value=Number(p.value||0).toFixed(2);document.getElementById('rec-product-qty').value='1';document.getElementById('rec-notes').value='Importado da fila de produção · '+p.id;document.getElementById('rec-msg').innerHTML='<div class="msg ok">Pedido concluído carregado. Revise os dados, informe o custo da venda e escolha a situação antes de registrar.</div>';document.getElementById('rec-type').scrollIntoView({behavior:'smooth',block:'center'});
+  }
+
   function renderPedidosKanban(){
     const kanban = document.getElementById('ped-kanban');
     kanban.innerHTML = STATUSES.map(status=>{
@@ -1155,6 +1169,7 @@
             <div class="kc-actions">
               ${prevStatus ? `<button data-move-ped="${p.id}|${prevStatus}">← ${prevStatus}</button>` : ''}
               ${nextStatus ? `<button data-move-ped="${p.id}|${nextStatus}">${nextStatus} →</button>` : ''}
+              ${p.status==='Concluído'||p.status==='Pago'?`<button data-finance-ped="${p.id}">${RECEBIMENTOS.some(r=>r.orderId===p.id&&r.status!=='Estornado'&&r.status!=='Cancelado')?'✏️ Editar financeiro':'💰 Enviar ao financeiro'}</button>`:''}
               <button data-del-ped="${p.id}" style="color:var(--red);">✕</button>
             </div>
           </div>`;
@@ -1175,6 +1190,7 @@
       await setJSON('producao_pedidos', PEDIDOS);
       renderPedidos();
     }));
+    root.querySelectorAll('[data-finance-ped]').forEach(b=>b.addEventListener('click',()=>sendOrderToFinance(b.dataset.financePed)));
   }
 
   const statusTagClass = { 'Pendente':'pendente', 'Em produção':'producao', 'Concluído':'concluido', 'Pago':'pago' };
@@ -1199,9 +1215,10 @@
         <td>${fmtMoney(p.value)}</td>
         <td>${fmtDate(p.date)}</td>
         <td style="${atrasado ? 'color:var(--red);font-weight:700;' : ''}">${p.deliveryDate ? fmtDate(p.deliveryDate) : '—'}${atrasado ? ' ⚠️' : ''}</td>
-        <td><span class="tag ${statusTagClass[p.status]}">${p.status}</span></td>
+        <td><span class="tag ${statusTagClass[p.status]}">${p.status}</span></td><td>${p.status==='Concluído'||p.status==='Pago'?`<button class="btn secondary small" data-finance-ped="${p.id}">${RECEBIMENTOS.some(r=>r.orderId===p.id&&r.status!=='Estornado'&&r.status!=='Cancelado')?'Editar financeiro':'Enviar ao financeiro'}</button>`:'—'}</td>
       </tr>`;
-    }).join('') : '<tr><td colspan="6" class="empty">Nenhum pedido na fila ainda.</td></tr>';
+    }).join('') : '<tr><td colspan="7" class="empty">Nenhum pedido na fila ainda.</td></tr>';
+    root.querySelectorAll('#ped-list-table [data-finance-ped]').forEach(b=>b.addEventListener('click',()=>sendOrderToFinance(b.dataset.financePed)));
   }
   document.getElementById('ped-sort').addEventListener('change', renderPedidosList);
 
