@@ -195,6 +195,7 @@
       </div>
       <nav>
         <button data-view="calculadora" class="active">Calculadora</button>
+        <button data-view="solicitacoes">Pedidos de orçamento</button>
         <button data-view="orcamentos">Orçamentos</button>
         <button data-view="pedidos">Fila de Pedidos</button>
         <button data-view="recebimentos">Financeiro</button>
@@ -210,7 +211,7 @@
           <h2>🧮 Calculadora de custo e preço</h2>
           <p class="hint">Informe o equipamento, o tempo de produção, o material, o frete e os extras. O preço final é calculado na hora com base nos custos cadastrados em "Configurações".</p>
 
-          <div class="section-card"><div class="section-title"><span class="step">✦</span> Identificação do produto</div><div class="row" style="margin:0;"><div class="field"><label>Nome do produto *</label><input id="calc-product-name" placeholder="Ex.: Vasilha pet personalizada 750 ml"></div><div class="field"><label>Detalhes / personalização</label><input id="calc-product-details" placeholder="Cor, tamanho, nome, acabamento..."></div></div></div>
+          <div class="section-card"><div class="section-title"><span class="step">✦</span> Identificação do produto</div><div class="row" style="margin:0;"><div class="field"><label>Nome do produto *</label><input id="calc-product-name" placeholder="Ex.: Vasilha pet personalizada 750 ml"></div><div class="field"><label for="calc-client">Pessoa / cliente</label><input id="calc-client" placeholder="Para quem foi feito este cálculo" list="calc-client-options"><datalist id="calc-client-options"></datalist></div><div class="field"><label>Detalhes / personalização</label><input id="calc-product-details" placeholder="Cor, tamanho, nome, acabamento..."></div></div></div>
 
           <h3>Equipamento (impressora/máquina)</h3>
           <div class="row">
@@ -249,9 +250,66 @@
 
           <div class="summary-box" id="calc-summary" style="margin-top:16px;"></div>
 
-          <div style="display:flex;gap:10px;margin-top:16px;">
-            <button class="btn" id="calc-to-orcamento-btn">Usar este cálculo num orçamento →</button>
+          <div id="calc-history-message" role="status" aria-live="polite"></div>
+          <div id="calc-edit-notice" class="hint" style="display:none;margin-top:12px;"></div>
+          <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+            <button class="btn" id="calc-save-btn" type="button">Salvar cálculo</button>
+            <button class="btn secondary" id="calc-new-btn" type="button">Novo cálculo / cancelar edição</button>
+            <button class="btn secondary" id="calc-current-rates-btn" type="button" style="display:none;">Usar custos atuais</button>
+            <button class="btn secondary" id="calc-to-orcamento-btn">Usar este cálculo num orçamento →</button>
           </div>
+        </div>
+        <div class="panel" style="margin-top:18px;">
+          <h2>Cálculos salvos</h2>
+          <p class="hint">Consulte os preços registrados ou abra um cálculo para editar. Salvar aqui não cria pedido nem lançamento financeiro.</p>
+          <div class="row">
+            <div class="field"><label for="calc-history-search">Buscar produto ou cliente</label><input id="calc-history-search" type="search" placeholder="Nome, cliente ou detalhes"></div>
+            <div class="field"><label for="calc-history-sort">Ordenar por</label><select id="calc-history-sort"><option value="recent">Mais recentes</option><option value="name">Produto: A–Z</option><option value="name-desc">Produto: Z–A</option><option value="client">Cliente: A–Z</option><option value="price">Preço por peça: menor primeiro</option><option value="price-desc">Preço por peça: maior primeiro</option><option value="total">Total: menor primeiro</option><option value="total-desc">Total: maior primeiro</option></select></div>
+            <div class="field" style="flex:0;align-self:flex-end;"><button class="btn secondary small" id="calc-history-refresh" type="button">Atualizar lista</button></div>
+          </div>
+          <p class="hint" id="calc-history-count"></p>
+          <div style="overflow-x:auto;"><table><thead><tr><th>Data</th><th>Produto / detalhes</th><th>Cliente</th><th>Quantidade</th><th>Custo total</th><th>Preço por peça</th><th>Valor total</th><th>Ação</th></tr></thead><tbody id="calc-history-body"></tbody></table></div>
+        </div>
+      </div>
+
+      <div class="view" data-view="solicitacoes" style="display:none;">
+        <div class="panel">
+          <h2>Pedidos de orçamento</h2>
+          <p class="hint">Registre o que o cliente pediu, mesmo sem saber o preço. Localize a peça ou referência e prepare a proposta quando estiver pronto.</p>
+          <div class="row">
+            <div class="field"><label for="sol-date">Data do pedido *</label><input id="sol-date" type="date"></div>
+            <div class="field"><label for="sol-client">Cliente *</label><input id="sol-client" placeholder="Nome da pessoa ou empresa"></div>
+            <div class="field"><label for="sol-contact">WhatsApp / contato</label><input id="sol-contact" placeholder="Telefone, @perfil ou outro contato"></div>
+            <div class="field"><label for="sol-channel">Canal</label><select id="sol-channel"><option>WhatsApp</option><option>Instagram</option><option>Mercado Livre</option><option>Shopee</option><option>Presencial</option><option>Outro</option></select></div>
+          </div>
+          <div class="row">
+            <div class="field" style="flex:2;"><label for="sol-title">Produto / identificação *</label><input id="sol-title" placeholder="Ex.: Miniatura de caminhão personalizado"></div>
+            <div class="field"><label for="sol-qty">Quantidade desejada</label><input id="sol-qty" type="number" min="1" step="1" value="1"></div>
+          </div>
+          <div class="row"><div class="field"><label for="sol-description">O que o cliente solicitou *</label><textarea id="sol-description" rows="4" placeholder="Descreva a peça, modelo, tamanho, cores, personalização e demais requisitos."></textarea></div></div>
+          <div class="row">
+            <div class="field" style="flex:2;"><label for="sol-reference">Link de referência / modelo localizado</label><input id="sol-reference" type="url" placeholder="https://..."></div>
+            <div class="field"><label for="sol-status">Etapa de acompanhamento</label><select id="sol-status"><option>Em busca</option><option>Localizado</option><option>Aguardando retorno</option><option>Cancelado</option></select></div>
+            <div class="field"><label for="sol-priority">Prioridade</label><select id="sol-priority"><option>Normal</option><option>Alta</option><option>Baixa</option></select></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="sol-followup">Data para retornar ao cliente</label><input id="sol-followup" type="date"></div>
+            <div class="field"><label for="sol-needed">Data desejada pelo cliente</label><input id="sol-needed" type="date"></div>
+          </div>
+          <div class="row"><div class="field"><label for="sol-notes">Anotações internas</label><textarea id="sol-notes" rows="3" placeholder="Onde procurar, fornecedor, andamento da busca, dúvidas a confirmar. Este campo não vai para o orçamento nem para o PDF."></textarea></div></div>
+          <p id="sol-edit-notice" class="hint"></p>
+          <div id="sol-msg" role="status" aria-live="polite"></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;"><button id="sol-save" class="btn" type="button">Salvar solicitação</button><button id="sol-new" class="btn secondary" type="button">Nova / cancelar edição</button></div>
+        </div>
+        <div class="panel">
+          <h3>Solicitações registradas</h3>
+          <div class="row">
+            <div class="field"><label for="sol-search">Pesquisar</label><input id="sol-search" type="search" placeholder="Cliente, produto, descrição ou código"></div>
+            <div class="field"><label for="sol-filter">Situação</label><select id="sol-filter"><option value="">Todas</option><option>Em busca</option><option>Localizado</option><option>Aguardando retorno</option><option>Orçamento preparado</option><option>Aceito / produção</option><option>Cancelado</option></select></div>
+            <div class="field"><label for="sol-sort">Ordenar</label><select id="sol-sort"><option value="recent">Pedidos mais recentes</option><option value="followup">Próximo retorno</option><option value="priority">Prioridade</option><option value="client">Cliente A–Z</option></select></div>
+            <div class="field" style="flex:0;align-self:flex-end;"><button id="sol-refresh" class="btn secondary small" type="button">Atualizar</button></div>
+          </div>
+          <p id="sol-count" class="hint"></p><div id="sol-list"></div>
         </div>
       </div>
 
@@ -260,6 +318,7 @@
         <div class="panel quote-hero">
           <div class="quote-hero-inner"><div><div class="quote-eyebrow">Proposta comercial personalizada</div><h2>Novo orçamento</h2><p class="hint">Crie uma proposta clara, completa e pronta para enviar ao cliente em PDF.</p></div><img class="quote-logo" id="quote-logo-preview" alt="Logo HL 3D Solutions"></div>
         </div>
+        <div class="msg ok" id="orc-request-notice" style="display:none;" role="status"></div>
         <div class="quote-grid">
           <div>
             <div class="panel">
@@ -499,11 +558,18 @@
   let CFG = { labor:[], fixed:[], equip:[], materials:[], shipping:[], extras:[], globals:{energyKwh:1.34, paybackMonths:12, depreciationPct:10, fixedHoursBase:160} };
   let EMPRESA = { pix:'', prazo:'', validade:'', pagamento:'', portfolioUrl:'' };
   const LOGO_B64 = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAEqAVMDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD8qqKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAoooo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";
+  let SOLICITACOES = [];
+  let editingRequestId=null, editingRequestVersion=null, sourceRequestId=null;
+  let requestBusy=false, quoteSaveBusy=false, acceptingQuoteBusy=false;
   let ORCAMENTOS = [];
   let PEDIDOS = [];
   let PRODUCTS = [];
   let RECEBIMENTOS = [];
   let CLIENTES = [];
+  let CALCULOS = [];
+  let editingCalcId = null;
+  let savedCalcRates = null;
+  let calcHistoryBusy = false;
   let calcExtrasCart = [];
   let orcItemsCart = [];
 
@@ -563,6 +629,9 @@
     renderPedidos();
     renderRecebimentos();
     updateCalcSummary();
+    await refreshCalcHistory();
+    resetRequestForm();
+    await refreshRequests();
     document.getElementById('cfg-empresa-pix').value = EMPRESA.pix || '';
     document.getElementById('cfg-empresa-prazo').value = EMPRESA.prazo || '';
     document.getElementById('cfg-empresa-validade').value = EMPRESA.validade || '';
@@ -665,6 +734,7 @@
       root.querySelectorAll('.view').forEach(v=>v.style.display='none');
       root.querySelector(`.view[data-view="${btn.dataset.view}"]`).style.display='block';
       if(btn.dataset.view==='recebimentos') renderRecebimentos();
+      if(btn.dataset.view==='solicitacoes') renderRequests();
     });
   });
 
@@ -839,6 +909,7 @@
     const shippingSel = document.getElementById('calc-shipping');
     shippingSel.innerHTML = '<option value="">— combinar com o cliente —</option>' + CFG.shipping.map((s,i)=>`<option value="${i}">${escapeHtml(s.name)} (${fmtMoney(s.value)})</option>`).join('');
     const extraSel = document.getElementById('calc-extra');
+    if(savedCalcRates) installCalcSavedOptions();
     extraSel.innerHTML = CFG.extras.map((x,i)=>`<option value="${i}">${escapeHtml(x.name)} (${fmtMoney(x.value)})</option>`).join('') || '<option value="">Cadastre extras em Configurações</option>';
   }
 
@@ -865,19 +936,19 @@
   function computeCalc(){
     const equipIdx = document.getElementById('calc-equip').value;
     const equipHours = parseFloat(document.getElementById('calc-equip-hours').value)||0;
-    const equipCost = equipIdx !== '' ? equipHourlyRate(CFG.equip[equipIdx]) * equipHours : 0;
+    const equipCost = calcSelectedRate('equip').rate * equipHours;
 
     const materialIdx = document.getElementById('calc-material').value;
     const materialQty = parseFloat(document.getElementById('calc-material-qty').value)||0;
-    const materialCost = materialIdx !== '' ? materialUnitCost(CFG.materials[materialIdx]) * materialQty : 0;
+    const materialCost = calcSelectedRate('material').rate * materialQty;
 
     const shippingIdx = document.getElementById('calc-shipping').value;
-    const shippingCost = shippingIdx !== '' ? Number(CFG.shipping[shippingIdx].value) : 0;
+    const shippingCost = calcSelectedRate('shipping').rate;
 
     const extrasCost = calcExtrasCart.reduce((s,x)=>s+x.qty*x.unitValue, 0);
 
     // sem mão de obra na calculadora, os custos fixos são alocados pelo tempo de produção da máquina
-    const fixedCost = fixedHourlyRate() * equipHours;
+    const fixedCost = (savedCalcRates ? savedCalcRates.fixed : fixedHourlyRate()) * equipHours;
 
     const custosTotal = equipCost + materialCost + shippingCost + extrasCost + fixedCost;
 
@@ -918,10 +989,15 @@
   document.getElementById('calc-to-orcamento-btn').addEventListener('click', ()=>{
     const r = computeCalc();
     const materialIdx = document.getElementById('calc-material').value;
-    const materialName = materialIdx !== '' ? CFG.materials[materialIdx].name : 'Peça';
+    const materialName = calcSelectedRate('material').name || 'Peça';
     const productName = document.getElementById('calc-product-name').value.trim();
     const productDetails = document.getElementById('calc-product-details').value.trim();
     if(!productName){ alert('Informe o nome do produto antes de enviá-lo ao orçamento.'); document.getElementById('calc-product-name').focus(); return; }
+    const calcClient = document.getElementById('calc-client').value.trim();
+    const quoteClient = document.getElementById('orc-client-name');
+    if(calcClient && quoteClient.value.trim() && quoteClient.value.trim() !== calcClient){
+      if(!confirm('O orçamento aberto está em nome de outra pessoa. Adicionar o item e manter o cliente atual?')) return;
+    }else if(calcClient){ quoteClient.value = calcClient; }
     orcItemsCart.push({ desc: productName, details: productDetails || `Produção em 3D · Material: ${materialName}`, unit:'un.', qty: r.qtyPieces, unitValue: r.precoPorPeca, source:'calculadora' });
     root.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
     root.querySelector('[data-view="orcamentos"]').classList.add('active');
@@ -929,6 +1005,271 @@
     root.querySelector('.view[data-view="orcamentos"]').style.display='block';
     renderOrcItems();
   });
+
+  const CALC_HISTORY_KEY = 'custos_calculos_salvos';
+  const calcInputIds = ['calc-product-name','calc-client','calc-product-details','calc-equip-hours','calc-material-qty','calc-qty-pieces','calc-margin','calc-tax','calc-safety'];
+  function calcSelectedRate(kind){
+    const value = document.getElementById('calc-'+kind).value;
+    if(value === 'saved' && savedCalcRates) return savedCalcRates[kind];
+    const list = kind==='equip'?CFG.equip:kind==='material'?CFG.materials:CFG.shipping;
+    const item = value!=='' ? list[value] : null;
+    return item ? {name:item.name, rate:kind==='equip'?equipHourlyRate(item):kind==='material'?materialUnitCost(item):Number(item.value)} : {name:'',rate:0};
+  }
+  function installCalcSavedOptions(){
+    ['equip','material','shipping'].forEach(kind=>{
+      const select=document.getElementById('calc-'+kind), rate=savedCalcRates[kind];
+      select.querySelectorAll('option[value="saved"]').forEach(o=>o.remove());
+      const option=document.createElement('option'); option.value='saved';
+      option.textContent=(rate.name||'Nenhum')+' · valor salvo: '+fmtMoney(rate.rate)+(kind==='equip'?'/h':kind==='material'?'/g':'');
+      select.appendChild(option); select.value='saved';
+    });
+  }
+  function calcHistoryMessage(text, error=false){
+    const box=document.getElementById('calc-history-message');
+    box.className='msg '+(error?'err':'ok'); box.textContent=text;
+  }
+  async function readCalcHistory(){
+    const {data,error}=await supabaseClient.from('kv_store').select('value').eq('key',CALC_HISTORY_KEY).maybeSingle();
+    if(error) throw new Error('Não foi possível consultar os cálculos. Verifique sua conexão e tente novamente.');
+    if(data && data.value!=null && !Array.isArray(data.value)) throw new Error('O histórico está em formato inesperado. Nenhum dado foi alterado.');
+    return data?.value || [];
+  }
+  async function refreshCalcHistory(){
+    try{ CALCULOS=await readCalcHistory(); renderCalcHistory(); }
+    catch(e){ calcHistoryMessage(e.message,true); }
+  }
+  function calcHistoryRows(){
+    const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
+    const query=norm(document.getElementById('calc-history-search').value), sort=document.getElementById('calc-history-sort').value;
+    return CALCULOS.filter(r=>norm([r.inputs['calc-product-name'],r.inputs['calc-client'],r.inputs['calc-product-details']].join(' ')).includes(query)).sort((a,b)=>{
+      const compare=(x,y)=>String(x||'').localeCompare(String(y||''),'pt-BR',{sensitivity:'base',numeric:true});
+      if(sort==='name'||sort==='name-desc') return compare(a.inputs['calc-product-name'],b.inputs['calc-product-name'])*(sort==='name-desc'?-1:1);
+      if(sort==='client') return compare(a.inputs['calc-client'],b.inputs['calc-client']);
+      if(sort.startsWith('price')) return (a.result.precoPorPeca-b.result.precoPorPeca)*(sort.endsWith('desc')?-1:1);
+      if(sort.startsWith('total')) return (a.result.valorFinal-b.result.valorFinal)*(sort.endsWith('desc')?-1:1);
+      return compare(b.updatedAt,a.updatedAt);
+    });
+  }
+  function renderCalcHistory(){
+    const rows=calcHistoryRows();
+    document.getElementById('calc-history-count').textContent=rows.length+' de '+CALCULOS.length+' cálculo(s)';
+    document.getElementById('calc-client-options').innerHTML=[...new Set(CALCULOS.map(r=>r.inputs['calc-client']).filter(Boolean))].map(n=>'<option value="'+escapeHtml(n)+'"></option>').join('');
+    document.getElementById('calc-history-body').innerHTML=rows.map(r=>`<tr>
+      <td title="Última atualização">${escapeHtml(new Date(r.updatedAt).toLocaleDateString('pt-BR'))}</td>
+      <td><strong>${escapeHtml(r.inputs['calc-product-name'])}</strong><div class="hint">${escapeHtml(r.inputs['calc-product-details'])}</div></td>
+      <td>${escapeHtml(r.inputs['calc-client']||'Não informado')}</td><td>${r.result.qtyPieces}</td>
+      <td>${fmtMoney(r.result.custosTotal)}</td><td>${fmtMoney(r.result.precoPorPeca)}</td><td><strong>${fmtMoney(r.result.valorFinal)}</strong></td>
+      <td><button type="button" class="btn secondary small" data-edit-calc="${escapeHtml(r.id)}">Consultar / editar</button></td></tr>`).join('')||'<tr><td colspan="8">'+(CALCULOS.length?'Nenhum cálculo corresponde à busca.':'Nenhum cálculo salvo. Preencha a calculadora e clique em Salvar cálculo.')+'</td></tr>';
+    document.querySelectorAll('[data-edit-calc]').forEach(btn=>btn.addEventListener('click',()=>openSavedCalc(btn.dataset.editCalc)));
+  }
+  function openSavedCalc(id){
+    if(calcHistoryBusy) return;
+    if(editingCalcId && !confirm('Abrir outro cálculo? Alterações ainda não salvas no formulário serão descartadas.')) return;
+    const r=CALCULOS.find(x=>x.id===id); if(!r) return;
+    editingCalcId=id; savedCalcRates=JSON.parse(JSON.stringify(r.rates));
+    calcInputIds.forEach(key=>document.getElementById(key).value=r.inputs[key]??'');
+    installCalcSavedOptions(); calcExtrasCart=JSON.parse(JSON.stringify(r.extras)); renderCalcExtras();
+    document.getElementById('calc-save-btn').textContent='Salvar alterações';
+    document.getElementById('calc-current-rates-btn').style.display='';
+    const notice=document.getElementById('calc-edit-notice');notice.style.display='';
+    notice.textContent='Editando cálculo salvo. Valores originais de máquina, material, frete, extras e custo fixo foram preservados. Use “Usar custos atuais” para atualizar a base. A lista só muda após salvar.';
+    calcHistoryMessage('Cálculo carregado para consulta ou edição.');
+    document.getElementById('calc-product-name').scrollIntoView({behavior:'smooth',block:'center'});
+  }
+  document.getElementById('calc-save-btn').addEventListener('click',async()=>{
+    if(calcHistoryBusy) return;
+    const inputs=Object.fromEntries(calcInputIds.map(id=>[id,document.getElementById(id).value.trim()]));
+    if(!inputs['calc-product-name']){calcHistoryMessage('Informe o nome do produto para salvar.',true);document.getElementById('calc-product-name').focus();return;}
+    for(const id of calcInputIds.slice(3)){
+      const el=document.getElementById(id);
+      if(!el.value || !Number.isFinite(Number(el.value)) || Number(el.value)<Number(el.min||0)){
+        calcHistoryMessage('Preencha os valores numéricos com números válidos, sem valores negativos.',true);el.focus();return;
+      }
+    }
+    const result=computeCalc();
+    if(Object.values(result).some(v=>!Number.isFinite(v))){calcHistoryMessage('Revise os custos cadastrados antes de salvar.',true);return;}
+    const rates={equip:calcSelectedRate('equip'),material:calcSelectedRate('material'),shipping:calcSelectedRate('shipping'),fixed:savedCalcRates?savedCalcRates.fixed:fixedHourlyRate()};
+    const extras=JSON.parse(JSON.stringify(calcExtrasCart));
+    calcHistoryBusy=true;const btn=document.getElementById('calc-save-btn');btn.disabled=true;
+    try{
+      const latest=await readCalcHistory(), existing=latest.find(r=>r.id===editingCalcId);
+      if(editingCalcId && !existing) throw new Error('Este cálculo não está mais no histórico. Atualize a lista antes de continuar.');
+      const loaded=CALCULOS.find(r=>r.id===editingCalcId);
+      if(existing && loaded && loaded.updatedAt!==existing.updatedAt) throw new Error('Este cálculo foi alterado em outra sessão. Atualize a lista e abra novamente antes de editar.');
+      const now=new Date().toISOString();
+      const record={id:existing?existing.id:crypto.randomUUID(),createdAt:existing?existing.createdAt:now,updatedAt:now,inputs,rates,extras,result};
+      const next=existing?latest.map(r=>r.id===existing.id?record:r):[record,...latest];
+      if(!await setJSON(CALC_HISTORY_KEY,next)) throw new Error('Não foi possível salvar. Os dados continuam no formulário; tente novamente.');
+      CALCULOS=next;editingCalcId=record.id;savedCalcRates=JSON.parse(JSON.stringify(record.rates));installCalcSavedOptions();renderCalcHistory();btn.textContent='Salvar alterações';
+      document.getElementById('calc-current-rates-btn').style.display='';
+      calcHistoryMessage('Cálculo salvo com sucesso. Você pode consultá-lo na lista abaixo. Para outro produto, clique em Novo cálculo.');
+    }catch(e){calcHistoryMessage(e.message||'Falha ao salvar o cálculo.',true);}
+    finally{calcHistoryBusy=false;btn.disabled=false;}
+  });
+  document.getElementById('calc-new-btn').addEventListener('click',()=>{
+    if(calcHistoryBusy)return;
+    if(!confirm('Limpar o formulário? Alterações não salvas serão descartadas. Os cálculos já salvos serão mantidos.'))return;
+    editingCalcId=null;savedCalcRates=null;
+    calcInputIds.forEach(id=>{const el=document.getElementById(id);el.value=el.defaultValue;});
+    calcExtrasCart=[];populateCalcSelects();renderCalcExtras();
+    document.getElementById('calc-save-btn').textContent='Salvar cálculo';
+    document.getElementById('calc-edit-notice').style.display='none';
+    document.getElementById('calc-current-rates-btn').style.display='none';
+    calcHistoryMessage('Novo cálculo. Preencha os dados e salve quando estiver pronto.');
+  });
+  document.getElementById('calc-current-rates-btn').addEventListener('click',()=>{
+    if(calcHistoryBusy)return;
+    if(!confirm('Recalcular com os custos atuais? O valor salvo só será substituído quando você salvar as alterações.'))return;
+    const names=Object.fromEntries(['equip','material','shipping'].map(k=>[k,calcSelectedRate(k).name]));
+    savedCalcRates=null;populateCalcSelects();const missing=[];
+    ['equip','material','shipping'].forEach(kind=>{
+      const list=kind==='equip'?CFG.equip:kind==='material'?CFG.materials:CFG.shipping;
+      const index=list.findIndex(r=>r.name===names[kind]);
+      document.getElementById('calc-'+kind).value=index>=0?String(index):'';
+      if(names[kind] && index<0)missing.push(names[kind]);
+    });
+    calcExtrasCart=calcExtrasCart.map(x=>{const current=CFG.extras.find(e=>e.name===x.name);if(!current)missing.push(x.name+' (extra mantido pelo valor salvo)');return current?{...x,unitValue:Number(current.value)}:x;});
+    renderCalcExtras();document.getElementById('calc-edit-notice').textContent='Base atual aplicada. Confira os dados antes de salvar.';
+    calcHistoryMessage(missing.length?'Confira os itens não encontrados no cadastro atual: '+missing.join(', '):'Custos atuais aplicados. Confira o resultado antes de salvar.',missing.length>0);
+  });
+  document.getElementById('calc-history-search').addEventListener('input',renderCalcHistory);
+  document.getElementById('calc-history-sort').addEventListener('change',renderCalcHistory);
+  document.getElementById('calc-history-refresh').addEventListener('click',refreshCalcHistory);
+
+  // ---------- Pedidos de orçamento (pré-proposta, sem valores) ----------
+  const SOL_KEY='pedidos_orcamento';
+  const solFields=['date','client','contact','channel','title','qty','description','reference','status','priority','followup','needed','notes'];
+  const solStages=['Em busca','Localizado','Aguardando retorno','Cancelado'];
+  function localRequestDate(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+  function requestMessage(text,error=false){const el=document.getElementById('sol-msg');el.className='msg '+(error?'err':'ok');el.textContent=text;}
+  async function requestRead(key){
+    const {data,error}=await supabaseClient.from('kv_store').select('value').eq('key',key).maybeSingle();
+    if(error)throw new Error('Não foi possível consultar os dados. Confira a conexão e tente novamente.');
+    if(data?.value!=null&&!Array.isArray(data.value))throw new Error('Dados em formato inesperado. Nenhum registro foi alterado.');
+    return data?.value||[];
+  }
+  async function refreshRequests(){
+    try{const [s,o,p]=await Promise.all([requestRead(SOL_KEY),requestRead('orcamentos'),requestRead('producao_pedidos')]);SOLICITACOES=s;ORCAMENTOS=o;PEDIDOS=p;renderRequests();renderOrcamentos();}
+    catch(e){requestMessage(e.message,true);}
+  }
+  function linkedRequestQuotes(r){return ORCAMENTOS.filter(o=>o.sourceRequestId===r.id);}
+  function requestStatus(r){
+    const quotes=linkedRequestQuotes(r);
+    if(PEDIDOS.some(p=>p.sourceRequestId===r.id||quotes.some(o=>p.orcamentoId===o.id))||quotes.some(o=>o.convertedToPedido))return 'Aceito / produção';
+    if(r.status==='Cancelado')return 'Cancelado';
+    if(quotes.length)return 'Orçamento preparado';
+    return r.status||'Em busca';
+  }
+  function requestQuoteNotice(){
+    const el=document.getElementById('orc-request-notice'),r=SOLICITACOES.find(x=>x.id===sourceRequestId);
+    el.textContent=r?`Origem: ${r.code} · ${r.title}. Confira descrição, quantidade e preço antes de adicionar o item. As anotações internas não serão incluídas no PDF.`:'';
+    el.style.display=r?'':'none';
+  }
+  function resetRequestForm(){
+    editingRequestId=null;editingRequestVersion=null;
+    solFields.forEach(k=>{const el=document.getElementById('sol-'+k);el.value=k==='date'?localRequestDate():k==='qty'?'1':k==='status'?'Em busca':k==='priority'?'Normal':k==='channel'?'WhatsApp':'';});
+    document.getElementById('sol-save').textContent='Salvar solicitação';document.getElementById('sol-edit-notice').textContent='';
+  }
+  function editRequest(id){
+    if(requestBusy)return;
+    if(editingRequestId&&!confirm('Abrir esta solicitação? Alterações não salvas serão descartadas.'))return;
+    const r=SOLICITACOES.find(x=>x.id===id);if(!r)return;
+    editingRequestId=id;editingRequestVersion=r.updatedAt;
+    solFields.forEach(k=>document.getElementById('sol-'+k).value=r[k]??'');
+    document.getElementById('sol-save').textContent='Salvar alterações';
+    document.getElementById('sol-edit-notice').textContent=`Editando ${r.code}. Situação: ${requestStatus(r)}. Alterações aqui não modificam propostas já salvas.`;
+    document.getElementById('sol-client').scrollIntoView({behavior:'smooth',block:'center'});
+  }
+  function safeRequestURL(value){try{const u=new URL(value);return ['https:','http:'].includes(u.protocol)?u.href:'';}catch(e){return '';}}
+  function requestRows(){
+    const normalize=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
+    const query=normalize(document.getElementById('sol-search').value),filter=document.getElementById('sol-filter').value,sort=document.getElementById('sol-sort').value;
+    return SOLICITACOES.filter(r=>(!filter||requestStatus(r)===filter)&&normalize([r.code,r.client,r.title,r.description,r.notes,r.contact].join(' ')).includes(query)).sort((a,b)=>{
+      if(sort==='client')return a.client.localeCompare(b.client,'pt-BR',{sensitivity:'base'});
+      if(sort==='priority'){const rank={Alta:0,Normal:1,Baixa:2};return rank[a.priority]-rank[b.priority]||b.date.localeCompare(a.date);}
+      if(sort==='followup')return (a.followup||'9999').localeCompare(b.followup||'9999');
+      return b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt);
+    });
+  }
+  function renderRequests(){
+    const rows=requestRows(),today=localRequestDate();
+    const pending=SOLICITACOES.filter(r=>r.followup&&r.followup<=today&&!['Cancelado','Aceito / produção'].includes(requestStatus(r))).length;
+    document.getElementById('sol-count').textContent=`${rows.length} de ${SOLICITACOES.length} solicitação(ões) · ${pending} retorno(s) para hoje ou em atraso. As datas são lembretes visuais no portal.`;
+    document.getElementById('sol-list').innerHTML=rows.map(r=>{
+      const status=requestStatus(r),quotes=linkedRequestQuotes(r),url=safeRequestURL(r.reference),due=r.followup&&r.followup<=today&&!['Cancelado','Aceito / produção'].includes(status);
+      const tag=status==='Aceito / produção'?'pago':status==='Localizado'||status==='Orçamento preparado'?'concluido':status==='Aguardando retorno'?'producao':'pendente';
+      return `<div class="quote-saved"><div class="quote-saved-head"><div><strong>${escapeHtml(r.code)} · ${escapeHtml(r.title)}</strong><div class="quote-saved-meta">${escapeHtml(r.client)} · ${fmtDate(r.date)} · ${Number(r.qty)} un. · ${escapeHtml(r.channel)}</div></div><span class="tag ${tag}">${escapeHtml(status)}</span></div>
+      <p class="hint">Prioridade: ${escapeHtml(r.priority)}${r.followup?` · Retorno: ${fmtDate(r.followup)}${due?' — acompanhar':''}`:''}${r.needed?` · Data desejada: ${fmtDate(r.needed)}`:''}</p>
+      <details><summary style="cursor:pointer;">Ver solicitação e anotações</summary><p style="white-space:pre-wrap;overflow-wrap:anywhere;">${escapeHtml(r.description)}</p><p>Contato: ${escapeHtml(r.contact||'Não informado')}</p>${url?`<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Abrir referência</a>`:''}${r.notes?`<p class="hint" style="white-space:pre-wrap;overflow-wrap:anywhere;">Anotações internas: ${escapeHtml(r.notes)}</p>`:''}</details>
+      <div class="actions" style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;"><button type="button" data-edit-request="${r.id}">Editar</button>${quotes.map(o=>`<button type="button" data-open-request-quote="${escapeHtml(o.id)}">Ver ${escapeHtml(o.id)}</button>`).join('')}${!quotes.length&&status!=='Cancelado'&&status!=='Aceito / produção'?`<button type="button" data-quote-request="${r.id}">Preparar orçamento →</button>`:''}</div></div>`;
+    }).join('')||'<div class="empty">'+(SOLICITACOES.length?'Nenhuma solicitação corresponde aos filtros.':'Nenhuma solicitação cadastrada. Registre acima o primeiro pedido, sem precisar informar preço.')+'</div>';
+    document.querySelectorAll('[data-edit-request]').forEach(b=>b.addEventListener('click',()=>editRequest(b.dataset.editRequest)));
+    document.querySelectorAll('[data-quote-request]').forEach(b=>b.addEventListener('click',()=>prepareRequestQuote(b.dataset.quoteRequest)));
+    document.querySelectorAll('[data-open-request-quote]').forEach(b=>b.addEventListener('click',()=>openRequestQuote(b.dataset.openRequestQuote)));
+  }
+  function openRequestQuote(id){
+    root.querySelector('nav button[data-view="orcamentos"]').click();renderOrcamentos();
+    document.getElementById('quote-'+id)?.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+  async function prepareRequestQuote(id){
+    if(requestBusy||quoteSaveBusy)return;
+    requestBusy=true;
+    try{
+      const [requests,quotes,orders]=await Promise.all([requestRead(SOL_KEY),requestRead('orcamentos'),requestRead('producao_pedidos')]);
+      SOLICITACOES=requests;ORCAMENTOS=quotes;PEDIDOS=orders;
+      const r=requests.find(x=>x.id===id);if(!r)throw new Error('Solicitação não encontrada. Atualize a lista.');
+      const linked=linkedRequestQuotes(r);if(linked.length){openRequestQuote(linked[linked.length-1].id);return;}
+      if(['Cancelado','Aceito / produção'].includes(requestStatus(r)))throw new Error('Esta solicitação está encerrada. Revise seu histórico antes de preparar outra proposta.');
+      if((orcItemsCart.length||document.getElementById('orc-client-name').value.trim()||document.getElementById('orc-item-desc').value.trim())&&!confirm('Substituir o rascunho de orçamento aberto? Os orçamentos já salvos serão mantidos.'))return;
+      clearOrcamentoForm();sourceRequestId=id;
+      document.getElementById('orc-client-name').value=r.client;document.getElementById('orc-client-contact').value=r.contact||'';
+      document.getElementById('orc-item-desc').value=r.title;document.getElementById('orc-item-details').value=r.description;
+      document.getElementById('orc-item-qty').value=r.qty;document.getElementById('orc-item-value').value='';
+      requestQuoteNotice();root.querySelector('nav button[data-view="orcamentos"]').click();document.getElementById('orc-item-value').focus();
+    }catch(e){requestMessage(e.message,true);}finally{requestBusy=false;}
+  }
+  document.getElementById('sol-save').addEventListener('click',async()=>{
+    if(requestBusy)return;
+    const fields=Object.fromEntries(solFields.map(k=>[k,document.getElementById('sol-'+k).value.trim()]));
+    if(!fields.client||!fields.title||!fields.description||!fields.date){requestMessage('Preencha data, cliente, produto e descrição da solicitação.',true);return;}
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(fields.date)||!Number.isInteger(Number(fields.qty))||Number(fields.qty)<1||!solStages.includes(fields.status)){requestMessage('Confira a data, a quantidade e a etapa informada.',true);return;}
+    if(fields.reference&&!safeRequestURL(fields.reference)){requestMessage('Informe uma referência começando por https:// ou http://.',true);return;}
+    fields.qty=Number(fields.qty);requestBusy=true;document.getElementById('sol-save').disabled=true;
+    try{
+      const latest=await requestRead(SOL_KEY),existing=latest.find(r=>r.id===editingRequestId);
+      if(editingRequestId&&(!existing||existing.updatedAt!==editingRequestVersion))throw new Error('Esta solicitação foi alterada ou removida em outra sessão. Atualize a lista e abra novamente.');
+      const now=new Date().toISOString();const code=existing?.code||'SOL-'+String(latest.reduce((max,r)=>Math.max(max,Number((r.code||'').split('-')[1])||0),0)+1).padStart(3,'0');
+      const record={...fields,id:existing?.id||crypto.randomUUID(),code,createdAt:existing?.createdAt||now,updatedAt:now};
+      const next=existing?latest.map(r=>r.id===existing.id?record:r):[...latest,record];
+      if(!await setJSON(SOL_KEY,next))throw new Error('Não foi possível salvar. Seus dados continuam no formulário; tente novamente.');
+      SOLICITACOES=next;resetRequestForm();renderRequests();requestMessage(`${code} salva com sucesso. Nenhum orçamento ou lançamento financeiro foi criado.`);
+    }catch(e){requestMessage(e.message,true);}finally{requestBusy=false;document.getElementById('sol-save').disabled=false;}
+  });
+  document.getElementById('sol-new').addEventListener('click',()=>{if(requestBusy)return;if(!confirm('Limpar o formulário? Alterações não salvas serão descartadas.'))return;resetRequestForm();requestMessage('Pronto para uma nova solicitação.');});
+  document.getElementById('sol-refresh').addEventListener('click',refreshRequests);
+  document.getElementById('sol-search').addEventListener('input',renderRequests);
+  ['sol-filter','sol-sort'].forEach(id=>document.getElementById(id).addEventListener('change',renderRequests));
+
+  async function acceptRequestQuote(id){
+    if(acceptingQuoteBusy)return;
+    if(!confirm('O cliente aprovou este orçamento? Confirmar o aceite e enviar à produção?'))return;
+    acceptingQuoteBusy=true;
+    try{
+      const [quotes,orders]=await Promise.all([requestRead('orcamentos'),requestRead('producao_pedidos')]);
+      const orc=quotes.find(o=>o.id===id);if(!orc)throw new Error('Orçamento não encontrado. Atualize a lista.');
+      let order=orders.find(p=>p.orcamentoId===id);
+      if(!order && orc.convertedToPedido)throw new Error('Este orçamento já foi convertido. Verifique a fila antes de criar outro pedido.');
+      if(!order){
+        order={id:nextSeqId(orders,'PRD'),client:orc.clientName,desc:orc.items.map(it=>`${it.qty}x ${it.desc}`).join(', '),value:orc.total,status:'Pendente',date:todayISO(),deliveryDate:null,orcamentoId:orc.id,sourceRequestId:orc.sourceRequestId||null};
+        if(!await setJSON('producao_pedidos',[...orders,order]))throw new Error('Não foi possível criar o pedido. Nenhum aceite foi registrado.');
+        PEDIDOS=[...orders,order];
+      }else{PEDIDOS=orders;}
+      const next=quotes.map(o=>o.id===id?{...o,convertedToPedido:true}:o);
+      const marked=await setJSON('orcamentos',next);ORCAMENTOS=marked?next:quotes;
+      renderOrcamentos();renderRequests();renderPedidos();renderRecebimentos();
+      alert(marked?`Aceite registrado. Pedido ${order.id} disponível na fila de produção.`:`Pedido ${order.id} criado, mas a marcação do orçamento não foi salva. Tente novamente para sincronizar; o pedido não será duplicado.`);
+    }catch(e){alert(e.message);}finally{acceptingQuoteBusy=false;}
+  }
 
   // ============================================================
   // ORÇAMENTOS
@@ -1000,17 +1341,29 @@
     summary.innerHTML = `<div class="summary-row"><span>${orcItemsCart.length} ${orcItemsCart.length===1?'item':'itens'}</span><span>${fmtMoney(subtotal)}</span></div><div class="summary-row big"><span>Total</span><span>${fmtMoney(subtotal)}</span></div><p style="font-size:10.5px;color:#aaa3ad;margin:12px 0 0;line-height:1.45;">Valores, condições e prazo serão consolidados no PDF profissional da proposta.</p>`;
   }
   function clearOrcamentoForm(){
+    sourceRequestId=null;requestQuoteNotice();
+    ['orc-item-desc','orc-item-details','orc-item-value'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('orc-item-qty').value='1';document.getElementById('orc-item-unit').value='un.';
     orcItemsCart = [];
     ['orc-client-name','orc-client-doc','orc-client-contact','orc-client-email','orc-client-address','orc-validity','orc-delivery','orc-payment','orc-shipping-method','orc-notes'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('orc-catalog-product').value=''; document.getElementById('orc-catalog-color').innerHTML='<option value="">Sem variação</option>'; document.getElementById('orc-catalog-price-type').value='public'; document.getElementById('orc-catalog-custom-wrap').style.display='none'; document.getElementById('orc-catalog-preview').innerHTML='';
     renderOrcItems(); document.getElementById('orc-msg').innerHTML='';
   }
   document.getElementById('orc-clear-btn').addEventListener('click', ()=>{
-    if(orcItemsCart.length && !confirm('Limpar o orçamento em edição?')) return;
+    if(quoteSaveBusy)return;
+    if((sourceRequestId||orcItemsCart.length||document.getElementById('orc-client-name').value.trim()) && !confirm('Limpar o orçamento em edição?')) return;
     clearOrcamentoForm();
   });
 
   async function saveOrcamento(generatePdf){
+    if(quoteSaveBusy)return null;
+    quoteSaveBusy=true;
+    ['orc-save-btn','orc-save-only-btn','orc-clear-btn'].forEach(id=>document.getElementById(id).disabled=true);
+    try{ return await persistOrcamento(generatePdf); }
+    catch(e){document.getElementById('orc-msg').innerHTML='<div class="msg err">'+escapeHtml(e.message||'Não foi possível salvar o orçamento. Tente novamente.')+'</div>';return null;}
+    finally{quoteSaveBusy=false;['orc-save-btn','orc-save-only-btn','orc-clear-btn'].forEach(id=>document.getElementById(id).disabled=false);}
+  }
+  async function persistOrcamento(generatePdf){
     const clientName = document.getElementById('orc-client-name').value.trim();
     const clientContact = document.getElementById('orc-client-contact').value.trim();
     const clientDoc = document.getElementById('orc-client-doc').value.trim();
@@ -1024,16 +1377,22 @@
     const msg = document.getElementById('orc-msg');
     if(!clientName){ msg.innerHTML = '<div class="msg err">Preencha o nome do cliente.</div>'; return null; }
     if(orcItemsCart.length === 0){ msg.innerHTML = '<div class="msg err">Adicione pelo menos um item.</div>'; return null; }
-    ORCAMENTOS = await getJSON('orcamentos', ORCAMENTOS);
+    ORCAMENTOS = await requestRead('orcamentos');
+    if(sourceRequestId){
+      const requests=await requestRead(SOL_KEY),r=requests.find(x=>x.id===sourceRequestId);
+      if(!r||r.status==='Cancelado')throw new Error('A solicitação foi removida ou cancelada. Revise antes de salvar.');
+      if(ORCAMENTOS.some(o=>o.sourceRequestId===sourceRequestId))throw new Error('Esta solicitação já tem orçamento salvo. Abra a proposta pela aba Pedidos de orçamento.');
+    }
     const id = nextSeqId(ORCAMENTOS, 'ORC');
     const total = orcItemsCart.reduce((s,it)=>s+it.qty*it.unitValue,0);
-    const orc = { id, date: todayISO(), clientName, clientContact, clientDoc, clientEmail, clientAddress, validity, delivery, payment, shippingMethod, notes, items: orcItemsCart.slice(), subtotal:total, total };
-    ORCAMENTOS.push(orc);
-    await setJSON('orcamentos', ORCAMENTOS);
-    if(generatePdf) gerarPdfOrcamento(orc);
+    const orc = { id, sourceRequestId:sourceRequestId||null, date: todayISO(), clientName, clientContact, clientDoc, clientEmail, clientAddress, validity, delivery, payment, shippingMethod, notes, items: orcItemsCart.slice(), subtotal:total, total };
+    const nextQuotes=[...ORCAMENTOS,orc];
+    if(!await setJSON('orcamentos', nextQuotes))throw new Error('Não foi possível salvar. O rascunho foi mantido; tente novamente.');
+    ORCAMENTOS=nextQuotes;
     clearOrcamentoForm();
     msg.innerHTML = `<div class="msg ok">${generatePdf?'Orçamento salvo e PDF gerado.':'Orçamento salvo com sucesso.'}</div>`;
-    renderOrcamentos();
+    renderOrcamentos();renderRequests();
+    if(generatePdf){try{gerarPdfOrcamento(orc);}catch(e){msg.innerHTML='<div class="msg err">Orçamento salvo, mas não foi possível gerar o PDF. Use Baixar PDF na lista; não é necessário salvar novamente.</div>';}}
     return orc;
   }
   document.getElementById('orc-save-btn').addEventListener('click', ()=>saveOrcamento(true));
@@ -1041,7 +1400,7 @@
 
   function renderOrcamentos(){
     document.getElementById('orc-list').innerHTML = ORCAMENTOS.length ? ORCAMENTOS.slice().reverse().map(o=>`
-      <div class="quote-saved"><div class="quote-saved-head"><div><strong>${o.id} · ${escapeHtml(o.clientName)}</strong><div class="quote-saved-meta">Emitido em ${fmtDate(o.date)} · ${(o.items||[]).length} ${(o.items||[]).length===1?'item':'itens'} ${o.convertedToPedido ? ' · <span class="tag concluido">pedido criado</span>' : ''}</div></div><div class="quote-saved-total">${fmtMoney(o.total)}</div></div>
+      <div class="quote-saved" id="quote-${escapeHtml(o.id)}"><div class="quote-saved-head"><div><strong>${o.id} · ${escapeHtml(o.clientName)}</strong><div class="quote-saved-meta">Emitido em ${fmtDate(o.date)}${o.sourceRequestId?' · Solicitação: '+escapeHtml(SOLICITACOES.find(r=>r.id===o.sourceRequestId)?.code||'vinculada'):''} · ${(o.items||[]).length} ${(o.items||[]).length===1?'item':'itens'} ${o.convertedToPedido ? ' · <span class="tag concluido">pedido criado</span>' : ''}</div></div><div class="quote-saved-total">${fmtMoney(o.total)}</div></div>
         <div class="actions"><button data-pdf-orc="${o.id}">📄 Baixar PDF</button><button data-duplicate-orc="${o.id}">⧉ Duplicar</button>${!o.convertedToPedido ? `<button data-convert-orc="${o.id}">✓ Aceito → Produção</button>` : ''}<button data-del-orc="${o.id}">Remover</button></div>
       </div>
     `).join('') : '<div class="empty">Nenhum orçamento salvo ainda.</div>';
@@ -1051,34 +1410,25 @@
       if(orc) gerarPdfOrcamento(orc);
     }));
     document.querySelectorAll('[data-duplicate-orc]').forEach(b=>b.addEventListener('click', ()=>{
+      if(quoteSaveBusy)return;
       const o = ORCAMENTOS.find(x=>x.id===b.dataset.duplicateOrc); if(!o) return;
+      if((sourceRequestId||orcItemsCart.length)&&!confirm('Substituir o rascunho aberto pela cópia deste orçamento?'))return;
+      clearOrcamentoForm();
       document.getElementById('orc-client-name').value=o.clientName||''; document.getElementById('orc-client-doc').value=o.clientDoc||''; document.getElementById('orc-client-contact').value=o.clientContact||''; document.getElementById('orc-client-email').value=o.clientEmail||''; document.getElementById('orc-client-address').value=o.clientAddress||''; document.getElementById('orc-validity').value=o.validity||''; document.getElementById('orc-delivery').value=o.delivery||''; document.getElementById('orc-payment').value=o.payment||''; document.getElementById('orc-shipping-method').value=o.shippingMethod||''; document.getElementById('orc-notes').value=o.notes||'';
       orcItemsCart=(o.items||[]).map(it=>({...it})); renderOrcItems(); window.scrollTo({top:0,behavior:'smooth'});
     }));
-    document.querySelectorAll('[data-convert-orc]').forEach(b=>b.addEventListener('click', async ()=>{
-      const orc = ORCAMENTOS.find(o=>o.id===b.dataset.convertOrc);
-      if(!orc) return;
-      const desc = orc.items.map(it=>`${it.qty}x ${it.desc}`).join(', ');
-      PEDIDOS = await getJSON('producao_pedidos', PEDIDOS);
-      const id = nextSeqId(PEDIDOS, 'PRD');
-      PEDIDOS.push({ id, client: orc.clientName, desc, value: orc.total, status:'Pendente', date: todayISO(), deliveryDate: null, orcamentoId: orc.id });
-      await setJSON('producao_pedidos', PEDIDOS);
-      ORCAMENTOS = await getJSON('orcamentos', ORCAMENTOS);
-      const o2 = ORCAMENTOS.find(o=>o.id===orc.id);
-      if(o2) o2.convertedToPedido = true;
-      await setJSON('orcamentos', ORCAMENTOS);
-      renderOrcamentos();
-      renderRecebimentos();
-      alert(`Pronto! Criado o pedido ${id} na Fila de Produção. Você pode ajustar a data de entrega por lá.`);
-    }));
+    document.querySelectorAll('[data-convert-orc]').forEach(b=>b.addEventListener('click',()=>acceptRequestQuote(b.dataset.convertOrc)));
     document.querySelectorAll('[data-del-orc]').forEach(b=>b.addEventListener('click', async ()=>{
-      if(!confirm('Remover este orçamento?')) return;
-      ORCAMENTOS = await getJSON('orcamentos', ORCAMENTOS);
-      ORCAMENTOS = ORCAMENTOS.filter(o=>o.id!==b.dataset.delOrc);
-      await setJSON('orcamentos', ORCAMENTOS);
-      renderOrcamentos();
+      if(!confirm('Remover este orçamento?'))return;
+      try{
+        const latest=await requestRead('orcamentos');
+        const next=latest.filter(o=>o.id!==b.dataset.delOrc);
+        if(!await setJSON('orcamentos',next))throw new Error('Não foi possível remover. Tente novamente.');
+        ORCAMENTOS=next;renderOrcamentos();renderRequests();
+      }catch(e){alert(e.message);}
     }));
   }
+
   function fmtDate(iso){ if(!iso) return '—'; const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }
 
   function gerarPdfOrcamento(orc){
