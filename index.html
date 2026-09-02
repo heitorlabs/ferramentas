@@ -168,6 +168,89 @@
     #app-root .client-rank .mobile-hide{display:none;}
   }
   @media(min-width:801px) and (max-width:1100px){#app-root .kanban{grid-template-columns:repeat(2,1fr);}}
+  /* Versão 16 — legibilidade, navegação e acessibilidade */
+  body{font-size:16px;line-height:1.5;}
+  #app-root .topbar{position:sticky;top:0;z-index:40;box-shadow:0 4px 20px rgba(22,18,25,.06);}
+  #app-root .brand-text{font-size:18px;}
+  #app-root .brand-sub{font-size:12px;}
+  #app-root nav button{font-size:14px;min-height:44px;padding:10px 14px;}
+  #app-root main{max-width:1240px;padding:30px;}
+  #app-root .panel{border-radius:16px;padding:24px;box-shadow:0 5px 18px rgba(22,18,25,.035);}
+  #app-root h2{font-size:22px;line-height:1.25;}
+  #app-root h3{font-size:16px;}
+  #app-root p.hint,#app-root .hint{font-size:13px;line-height:1.55;}
+  #app-root .field{gap:6px;}
+  #app-root .field label{font-size:13px;text-transform:none;letter-spacing:0;font-family:inherit;font-weight:650;color:var(--ink);}
+  #app-root input,#app-root select,#app-root textarea{min-height:44px;padding:10px 12px;font-size:15px;line-height:1.35;}
+  #app-root textarea{min-height:92px;}
+  #app-root .btn,#app-root .btn.small,#app-root .actions button,#app-root .kanban-card .kc-actions button{min-height:42px;padding:9px 13px;font-size:13px;justify-content:center;}
+  #app-root .kanban-toggle,#app-root #theme-toggle-btn{width:44px;height:44px;}
+  #app-root table{font-size:14px;}
+  #app-root .table-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  #app-root th{font-size:12px;padding:10px;}
+  #app-root td{padding:10px;}
+  #app-root .tag{font-size:12px;padding:4px 10px;}
+  #app-root .summary-row{font-size:14px;padding:7px 0;gap:14px;}
+  #app-root .msg{font-size:14px;}
+  #app-root :is(button,a,input,select,textarea,summary):focus-visible{outline:3px solid color-mix(in srgb,var(--violet) 72%,white);outline-offset:3px;}
+  #app-root button:disabled{opacity:.55;cursor:not-allowed;}
+  #app-root .nav-group-label{display:none;}
+  #app-root .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+  #app-root [data-mobile-more]{display:none;}
+  #app-root .global-search{position:relative;min-width:210px;}
+  #app-root .global-search input{width:100%;background:var(--panel-2);}
+  #app-root .search-results{position:fixed;z-index:80;top:78px;left:50%;transform:translateX(-50%);width:min(680px,calc(100vw - 28px));max-height:70vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.22);padding:10px;}
+  #app-root .search-result{display:grid;grid-template-columns:110px 1fr auto;align-items:center;gap:12px;padding:12px;border-radius:10px;border-bottom:1px solid var(--line);cursor:pointer;}
+  #app-root .search-result:hover{background:var(--panel-2);}
+  #app-root .search-result small{color:var(--muted);}
+  #app-root .dashboard-hero{background:linear-gradient(135deg,#161219 0%,#24202b 70%,#18363a 100%);color:#fff;border:none;overflow:hidden;position:relative;}
+  #app-root .dashboard-hero:after{content:"";position:absolute;inset:auto 0 0;height:5px;background:var(--grad);}
+  #app-root .dashboard-hero h2{font-size:28px;color:#fff;}
+  #app-root .dashboard-hero .hint{color:#d5d1d8;}
+  #app-root .quick-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+  #app-root .quick-actions .btn.secondary{background:#29242e;border-color:#453d49;color:#fff;}
+  #app-root .today-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+  #app-root .today-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;position:relative;overflow:hidden;}
+  #app-root .today-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--card-color,var(--violet));}
+  #app-root .today-card span{display:block;font-size:13px;color:var(--muted);}
+  #app-root .today-card strong{display:block;font-size:25px;margin-top:5px;}
+  #app-root .today-columns{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  #app-root .today-list{display:grid;gap:9px;}
+  #app-root .today-item{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:11px;padding:12px 14px;background:var(--panel-2);}
+  #app-root .today-item small{display:block;color:var(--muted);margin-top:2px;}
+  #app-root .advanced-panel{border:1px solid var(--line);border-radius:12px;margin:14px 0;background:var(--panel-2);}
+  #app-root .advanced-panel>summary{cursor:pointer;padding:14px 16px;font-weight:750;list-style:none;min-height:48px;display:flex;align-items:center;justify-content:space-between;}
+  #app-root .advanced-panel>summary:after{content:"＋";color:var(--violet);font-size:20px;}
+  #app-root .advanced-panel[open]>summary:after{content:"−";}
+  #app-root .advanced-panel-content{padding:4px 16px 16px;}
+  #app-root .toast-region{position:fixed;z-index:120;right:18px;bottom:18px;display:grid;gap:9px;width:min(390px,calc(100vw - 36px));}
+  #app-root .toast{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--green);border-radius:12px;padding:13px 15px;box-shadow:0 16px 45px rgba(0,0,0,.2);font-size:14px;animation:toast-in .18s ease-out;}
+  #app-root .toast.error{border-left-color:var(--red);}
+  #app-root :is(.brand-text,h2,h3,.btn,nav button){font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+  #app-root :is(.brand-sub,.summary-row,th){font-family:ui-monospace,SFMono-Regular,Consolas,monospace;}
+  #app-root :is(.today-card,.today-item,.search-result){font-family:inherit;}
+  #app-root :is(.kanban-card .kc-value,.quote-item .muted,.quote-saved-meta,.month-totals){font-size:13px;}
+  #app-root :is(.quote-eyebrow,.receipt-net){font-size:12px;}
+  #app-root .step{font-size:13px;}
+  @keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @media(max-width:1100px){#app-root .topbar{position:relative}.global-search{order:4;width:100%}.today-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:800px){
+    #app-root main{padding:18px 14px 96px;}
+    #app-root .topbar{padding:14px;gap:12px;}
+    #app-root .panel{padding:18px 15px;border-radius:14px;}
+    #app-root nav{position:fixed;z-index:60;left:0;right:0;bottom:0;border-radius:16px 16px 0 0;padding:6px 6px max(6px,env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,1fr);gap:3px;box-shadow:0 -8px 30px rgba(0,0,0,.14);}
+    #app-root nav button{font-size:12px;padding:7px 3px;min-height:52px;line-height:1.15;}
+    #app-root nav button.mobile-secondary{display:none;}
+    #app-root [data-mobile-more]{display:block;}
+    #app-root nav.mobile-more-open{grid-template-columns:repeat(3,1fr);}
+    #app-root nav.mobile-more-open button.mobile-secondary{display:block;}
+    #app-root .today-grid,#app-root .today-columns{grid-template-columns:1fr;}
+    #app-root .finance-kpis{grid-template-columns:1fr;}
+    #app-root .search-result{grid-template-columns:1fr auto;}.search-result>span:first-child{display:none;}
+    #app-root .topbar-actions{width:100%;flex-wrap:wrap;}
+    #app-root .global-search{min-width:100%;}
+    #app-root .summary-row{align-items:flex-start;}
+  }
 </style>
 </head>
 <body>
@@ -193,22 +276,43 @@
           <div class="brand-sub">Ferramentas internas</div>
         </div>
       </div>
-      <nav>
-        <button data-view="calculadora" class="active">Calculadora</button>
-        <button data-view="solicitacoes">Pedidos de orçamento</button>
-        <button data-view="orcamentos">Orçamentos</button>
-        <button data-view="pedidos">Fila de Pedidos</button>
-        <button data-view="recebimentos">Financeiro</button>
-        <button data-view="config">Configurações</button>
+      <nav aria-label="Navegação principal">
+        <button data-view="inicio" class="active" title="Visão geral do dia">⌂<span> Início</span></button>
+        <button data-view="calculadora" class="mobile-secondary" title="Operação · Calculadora">▧<span> Calculadora</span></button>
+        <button data-view="solicitacoes" title="Comercial · Pedidos de orçamento">◷<span> Solicitações</span></button>
+        <button data-view="orcamentos" class="mobile-secondary" title="Comercial · Orçamentos">▤<span> Orçamentos</span></button>
+        <button data-view="pedidos" title="Operação · Fila de pedidos">▦<span> Produção</span></button>
+        <button data-view="recebimentos" title="Gestão · Financeiro">$<span> Financeiro</span></button>
+        <button data-view="config" class="mobile-secondary" title="Administração · Configurações">⚙<span> Configurações</span></button>
+        <button type="button" data-mobile-more title="Exibir todos os módulos" aria-expanded="false">•••<span> Mais</span></button>
       </nav>
-      <div style="display:flex;gap:7px;align-items:center;"><a class="btn secondary small" id="products-portal-btn" href="#" target="_blank" rel="noopener" style="display:none;">🛍️ Produtos</a><button type="button" id="theme-toggle-btn" title="Alternar tema claro/escuro">🌙</button><button class="btn secondary small" id="logout-btn">🚪 Sair</button></div>
+      <div class="global-search"><label for="global-search" class="sr-only">Buscar em todo o portal</label><input id="global-search" type="search" placeholder="Buscar cliente, produto ou número…" autocomplete="off"><div id="global-search-results" class="search-results" style="display:none;"></div></div>
+      <div class="topbar-actions" style="display:flex;gap:7px;align-items:center;"><a class="btn secondary small" id="products-portal-btn" href="#" target="_blank" rel="noopener" style="display:none;">Produtos</a><button type="button" id="theme-toggle-btn" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">🌙</button><button class="btn secondary small" id="logout-btn">Sair</button></div>
     </div>
 
     <main>
+      <!-- ============ INÍCIO / HOJE ============ -->
+      <div class="view" data-view="inicio">
+        <div class="panel dashboard-hero">
+          <h2 id="dashboard-greeting">Visão geral de hoje</h2>
+          <p class="hint">Veja o que precisa de atenção e continue o trabalho de onde parou.</p>
+          <div class="quick-actions">
+            <button class="btn" type="button" data-go-view="solicitacoes">Nova solicitação</button>
+            <button class="btn secondary" type="button" data-go-view="calculadora">Novo cálculo</button>
+            <button class="btn secondary" type="button" data-go-view="orcamentos">Novo orçamento</button>
+            <button class="btn secondary" type="button" data-go-view="recebimentos">Novo lançamento</button>
+          </div>
+        </div>
+        <div class="today-grid" id="dashboard-kpis"></div>
+        <div class="today-columns">
+          <div class="panel"><h2>Precisa de atenção</h2><p class="hint">Prazos, solicitações e pagamentos pendentes.</p><div class="today-list" id="dashboard-attention"></div></div>
+          <div class="panel"><h2>Atividade recente</h2><p class="hint">Últimos registros comerciais e de produção.</p><div class="today-list" id="dashboard-recent"></div></div>
+        </div>
+      </div>
       <!-- ============ CALCULADORA ============ -->
-      <div class="view" data-view="calculadora">
+      <div class="view" data-view="calculadora" style="display:none;">
         <div class="panel">
-          <h2>🧮 Calculadora de custo e preço</h2>
+          <h2>Calculadora de custo e preço</h2>
           <p class="hint">Informe o equipamento, o tempo de produção, o material, o frete e os extras. O preço final é calculado na hora com base nos custos cadastrados em "Configurações".</p>
 
           <div class="section-card"><div class="section-title"><span class="step">✦</span> Identificação do produto</div><div class="row" style="margin:0;"><div class="field"><label>Nome do produto *</label><input id="calc-product-name" placeholder="Ex.: Vasilha pet personalizada 750 ml"></div><div class="field"><label for="calc-client">Pessoa / cliente</label><input id="calc-client" placeholder="Para quem foi feito este cálculo" list="calc-client-options"><datalist id="calc-client-options"></datalist></div><div class="field"><label>Detalhes / personalização</label><input id="calc-product-details" placeholder="Cor, tamanho, nome, acabamento..."></div></div></div>
@@ -225,6 +329,7 @@
             <div class="field"><label>Quantidade (g)</label><input id="calc-material-qty" type="number" min="0" step="1" value="0"></div>
           </div>
 
+          <details class="advanced-panel"><summary>Frete e extras opcionais</summary><div class="advanced-panel-content">
           <h3>Frete</h3>
           <div class="row">
             <div class="field"><label>Opção de envio</label><select id="calc-shipping"></select></div>
@@ -237,14 +342,15 @@
             <div class="field" style="flex:0;align-self:flex-end;"><button class="btn secondary small" id="calc-add-extra-btn" type="button">+ Adicionar</button></div>
           </div>
           <div id="calc-extras-list"></div>
+          </div></details>
 
           <div class="divider" style="height:1px;background:var(--line);margin:16px 0;"></div>
 
           <h3>Peças e margens</h3>
           <div class="row">
             <div class="field"><label>Quantidade de peças</label><input id="calc-qty-pieces" type="number" min="1" step="1" value="1"></div>
-            <div class="field"><label>Margem de lucro (ex.: 1 = 100%)</label><input id="calc-margin" type="number" min="0" step="0.1" value="1"></div>
-            <div class="field"><label>Tributo (%, opcional)</label><input id="calc-tax" type="number" min="0" step="0.1" value="0"></div>
+            <div class="field"><label>Acréscimo sobre o custo — markup (ex.: 1 = 100%)</label><input id="calc-margin" type="number" min="0" step="0.1" value="1"><small class="hint">A margem real será mostrada no resumo.</small></div>
+            <div class="field"><label>Tributo/taxa sobre a venda (%, opcional)</label><input id="calc-tax" type="number" min="0" max="99" step="0.1" value="0"><small class="hint">O preço é ajustado para cobrir este percentual.</small></div>
             <div class="field"><label>Margem de segurança (%)</label><input id="calc-safety" type="number" min="0" step="0.5" value="5"></div>
           </div>
 
@@ -355,7 +461,7 @@
       <!-- ============ FILA DE PEDIDOS ============ -->
       <div class="view" data-view="pedidos" style="display:none;">
         <div class="panel">
-          <h2>🗂️ Fila de produção</h2>
+          <h2>Fila de produção</h2>
           <p class="hint">Acompanhe cada pedido, movendo entre as etapas conforme avança.</p>
           <div class="row">
             <div class="field" style="flex:2;"><label>Cliente</label><input id="ped-client" placeholder="Ex.: Maria"></div>
@@ -375,7 +481,7 @@
 
         <div class="panel" style="margin-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
-            <h3 style="margin:0;">Lista completa</h3>
+            <div><h3 style="margin:0;">Histórico completo</h3><p class="hint" style="margin:4px 0 0;">Pedidos arquivados saem do quadro, mas permanecem aqui com todas as alterações registradas.</p></div>
             <div class="row" style="margin:0;">
               <div class="field" style="min-width:180px;">
                 <label>Ordenar por</label>
@@ -387,7 +493,7 @@
             </div>
           </div>
           <table id="ped-list-table">
-            <thead><tr><th>Cliente</th><th>Descrição</th><th>Finalidade</th><th>Venda / custo</th><th>Incluído em</th><th>Entrega prevista</th><th>Status</th><th>Ação</th></tr></thead>
+            <thead><tr><th>Cliente</th><th>Descrição</th><th>Finalidade</th><th>Venda / custo</th><th>Incluído em</th><th>Entrega prevista</th><th>Status</th><th>Histórico e ações</th></tr></thead>
             <tbody id="ped-list-tbody"></tbody>
           </table>
         </div>
@@ -431,10 +537,10 @@
         </div>
 
         <div class="panel">
-          <h2>⚙️ Configurações de custo</h2>
+          <h2>Configurações de custo</h2>
           <p class="hint">Esses valores alimentam a calculadora. Preencha uma vez e ajuste sempre que seus custos mudarem.</p>
-          <button class="btn secondary small" id="cfg-import-btn" type="button">📥 Importar valores da planilha original</button>
-          <p class="hint" style="margin-top:8px;">Só use isso se a lista abaixo estiver vazia ou incompleta — rodar de novo <strong>duplica</strong> os itens já cadastrados.</p>
+          <button class="btn secondary small" id="cfg-import-btn" type="button">📥 Restaurar valores iniciais</button>
+          <p class="hint" style="margin-top:8px;">Essa ação substitui os cadastros atuais pelos valores iniciais e cria um backup automático antes da troca.</p>
         </div>
 
         <div class="panel">
@@ -451,7 +557,7 @@
 
         <div class="panel">
           <h3>Custos fixos mensais</h3>
-          <p class="hint">Luz, água, aluguel, MEI, assinaturas de software, etc. São somados e divididos pelas horas trabalhadas no mês pra achar um custo fixo por hora.</p>
+          <p class="hint">Água, aluguel, MEI, assinaturas e energia administrativa são divididos pelas horas produtivas. O consumo elétrico das máquinas já é calculado em Equipamentos; em “Luz”, informe somente a parcela que não pertence às máquinas para evitar cobrança duplicada.</p>
           <table id="cfg-fixed-table"><thead><tr><th>Item</th><th>Valor/mês (R$)</th><th></th></tr></thead><tbody></tbody></table>
           <div class="row" style="margin-top:10px;">
             <div class="field"><label>Item</label><input id="cfg-fixed-name" placeholder="Ex.: Luz"></div>
@@ -461,7 +567,7 @@
           <div id="cfg-fixed-add-btn-msg"></div>
           <div class="summary-box" style="margin-top:10px;">
             <div class="summary-row"><span>Total fixo/mês</span><span id="cfg-fixed-total">R$ 0,00</span></div>
-            <div class="summary-row"><span>Horas de trabalho consideradas/mês</span><span><input id="cfg-fixed-hours-base" type="number" value="160" style="width:70px;"></span></div>
+            <div class="summary-row"><span>Horas produtivas consideradas/mês</span><span><input id="cfg-fixed-hours-base" type="number" min="1" value="160" style="width:70px;"></span></div>
             <div class="summary-row big"><span>Custo fixo por hora</span><span id="cfg-fixed-hourly">R$ 0,00</span></div>
           </div>
         </div>
@@ -471,7 +577,7 @@
           <div class="row">
             <div class="field"><label>Energia (R$/kWh)</label><input id="cfg-energy-kwh" type="number" min="0" step="0.01" value="1.34"></div>
             <div class="field"><label>Tempo de retorno do equipamento (meses)</label><input id="cfg-payback-months" type="number" min="1" step="1" value="12"></div>
-            <div class="field"><label>Depreciação ao ano (%)</label><input id="cfg-depreciation-pct" type="number" min="0" step="1" value="10"></div>
+            <div class="field"><label>Depreciação ao ano (%) — informativa</label><input id="cfg-depreciation-pct" type="number" min="0" step="1" value="10"><small class="hint">Não é somada ao retorno do investimento para evitar duplicidade.</small></div>
           </div>
         </div>
 
@@ -525,6 +631,7 @@
       </div>
     </main>
   </div>
+  <div id="toast-region" class="toast-region" role="status" aria-live="polite"></div>
 </div>
 
 <script>
@@ -534,25 +641,45 @@
   const SUPABASE_ANON_KEY = "sb_publishable_DPHmmsLWAwopwAtv_aoPuA_72GLjuHT";
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const ADMIN_EMAIL = "hl3dsolutions@gmail.com";
-  const fmtMoney = v => 'R$ ' + (Number(v)||0).toFixed(2).replace('.', ',');
-  const todayISO = () => new Date().toISOString().slice(0,10);
+  const fmtMoney = v => 'R$ ' + (Number.isFinite(Number(v))?Number(v):0).toFixed(2).replace('.', ',');
+  const localISODate = date => {
+    const d=date instanceof Date?date:new Date(date||Date.now());
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  };
+  const todayISO = () => localISODate(new Date());
+  const readFailures = new Set();
   function escapeHtml(str){
     if(str == null) return '';
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
 
   async function getJSON(key, fallback){
-    const { data, error } = await supabaseClient.from('kv_store').select('value').eq('key', key).maybeSingle();
-    if(error || !data) return fallback;
+    let result;
+    try{ result=await supabaseClient.from('kv_store').select('value').eq('key', key).maybeSingle(); }
+    catch(e){ readFailures.add(key); throw new Error(`Não foi possível carregar ${key}. Verifique a conexão antes de continuar.`); }
+    const {data,error}=result;
+    if(error){ readFailures.add(key); console.error('Erro ao carregar',key,error); throw new Error(`Não foi possível carregar ${key}. Nenhum dado será sobrescrito.`); }
+    readFailures.delete(key);
+    if(!data) return fallback;
     return data.value ?? fallback;
   }
   async function setJSON(key, value){
+    if(readFailures.has(key)) throw new Error(`A gravação de ${key} foi bloqueada porque os dados não foram carregados com segurança.`);
     try{
       const { error } = await supabaseClient.from('kv_store').upsert({ key, value, updated_at: new Date().toISOString() });
-      if(error){ console.error('Erro ao salvar', key, error); return null; }
+      if(error){ console.error('Erro ao salvar', key, error); throw new Error(`Não foi possível salvar ${key}. Seus dados continuam na tela.`); }
       return true;
-    }catch(e){ console.error(e); return null; }
+    }catch(e){ console.error(e); throw e instanceof Error?e:new Error(`Não foi possível salvar ${key}.`); }
   }
+  window.addEventListener('unhandledrejection',event=>{
+    if(event.reason instanceof Error){event.preventDefault();alert(event.reason.message+' Os dados preenchidos foram mantidos; atualize a página antes de tentar novamente.');}
+  });
+  function showToast(message,type='ok'){
+    const region=document.getElementById('toast-region');if(!region)return;
+    const item=document.createElement('div');item.className=`toast ${type==='error'?'error':''}`;item.textContent=String(message);region.appendChild(item);
+    setTimeout(()=>item.remove(),5200);
+  }
+  window.alert=message=>showToast(message,/erro|não foi possível|incorret|inválid|falh/i.test(String(message))?'error':'ok');
 
   // ---------- estado ----------
   let CFG = { labor:[], fixed:[], equip:[], materials:[], shipping:[], extras:[], globals:{energyKwh:1.34, paybackMonths:12, depreciationPct:10, fixedHoursBase:160} };
@@ -616,11 +743,22 @@
     document.getElementById('gate-box').style.display = 'none';
     document.getElementById('app-shell').style.display = 'block';
     document.getElementById('quote-logo-preview').src = LOGO_B64;
-    await loadAllData();
-    // se a configuração ainda está totalmente vazia (primeiro acesso), traz os valores reais da sua planilha
+    try{ await loadAllData(); }
+    catch(e){
+      document.getElementById('app-shell').style.display='none';
+      document.getElementById('gate-box').style.display='block';
+      document.getElementById('gate-msg').innerHTML=`<div class="msg err">${escapeHtml(e.message)} Atualize a página e tente novamente.</div>`;
+      return;
+    }
+    // os valores iniciais só são carregados uma vez; apagar configurações depois disso é respeitado
     const tudoVazio = CFG.labor.length===0 && CFG.fixed.length===0 && CFG.equip.length===0 && CFG.materials.length===0 && CFG.shipping.length===0 && CFG.extras.length===0;
-    if(tudoVazio){
-      await seedFromSpreadsheet();
+    try{
+      const configInitialized = await getJSON('custos_config_initialized', false);
+      if(tudoVazio && !configInitialized)await seedFromSpreadsheet('replace');
+      else if(!tudoVazio && !configInitialized)await setJSON('custos_config_initialized',true);
+    }catch(e){
+      document.getElementById('app-shell').style.display='none';document.getElementById('gate-box').style.display='block';
+      document.getElementById('gate-msg').innerHTML=`<div class="msg err">${escapeHtml(e.message)} Nenhuma configuração foi alterada.</div>`;return;
     }
     renderConfigTables();
     populateCalcSelects();
@@ -638,10 +776,16 @@
     document.getElementById('cfg-empresa-pagamento').value = EMPRESA.pagamento || '';
     document.getElementById('cfg-empresa-portfolio-url').value = EMPRESA.portfolioUrl || '';
     applyProductsPortalLink();
+    restoreDrafts();
+    enhanceAccessibility();
+    renderDashboard();
   }
 
   // valores extraídos diretamente da sua planilha CALCULAR_VALOR_PRODUTOS.xlsx (aba "Base")
-  async function seedFromSpreadsheet(){
+  async function seedFromSpreadsheet(mode='replace'){
+    if(mode==='replace' && (CFG.fixed.length||CFG.equip.length||CFG.materials.length||CFG.shipping.length||CFG.extras.length)){
+      await setJSON(`custos_backup_${Date.now()}`,{createdAt:new Date().toISOString(),labor:CFG.labor,fixed:CFG.fixed,equip:CFG.equip,materials:CFG.materials,shipping:CFG.shipping,extras:CFG.extras,globals:CFG.globals});
+    }
     CFG.labor = [
       { name:'Estagiário', salaryMonth:1500, hoursMonth:120 },
       { name:'Assistente', salaryMonth:3000, hoursMonth:160 },
@@ -693,13 +837,12 @@
       { name:'Vasilha inox', value:6 },
     ];
     CFG.globals = { energyKwh:1.34, paybackMonths:12, depreciationPct:10, fixedHoursBase:160 };
-    await setJSON('custos_labor', CFG.labor);
-    await setJSON('custos_fixed', CFG.fixed);
-    await setJSON('custos_equip', CFG.equip);
-    await setJSON('custos_materials', CFG.materials);
-    await setJSON('custos_shipping', CFG.shipping);
-    await setJSON('custos_extras', CFG.extras);
-    await setJSON('custos_globals', CFG.globals);
+    await Promise.all([
+      setJSON('custos_labor', CFG.labor),setJSON('custos_fixed', CFG.fixed),setJSON('custos_equip', CFG.equip),
+      setJSON('custos_materials', CFG.materials),setJSON('custos_shipping', CFG.shipping),setJSON('custos_extras', CFG.extras),
+      setJSON('custos_globals', CFG.globals)
+    ]);
+    await setJSON('custos_config_initialized',true);
   }
   document.getElementById('cfg-empresa-save-btn').addEventListener('click', async ()=>{
     EMPRESA = {
@@ -709,9 +852,11 @@
       pagamento: document.getElementById('cfg-empresa-pagamento').value.trim(),
       portfolioUrl: document.getElementById('cfg-empresa-portfolio-url').value.trim(),
     };
-    await setJSON('empresa_config', EMPRESA);
-    applyProductsPortalLink();
-    document.getElementById('cfg-empresa-msg').innerHTML = '<div class="msg ok">Dados salvos! Já valem pros próximos orçamentos.</div>';
+    try{
+      await setJSON('empresa_config', EMPRESA);
+      applyProductsPortalLink();
+      document.getElementById('cfg-empresa-msg').innerHTML = '<div class="msg ok">Dados salvos! Já valem pros próximos orçamentos.</div>';
+    }catch(e){ document.getElementById('cfg-empresa-msg').innerHTML=`<div class="msg err">${escapeHtml(e.message)}</div>`; }
   });
   function applyProductsPortalLink(){
     const btn=document.getElementById('products-portal-btn'),url=(EMPRESA.portfolioUrl||'').trim();
@@ -719,24 +864,61 @@
   }
 
   document.getElementById('cfg-import-btn').addEventListener('click', async ()=>{
-    if(!confirm('Importar os valores da planilha original? Isso vai ADICIONAR os itens (mão de obra, equipamentos, materiais, fretes, extras) da sua planilha CALCULAR_VALOR_PRODUTOS.xlsx. Se você já tem itens parecidos cadastrados, eles vão ficar duplicados — remova os antigos antes, se for o caso.')) return;
-    await seedFromSpreadsheet();
-    renderConfigTables();
-    populateCalcSelects();
-    updateCalcSummary();
-    alert('Valores importados! Confira as tabelas abaixo.');
+    if(!confirm('Restaurar os valores iniciais? Isso SUBSTITUIRÁ as configurações atuais. Um backup automático será criado antes da troca.')) return;
+    try{
+      await seedFromSpreadsheet('replace');
+      renderConfigTables();populateCalcSelects();updateCalcSummary();
+      alert('Valores iniciais restaurados. O backup das configurações anteriores foi preservado.');
+    }catch(e){ alert(e.message); }
   });
 
-  root.querySelectorAll('nav button').forEach(btn=>{
+  function switchView(view){
+    const target=root.querySelector(`.view[data-view="${view}"]`);if(!target)return;
+    root.querySelectorAll('nav button[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
+    root.querySelectorAll('.view').forEach(v=>v.style.display='none');target.style.display='block';
+    if(view==='recebimentos')renderRecebimentos();if(view==='solicitacoes')renderRequests();if(view==='inicio')renderDashboard();
+    root.querySelector('nav')?.classList.remove('mobile-more-open');const more=root.querySelector('[data-mobile-more]');if(more){more.setAttribute('aria-expanded','false');more.querySelector('span').textContent=' Mais';}window.scrollTo({top:0,behavior:'smooth'});
+  }
+  root.querySelectorAll('nav button[data-view]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      root.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      root.querySelectorAll('.view').forEach(v=>v.style.display='none');
-      root.querySelector(`.view[data-view="${btn.dataset.view}"]`).style.display='block';
-      if(btn.dataset.view==='recebimentos') renderRecebimentos();
-      if(btn.dataset.view==='solicitacoes') renderRequests();
+      switchView(btn.dataset.view);
     });
   });
+  root.querySelector('[data-mobile-more]').addEventListener('click',e=>{const open=root.querySelector('nav').classList.toggle('mobile-more-open');e.currentTarget.setAttribute('aria-expanded',String(open));e.currentTarget.querySelector('span').textContent=open?' Fechar':' Mais';});
+  root.querySelectorAll('[data-go-view]').forEach(btn=>btn.addEventListener('click',()=>switchView(btn.dataset.goView)));
+
+  function renderDashboard(){
+    const today=todayISO(),openRequests=SOLICITACOES.filter(s=>!['Cancelado','Aceito / produção'].includes(requestStatus(s))&&!ORCAMENTOS.some(o=>o.sourceRequestId===s.id)),overdue=PEDIDOS.filter(isPedidoAtrasado),inProduction=PEDIDOS.filter(p=>p.status==='Em produção'&&!p.archivedAt),pendingMoney=RECEBIMENTOS.filter(r=>r.status==='Pendente'),month=monthKey(today),monthNet=RECEBIMENTOS.filter(r=>monthKey(r.date)===month&&transactionType(r)==='Entrada'&&r.status==='Recebido').reduce((s,r)=>s+receiptNet(r),0);
+    const hour=new Date().getHours(),greeting=hour<12?'Bom dia':hour<18?'Boa tarde':'Boa noite';document.getElementById('dashboard-greeting').textContent=`${greeting}. O que precisa de atenção hoje?`;
+    document.getElementById('dashboard-kpis').innerHTML=`<button class="today-card" data-dash-view="solicitacoes" style="--card-color:var(--coral);text-align:left;color:inherit;cursor:pointer"><span>Solicitações sem orçamento</span><strong>${openRequests.length}</strong></button><button class="today-card" data-dash-view="pedidos" style="--card-color:var(--violet);text-align:left;color:inherit;cursor:pointer"><span>Em produção</span><strong>${inProduction.length}</strong></button><button class="today-card" data-dash-view="pedidos" style="--card-color:var(--red);text-align:left;color:inherit;cursor:pointer"><span>Pedidos atrasados</span><strong>${overdue.length}</strong></button><button class="today-card" data-dash-view="recebimentos" style="--card-color:var(--green);text-align:left;color:inherit;cursor:pointer"><span>Entrou líquido no mês</span><strong>${fmtMoney(monthNet)}</strong></button>`;
+    const attention=[...overdue.map(p=>({view:'pedidos',title:`Pedido atrasado · ${p.id}`,meta:`${p.client||p.desc} · entrega ${fmtDate(p.deliveryDate)}`})),...openRequests.slice(0,4).map(s=>({view:'solicitacoes',title:`Solicitação · ${s.id}`,meta:`${s.client||'Cliente não informado'} · ${s.description||s.request||'ver detalhes'}`})),...pendingMoney.slice(0,4).map(r=>({view:'recebimentos',title:`Financeiro pendente · ${r.id}`,meta:`${r.client||r.description||'Lançamento'} · ${fmtMoney(r.value)}`}))].slice(0,8);
+    document.getElementById('dashboard-attention').innerHTML=attention.length?attention.map(x=>`<button class="today-item" data-dash-view="${x.view}" style="width:100%;color:inherit;text-align:left;cursor:pointer"><span><strong>${escapeHtml(x.title)}</strong><small>${escapeHtml(x.meta)}</small></span><span aria-hidden="true">→</span></button>`).join(''):'<div class="empty">Nenhuma pendência importante agora.</div>';
+    const recent=[...PEDIDOS.map(p=>({date:p.date||'',view:'pedidos',title:p.desc,meta:`${p.id} · ${p.status}`})),...ORCAMENTOS.map(o=>({date:o.date||'',view:'orcamentos',title:o.clientName||o.client||'Orçamento',meta:`${o.id} · ${fmtMoney(o.total||0)}`})),...CALCULOS.map(c=>({date:(c.updatedAt||c.createdAt||'').slice(0,10),view:'calculadora',title:c.inputs?.['calc-product-name']||'Cálculo',meta:`${c.id} · ${fmtMoney(c.result?.valorFinal||c.valorFinal||0)}`}))].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);
+    document.getElementById('dashboard-recent').innerHTML=recent.length?recent.map(x=>`<button class="today-item" data-dash-view="${x.view}" style="width:100%;color:inherit;text-align:left;cursor:pointer"><span><strong>${escapeHtml(x.title)}</strong><small>${escapeHtml(x.meta)}${x.date?' · '+fmtDate(x.date):''}</small></span><span aria-hidden="true">→</span></button>`).join(''):'<div class="empty">Os registros recentes aparecerão aqui.</div>';
+    root.querySelectorAll('[data-dash-view]').forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.dashView)));
+  }
+
+  const globalSearch=document.getElementById('global-search'),globalResults=document.getElementById('global-search-results');
+  function globalSearchRows(query){const q=query.trim().toLocaleLowerCase('pt-BR');if(q.length<2)return[];const has=(...v)=>v.filter(Boolean).join(' ').toLocaleLowerCase('pt-BR').includes(q);return [
+    ...SOLICITACOES.filter(x=>has(x.id,x.client,x.description,x.request,x.notes)).map(x=>({view:'solicitacoes',type:'Solicitação',title:x.client||x.id,meta:x.description||x.request||x.id})),
+    ...ORCAMENTOS.filter(x=>has(x.id,x.clientName,x.client,x.items?.map(i=>i.desc||i.description).join(' '))).map(x=>({view:'orcamentos',type:'Orçamento',title:x.clientName||x.client||x.id,meta:x.id})),
+    ...PEDIDOS.filter(x=>has(x.id,x.client,x.desc,x.status)).map(x=>({view:'pedidos',type:'Produção',title:x.client||x.desc,meta:`${x.id} · ${x.status}`})),
+    ...RECEBIMENTOS.filter(x=>has(x.id,x.client,x.description,x.orderId)).map(x=>({view:'recebimentos',type:'Financeiro',title:x.client||x.description||x.id,meta:`${x.id} · ${fmtMoney(x.value)}`})),
+    ...CALCULOS.filter(x=>has(x.id,x.inputs?.['calc-product-name'],x.inputs?.['calc-client'],x.inputs?.['calc-product-details'])).map(x=>({view:'calculadora',type:'Cálculo',title:x.inputs?.['calc-product-name']||x.id,meta:x.inputs?.['calc-client']||x.id}))].slice(0,18)}
+  globalSearch.addEventListener('input',()=>{const rows=globalSearchRows(globalSearch.value);globalResults.style.display=globalSearch.value.trim().length>=2?'block':'none';globalResults.innerHTML=rows.length?rows.map(x=>`<button class="search-result" data-search-view="${x.view}" style="width:100%;color:inherit;text-align:left;background:transparent;border-left:0;border-right:0;border-top:0"><span class="tag producao">${x.type}</span><span><strong>${escapeHtml(x.title)}</strong><small>${escapeHtml(x.meta)}</small></span><span aria-hidden="true">→</span></button>`).join(''):'<div class="empty">Nenhum resultado encontrado.</div>';globalResults.querySelectorAll('[data-search-view]').forEach(b=>b.addEventListener('click',()=>{switchView(b.dataset.searchView);globalSearch.value='';globalResults.style.display='none'}));});
+  document.addEventListener('click',e=>{if(!e.target.closest('.global-search'))globalResults.style.display='none';});
+  globalSearch.addEventListener('keydown',e=>{if(e.key==='Escape'){globalSearch.value='';globalResults.style.display='none';globalSearch.blur();}});
+
+  const DRAFT_KEY='hl_portal_drafts_v16',draftPrefixes=['calc-','sol-','orc-','rec-'];
+  function draftFields(){return [...root.querySelectorAll('input[id],textarea[id],select[id]')].filter(el=>draftPrefixes.some(p=>el.id.startsWith(p))&&!/search|filter|sort|list|date-from/.test(el.id));}
+  function saveDrafts(){const data={};draftFields().forEach(el=>{if(el.type!=='file')data[el.id]=el.value});try{localStorage.setItem(DRAFT_KEY,JSON.stringify(data));}catch(e){}}
+  function restoreDrafts(){try{const data=JSON.parse(localStorage.getItem(DRAFT_KEY)||'{}');draftFields().forEach(el=>{if(Object.prototype.hasOwnProperty.call(data,el.id)&&data[el.id]!==''&&(!el.value||el.value==='0'))el.value=data[el.id]});updateCalcSummary();}catch(e){}}
+  root.addEventListener('input',e=>{if(e.target.id&&draftPrefixes.some(p=>e.target.id.startsWith(p)))saveDrafts()});window.addEventListener('beforeunload',saveDrafts);
+  function enhanceAccessibility(){
+    root.querySelectorAll('.field').forEach(field=>{const control=field.querySelector('input[id],select[id],textarea[id]'),label=field.querySelector('label');if(control&&label&&!label.htmlFor)label.htmlFor=control.id;});
+    root.querySelectorAll('.panel>table').forEach(table=>{if(table.parentElement.classList.contains('table-scroll'))return;const wrap=document.createElement('div');wrap.className='table-scroll';table.parentNode.insertBefore(wrap,table);wrap.appendChild(table);});
+    root.querySelectorAll('button').forEach(btn=>{if(!btn.getAttribute('aria-label')&&!btn.textContent.trim())btn.setAttribute('aria-label',btn.title||'Ação');});
+  }
 
   // ============================================================
   // CONFIGURAÇÕES
@@ -744,12 +926,12 @@
   function laborHourlyRate(l){ return Number(l.hoursMonth) > 0 ? Number(l.salaryMonth)/Number(l.hoursMonth) : 0; }
   function equipHourlyRate(e){
     const g = CFG.globals;
-    const depreciationAno = Number(e.purchaseValue) * (Number(g.depreciationPct)/100);
-    const custoAnual = depreciationAno + Number(e.maintenanceYear||0);
     const energiaHora = (Number(e.watts)/1000) * Number(g.energyKwh);
-    const amortizacaoHora = Number(e.purchaseValue) * (Number(g.depreciationPct)/100) / (Number(g.paybackMonths) * 160);
-    const custoAnualHora = custoAnual / 1920;
-    return energiaHora + amortizacaoHora + custoAnualHora;
+    const horasMes=Math.max(1,Number(g.fixedHoursBase)||160);
+    const mesesRetorno=Math.max(1,Number(g.paybackMonths)||12);
+    const retornoInvestimentoHora=Number(e.purchaseValue||0)/(mesesRetorno*horasMes);
+    const manutencaoHora=Number(e.maintenanceYear||0)/(horasMes*12);
+    return energiaHora+retornoInvestimentoHora+manutencaoHora;
   }
   function materialUnitCost(m){ return Number(m.qty) > 0 ? Number(m.cost)/Number(m.qty) : 0; }
   function fixedHourlyRate(){
@@ -796,12 +978,13 @@
       <td><button data-del-extra="${i}" style="background:none;border:none;color:var(--red);cursor:pointer;">✕</button></td></tr>
     `).join('') || '<tr><td colspan="3" style="color:var(--muted);">Nenhum cadastrado ainda.</td></tr>';
 
-    root.querySelectorAll('[data-del-labor]').forEach(b=>b.addEventListener('click', async ()=>{ CFG.labor.splice(+b.dataset.delLabor,1); await setJSON('custos_labor', CFG.labor); renderConfigTables(); populateCalcSelects(); }));
-    root.querySelectorAll('[data-del-fixed]').forEach(b=>b.addEventListener('click', async ()=>{ CFG.fixed.splice(+b.dataset.delFixed,1); await setJSON('custos_fixed', CFG.fixed); renderConfigTables(); }));
-    root.querySelectorAll('[data-del-equip]').forEach(b=>b.addEventListener('click', async ()=>{ CFG.equip.splice(+b.dataset.delEquip,1); await setJSON('custos_equip', CFG.equip); renderConfigTables(); populateCalcSelects(); }));
-    root.querySelectorAll('[data-del-material]').forEach(b=>b.addEventListener('click', async ()=>{ CFG.materials.splice(+b.dataset.delMaterial,1); await setJSON('custos_materials', CFG.materials); renderConfigTables(); populateCalcSelects(); }));
-    root.querySelectorAll('[data-del-shipping]').forEach(b=>b.addEventListener('click', async ()=>{ CFG.shipping.splice(+b.dataset.delShipping,1); await setJSON('custos_shipping', CFG.shipping); renderConfigTables(); populateCalcSelects(); }));
-    root.querySelectorAll('[data-del-extra]').forEach(b=>b.addEventListener('click', async ()=>{ CFG.extras.splice(+b.dataset.delExtra,1); await setJSON('custos_extras', CFG.extras); renderConfigTables(); populateCalcSelects(); }));
+    const safeDelete=async(prop,key,index,refreshSelects=false)=>{const next=CFG[prop].filter((_,i)=>i!==index);await setJSON(key,next);CFG[prop]=next;renderConfigTables();if(refreshSelects)populateCalcSelects();};
+    root.querySelectorAll('[data-del-labor]').forEach(b=>b.addEventListener('click',()=>safeDelete('labor','custos_labor',+b.dataset.delLabor,true)));
+    root.querySelectorAll('[data-del-fixed]').forEach(b=>b.addEventListener('click',()=>safeDelete('fixed','custos_fixed',+b.dataset.delFixed)));
+    root.querySelectorAll('[data-del-equip]').forEach(b=>b.addEventListener('click',()=>safeDelete('equip','custos_equip',+b.dataset.delEquip,true)));
+    root.querySelectorAll('[data-del-material]').forEach(b=>b.addEventListener('click',()=>safeDelete('materials','custos_materials',+b.dataset.delMaterial,true)));
+    root.querySelectorAll('[data-del-shipping]').forEach(b=>b.addEventListener('click',()=>safeDelete('shipping','custos_shipping',+b.dataset.delShipping,true)));
+    root.querySelectorAll('[data-del-extra]').forEach(b=>b.addEventListener('click',()=>safeDelete('extras','custos_extras',+b.dataset.delExtra,true)));
   }
 
   document.getElementById('cfg-labor-add-btn').addEventListener('click', async ()=>{
@@ -810,11 +993,10 @@
     const hoursMonth = parseFloat(document.getElementById('cfg-labor-hours').value);
     const msg = document.getElementById('cfg-labor-add-btn-msg');
     if(!name){ msg.innerHTML = '<div class="msg err">Preencha o nome.</div>'; return; }
-    if(isNaN(salaryMonth)){ msg.innerHTML = '<div class="msg err">Preencha o salário/mês.</div>'; return; }
-    if(!hoursMonth){ msg.innerHTML = '<div class="msg err">Preencha as horas/mês.</div>'; return; }
+    if(!Number.isFinite(salaryMonth)||salaryMonth<0){ msg.innerHTML = '<div class="msg err">Preencha um salário mensal válido.</div>'; return; }
+    if(!Number.isFinite(hoursMonth)||hoursMonth<=0){ msg.innerHTML = '<div class="msg err">As horas mensais devem ser maiores que zero.</div>'; return; }
     msg.innerHTML = '';
-    CFG.labor.push({name, salaryMonth, hoursMonth});
-    await setJSON('custos_labor', CFG.labor);
+    const next=[...CFG.labor,{name,salaryMonth,hoursMonth}];await setJSON('custos_labor',next);CFG.labor=next;
     document.getElementById('cfg-labor-name').value=''; document.getElementById('cfg-labor-salary').value='';
     renderConfigTables(); populateCalcSelects();
   });
@@ -823,10 +1005,9 @@
     const value = parseFloat(document.getElementById('cfg-fixed-value').value);
     const msg = document.getElementById('cfg-fixed-add-btn-msg');
     if(!name){ msg.innerHTML = '<div class="msg err">Preencha o nome do item.</div>'; return; }
-    if(isNaN(value)){ msg.innerHTML = '<div class="msg err">Preencha o valor mensal.</div>'; return; }
+    if(!Number.isFinite(value)||value<0){ msg.innerHTML = '<div class="msg err">Preencha um valor mensal válido.</div>'; return; }
     msg.innerHTML = '';
-    CFG.fixed.push({name, value});
-    await setJSON('custos_fixed', CFG.fixed);
+    const next=[...CFG.fixed,{name,value}];await setJSON('custos_fixed',next);CFG.fixed=next;
     document.getElementById('cfg-fixed-name').value=''; document.getElementById('cfg-fixed-value').value='';
     renderConfigTables();
   });
@@ -838,10 +1019,9 @@
     const maintenanceYear = parseFloat(document.getElementById('cfg-equip-maint').value) || 0;
     const msg = document.getElementById('cfg-equip-add-btn-msg');
     if(!name){ msg.innerHTML = '<div class="msg err">Preencha o nome do equipamento.</div>'; return; }
-    if(isNaN(purchaseValue)){ msg.innerHTML = '<div class="msg err">Preencha o valor de compra. Se for um acessório sem "compra própria" (ex.: mosquetão, lâmpada), cadastre em "Extras / serviços de terceiros" em vez de Equipamentos.</div>'; return; }
+    if(!Number.isFinite(purchaseValue)||purchaseValue<0||!Number.isFinite(watts)||watts<0||!Number.isFinite(maintenanceYear)||maintenanceYear<0){ msg.innerHTML = '<div class="msg err">Compra, potência e manutenção não podem ser negativas.</div>'; return; }
     msg.innerHTML = '';
-    CFG.equip.push({name, purchaseValue, watts, maintenanceYear});
-    await setJSON('custos_equip', CFG.equip);
+    const next=[...CFG.equip,{name,purchaseValue,watts,maintenanceYear}];await setJSON('custos_equip',next);CFG.equip=next;
     document.getElementById('cfg-equip-name').value=''; document.getElementById('cfg-equip-value').value=''; document.getElementById('cfg-equip-watts').value=''; document.getElementById('cfg-equip-maint').value='0';
     renderConfigTables(); populateCalcSelects();
   });
@@ -851,11 +1031,10 @@
     const qty = parseFloat(document.getElementById('cfg-material-qty').value);
     const msg = document.getElementById('cfg-material-add-btn-msg');
     if(!name){ msg.innerHTML = '<div class="msg err">Preencha o nome do material.</div>'; return; }
-    if(isNaN(cost)){ msg.innerHTML = '<div class="msg err">Preencha o custo do pacote.</div>'; return; }
-    if(!qty){ msg.innerHTML = '<div class="msg err">Preencha a quantidade (g) do pacote.</div>'; return; }
+    if(!Number.isFinite(cost)||cost<0){ msg.innerHTML = '<div class="msg err">Preencha um custo de pacote válido.</div>'; return; }
+    if(!Number.isFinite(qty)||qty<=0){ msg.innerHTML = '<div class="msg err">A quantidade do pacote deve ser maior que zero.</div>'; return; }
     msg.innerHTML = '';
-    CFG.materials.push({name, cost, qty});
-    await setJSON('custos_materials', CFG.materials);
+    const next=[...CFG.materials,{name,cost,qty}];await setJSON('custos_materials',next);CFG.materials=next;
     document.getElementById('cfg-material-name').value=''; document.getElementById('cfg-material-cost').value='';
     renderConfigTables(); populateCalcSelects();
   });
@@ -864,10 +1043,9 @@
     const value = parseFloat(document.getElementById('cfg-shipping-value').value);
     const msg = document.getElementById('cfg-shipping-add-btn-msg');
     if(!name){ msg.innerHTML = '<div class="msg err">Preencha o nome da opção de envio.</div>'; return; }
-    if(isNaN(value)){ msg.innerHTML = '<div class="msg err">Preencha o valor do frete.</div>'; return; }
+    if(!Number.isFinite(value)||value<0){ msg.innerHTML = '<div class="msg err">Preencha um valor de frete válido.</div>'; return; }
     msg.innerHTML = '';
-    CFG.shipping.push({name, value});
-    await setJSON('custos_shipping', CFG.shipping);
+    const next=[...CFG.shipping,{name,value}];await setJSON('custos_shipping',next);CFG.shipping=next;
     document.getElementById('cfg-shipping-name').value=''; document.getElementById('cfg-shipping-value').value='';
     renderConfigTables(); populateCalcSelects();
   });
@@ -876,20 +1054,22 @@
     const value = parseFloat(document.getElementById('cfg-extra-value').value);
     const msg = document.getElementById('cfg-extra-add-btn-msg');
     if(!name){ msg.innerHTML = '<div class="msg err">Preencha o nome do item.</div>'; return; }
-    if(isNaN(value)){ msg.innerHTML = '<div class="msg err">Preencha o valor unitário.</div>'; return; }
+    if(!Number.isFinite(value)||value<0){ msg.innerHTML = '<div class="msg err">Preencha um valor unitário válido.</div>'; return; }
     msg.innerHTML = '';
-    CFG.extras.push({name, value});
-    await setJSON('custos_extras', CFG.extras);
+    const next=[...CFG.extras,{name,value}];await setJSON('custos_extras',next);CFG.extras=next;
     document.getElementById('cfg-extra-name').value=''; document.getElementById('cfg-extra-value').value='';
     renderConfigTables(); populateCalcSelects();
   });
   ['cfg-energy-kwh','cfg-payback-months','cfg-depreciation-pct','cfg-fixed-hours-base'].forEach(id=>{
     document.getElementById(id).addEventListener('change', async ()=>{
-      CFG.globals.energyKwh = parseFloat(document.getElementById('cfg-energy-kwh').value)||0;
-      CFG.globals.paybackMonths = parseFloat(document.getElementById('cfg-payback-months').value)||12;
-      CFG.globals.depreciationPct = parseFloat(document.getElementById('cfg-depreciation-pct').value)||0;
-      CFG.globals.fixedHoursBase = parseFloat(document.getElementById('cfg-fixed-hours-base').value)||160;
-      await setJSON('custos_globals', CFG.globals);
+      const next={
+        energyKwh:parseFloat(document.getElementById('cfg-energy-kwh').value),
+        paybackMonths:parseFloat(document.getElementById('cfg-payback-months').value),
+        depreciationPct:parseFloat(document.getElementById('cfg-depreciation-pct').value),
+        fixedHoursBase:parseFloat(document.getElementById('cfg-fixed-hours-base').value)
+      };
+      if(!Number.isFinite(next.energyKwh)||next.energyKwh<0||!Number.isFinite(next.paybackMonths)||next.paybackMonths<=0||!Number.isFinite(next.depreciationPct)||next.depreciationPct<0||!Number.isFinite(next.fixedHoursBase)||next.fixedHoursBase<=0){alert('Revise os valores: energia e depreciação não podem ser negativas; meses e horas devem ser maiores que zero.');renderConfigTables();return;}
+      await setJSON('custos_globals',next);CFG.globals=next;
       renderConfigTables(); updateCalcSummary();
     });
   });
@@ -916,7 +1096,10 @@
   document.getElementById('calc-add-extra-btn').addEventListener('click', ()=>{
     const idx = document.getElementById('calc-extra').value;
     const qty = parseFloat(document.getElementById('calc-extra-qty').value);
-    if(idx === '' || !qty) return;
+    if(idx === '' || !Number.isFinite(qty) || qty<=0){
+      document.getElementById('calc-history-message').innerHTML='<div class="msg err">Informe uma quantidade de extra maior que zero.</div>';
+      return;
+    }
     const item = CFG.extras[idx];
     calcExtrasCart.push({ name:item.name, qty, unitValue:item.value });
     renderCalcExtras();
@@ -935,11 +1118,11 @@
 
   function computeCalc(){
     const equipIdx = document.getElementById('calc-equip').value;
-    const equipHours = parseFloat(document.getElementById('calc-equip-hours').value)||0;
+    const equipHours = Math.max(0,parseFloat(document.getElementById('calc-equip-hours').value)||0);
     const equipCost = calcSelectedRate('equip').rate * equipHours;
 
     const materialIdx = document.getElementById('calc-material').value;
-    const materialQty = parseFloat(document.getElementById('calc-material-qty').value)||0;
+    const materialQty = Math.max(0,parseFloat(document.getElementById('calc-material-qty').value)||0);
     const materialCost = calcSelectedRate('material').rate * materialQty;
 
     const shippingIdx = document.getElementById('calc-shipping').value;
@@ -952,18 +1135,22 @@
 
     const custosTotal = equipCost + materialCost + shippingCost + extrasCost + fixedCost;
 
-    const qtyPieces = Math.max(1, parseFloat(document.getElementById('calc-qty-pieces').value)||1);
-    const margin = parseFloat(document.getElementById('calc-margin').value)||0;
-    const taxPct = parseFloat(document.getElementById('calc-tax').value)||0;
-    const safetyPct = parseFloat(document.getElementById('calc-safety').value)||0;
+    const qtyPieces = Math.max(1, Math.floor(parseFloat(document.getElementById('calc-qty-pieces').value)||1));
+    const margin = Math.max(0,parseFloat(document.getElementById('calc-margin').value)||0);
+    const taxPct = Math.min(99,Math.max(0,parseFloat(document.getElementById('calc-tax').value)||0));
+    const safetyPct = Math.max(0,parseFloat(document.getElementById('calc-safety').value)||0);
 
-    const precoComMargem = custosTotal * (1+margin);
-    const valorFinal = precoComMargem * (1 + safetyPct/100);
+    // O acréscimo e a segurança incidem apenas na produção; o frete é repassado sem lucro.
+    const custoProducao=equipCost+materialCost+extrasCost+fixedCost;
+    const subtotalAntesTributo=(custoProducao*(1+margin)*(1+safetyPct/100))+shippingCost;
+    // Gross-up: garante que o tributo seja coberto pelo preço final.
+    const valorFinal = subtotalAntesTributo/(1-taxPct/100);
     const tributoValor = valorFinal * (taxPct/100);
     const lucro = valorFinal - tributoValor - custosTotal;
+    const margemReal = valorFinal>0?(lucro/valorFinal)*100:0;
     const precoPorPeca = valorFinal / qtyPieces;
 
-    return { equipCost, materialCost, shippingCost, extrasCost, fixedCost, custosTotal, valorFinal, tributoValor, lucro, precoPorPeca, qtyPieces };
+    return { equipCost, materialCost, shippingCost, extrasCost, fixedCost, custosTotal, valorFinal, tributoValor, lucro, margemReal, precoPorPeca, qtyPieces };
   }
 
   function updateCalcSummary(){
@@ -972,11 +1159,12 @@
       <div class="summary-row"><span>Equipamento</span><span>${fmtMoney(r.equipCost)}</span></div>
       <div class="summary-row"><span>Material</span><span>${fmtMoney(r.materialCost)}</span></div>
       <div class="summary-row"><span>Custo fixo alocado</span><span>${fmtMoney(r.fixedCost)}</span></div>
-      <div class="summary-row"><span>Frete</span><span>${fmtMoney(r.shippingCost)}</span></div>
+      <div class="summary-row"><span>Frete (repassado sem acréscimo)</span><span>${fmtMoney(r.shippingCost)}</span></div>
       <div class="summary-row"><span>Extras</span><span>${fmtMoney(r.extrasCost)}</span></div>
       <div class="summary-row" style="border-top:1px solid var(--line);margin-top:6px;padding-top:8px;"><span>Custos totais</span><span>${fmtMoney(r.custosTotal)}</span></div>
       <div class="summary-row"><span>Tributo</span><span>${fmtMoney(r.tributoValor)}</span></div>
-      <div class="summary-row profit"><span>Lucro</span><span>${fmtMoney(r.lucro)}</span></div>
+      <div class="summary-row profit"><span>Lucro estimado</span><span>${fmtMoney(r.lucro)}</span></div>
+      <div class="summary-row"><span>Margem real sobre a venda</span><span>${r.margemReal.toFixed(1).replace('.',',')}%</span></div>
       <div class="summary-row big"><span>Valor final (${r.qtyPieces}x)</span><span>${fmtMoney(r.valorFinal)}</span></div>
       <div class="summary-row big" style="color:var(--violet);"><span>Preço por peça</span><span>${fmtMoney(r.precoPorPeca)}</span></div>
     `;
@@ -999,10 +1187,7 @@
       if(!confirm('O orçamento aberto está em nome de outra pessoa. Adicionar o item e manter o cliente atual?')) return;
     }else if(calcClient){ quoteClient.value = calcClient; }
     orcItemsCart.push({ desc: productName, details: productDetails || `Produção em 3D · Material: ${materialName}`, unit:'un.', qty: r.qtyPieces, unitValue: r.precoPorPeca, source:'calculadora' });
-    root.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
-    root.querySelector('[data-view="orcamentos"]').classList.add('active');
-    root.querySelectorAll('.view').forEach(v=>v.style.display='none');
-    root.querySelector('.view[data-view="orcamentos"]').style.display='block';
+    switchView('orcamentos');
     renderOrcItems();
   });
 
@@ -1260,7 +1445,8 @@
       let order=orders.find(p=>p.orcamentoId===id);
       if(!order && orc.convertedToPedido)throw new Error('Este orçamento já foi convertido. Verifique a fila antes de criar outro pedido.');
       if(!order){
-        order={id:nextSeqId(orders,'PRD'),client:orc.clientName,desc:orc.items.map(it=>`${it.qty}x ${it.desc}`).join(', '),value:orc.total,status:'Pendente',date:todayISO(),deliveryDate:null,orcamentoId:orc.id,sourceRequestId:orc.sourceRequestId||null};
+        const now=new Date().toISOString();
+        order={id:nextSeqId(orders,'PRD'),client:orc.clientName,desc:orc.items.map(it=>`${it.qty}x ${it.desc}`).join(', '),value:orc.total,status:'Pendente',date:todayISO(),deliveryDate:null,orcamentoId:orc.id,sourceRequestId:orc.sourceRequestId||null,statusHistory:[{type:'status',status:'Pendente',at:now,label:'Pedido incluído'}]};
         if(!await setJSON('producao_pedidos',[...orders,order]))throw new Error('Não foi possível criar o pedido. Nenhum aceite foi registrado.');
         PEDIDOS=[...orders,order];
       }else{PEDIDOS=orders;}
@@ -1296,7 +1482,7 @@
     const color=(p.colors||[]).find(c=>c.name===colorSel.value); const img=(color&&color.image)||p.image||'';
     const publicValue=catalogPublicPrice(p,colorSel.value); const consignado=Number(p.price)||0;
     const cats=(p.categories||[p.category]).filter(Boolean).join(' · ');
-    preview.innerHTML=`<div class="catalog-preview">${img?`<img class="catalog-thumb" src="${escapeHtml(img)}" alt="">`:'<div class="catalog-thumb" style="display:grid;place-items:center;color:var(--muted);font-size:10px;">sem foto</div>'}<div style="min-width:0;flex:1;"><strong>${escapeHtml(p.name)}</strong><div style="font-size:10.5px;color:var(--muted);margin-top:2px;">${escapeHtml(cats||p.code)}</div><div class="catalog-price-grid"><span>Portfólio<strong>${fmtMoney(publicValue)}</strong></span><span>Consignante<strong>${fmtMoney(consignado)}</strong></span><span>Variação<strong>${escapeHtml(colorSel.value||'Padrão')}</strong></span></div></div></div>`;
+    preview.innerHTML=`<div class="catalog-preview">${img?`<img class="catalog-thumb" src="${escapeHtml(img)}" alt="Imagem de ${escapeHtml(p.name)}">`:'<div class="catalog-thumb" style="display:grid;place-items:center;color:var(--muted);font-size:12px;">sem foto</div>'}<div style="min-width:0;flex:1;"><strong>${escapeHtml(p.name)}</strong><div style="font-size:13px;color:var(--muted);margin-top:2px;">${escapeHtml(cats||p.code)}</div><div class="catalog-price-grid"><span>Portfólio<strong>${fmtMoney(publicValue)}</strong></span><span>Consignante<strong>${fmtMoney(consignado)}</strong></span><span>Variação<strong>${escapeHtml(colorSel.value||'Padrão')}</strong></span></div></div></div>`;
   }
   document.getElementById('orc-catalog-product').addEventListener('change', renderCatalogPreview);
   document.getElementById('orc-catalog-color').addEventListener('change', renderCatalogPreview);
@@ -1488,6 +1674,46 @@
   try{COLLAPSED_STAGES=new Set(JSON.parse(localStorage.getItem(KANBAN_COLLAPSE_KEY)||'[]'));}catch(e){}
   function saveCollapsedStages(){try{localStorage.setItem(KANBAN_COLLAPSE_KEY,JSON.stringify([...COLLAPSED_STAGES]));}catch(e){}}
   function orderPurpose(p){return p.purpose||'Venda';}
+  function orderHistory(p){
+    const history=Array.isArray(p.statusHistory)?p.statusHistory.slice():[];
+    if(!history.length&&p.date) history.push({type:'status',status:'Pendente',dateOnly:p.date,label:'Pedido incluído — horário não registrado'});
+    return history.sort((a,b)=>String(a.at||a.dateOnly||'').localeCompare(String(b.at||b.dateOnly||'')));
+  }
+  function orderEventDate(event){
+    if(event.at){const d=new Date(event.at);if(!Number.isNaN(d.getTime()))return d.toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'});}
+    return event.dateOnly?fmtDate(event.dateOnly):'Data não registrada';
+  }
+  function addOrderEvent(p,event){
+    if(!Array.isArray(p.statusHistory))p.statusHistory=[];
+    if(!p.statusHistory.length&&p.date)p.statusHistory.push({type:'status',status:'Pendente',dateOnly:p.date,label:'Pedido incluído — horário não registrado'});
+    p.statusHistory.push({at:new Date().toISOString(),...event});
+  }
+  async function changeOrderStatus(id,newStatus){
+    const latest=await getJSON('producao_pedidos',PEDIDOS),p=latest.find(x=>x.id===id);
+    if(!p)throw new Error('Pedido não encontrado. Atualize a fila.');
+    if(p.status===newStatus)return p;
+    const previous=p.status||'Pendente';p.status=newStatus;p.archivedAt=null;
+    addOrderEvent(p,{type:'status',status:newStatus,label:`Etapa alterada: ${previous} → ${newStatus}`});
+    if(!await setJSON('producao_pedidos',latest))throw new Error('Não foi possível alterar a etapa. Tente novamente.');
+    PEDIDOS=latest;renderPedidos();return p;
+  }
+  async function archivePaidOrder(id){
+    const latest=await getJSON('producao_pedidos',PEDIDOS),p=latest.find(x=>x.id===id);
+    if(!p)throw new Error('Pedido não encontrado. Atualize a fila.');
+    if(p.status!=='Pago')throw new Error('Somente pedidos pagos podem ser arquivados.');
+    if(p.archivedAt)return;
+    p.archivedAt=new Date().toISOString();addOrderEvent(p,{type:'archive',status:'Pago',label:'Retirado da fila e mantido no histórico'});
+    if(!await setJSON('producao_pedidos',latest))throw new Error('Não foi possível arquivar. Tente novamente.');
+    PEDIDOS=latest;renderPedidos();
+  }
+  async function restoreArchivedOrder(id){
+    const latest=await getJSON('producao_pedidos',PEDIDOS),p=latest.find(x=>x.id===id);
+    if(!p)throw new Error('Pedido não encontrado. Atualize o histórico.');
+    if(!p.archivedAt)return;
+    p.archivedAt=null;addOrderEvent(p,{type:'restore',status:p.status||'Pago',label:'Reexibido na fila'});
+    if(!await setJSON('producao_pedidos',latest))throw new Error('Não foi possível reexibir. Tente novamente.');
+    PEDIDOS=latest;renderPedidos();
+  }
   function updatePedPurpose(){const purpose=document.getElementById('ped-purpose').value,isSale=purpose==='Venda',value=document.getElementById('ped-value');value.disabled=!isSale;if(!isSale)value.value='0';document.getElementById('ped-client').placeholder=isSale?'Ex.: Maria':purpose==='Brinde'?'Destinatário do brinde (opcional)':'Uso interno / responsável (opcional)';}
   document.getElementById('ped-purpose').addEventListener('change',updatePedPurpose);updatePedPurpose();
   document.getElementById('ped-add-btn').addEventListener('click', async ()=>{
@@ -1498,10 +1724,9 @@
     if(!desc) return;
     if(purpose==='Venda'&&value<=0){alert('Informe o valor da venda.');return;}
     if(purpose!=='Venda'&&cost<=0){alert('Para brinde ou uso próprio, informe o custo de produção.');return;}
-    PEDIDOS = await getJSON('producao_pedidos', PEDIDOS);
-    const id = nextSeqId(PEDIDOS, 'PRD');
-    PEDIDOS.push({ id, client, desc, purpose, value, cost, status:'Pendente', date: todayISO(), deliveryDate });
-    await setJSON('producao_pedidos', PEDIDOS);
+    const current=await getJSON('producao_pedidos',PEDIDOS),id=nextSeqId(current,'PRD');
+    const next=[...current,{id,client,desc,purpose,value,cost,status:'Pendente',date:todayISO(),deliveryDate,statusHistory:[{type:'status',status:'Pendente',at:new Date().toISOString(),label:'Pedido incluído'}]}];
+    await setJSON('producao_pedidos',next);PEDIDOS=next;
     document.getElementById('ped-client').value='';document.getElementById('ped-desc').value='';document.getElementById('ped-purpose').value='Venda';document.getElementById('ped-value').value='';document.getElementById('ped-cost').value='';document.getElementById('ped-delivery').value='';updatePedPurpose();
     renderPedidos();
   });
@@ -1526,10 +1751,7 @@
   }
 
   function openFinancialView(){
-    root.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
-    root.querySelector('nav button[data-view="recebimentos"]').classList.add('active');
-    root.querySelectorAll('.view').forEach(v=>v.style.display='none');
-    root.querySelector('.view[data-view="recebimentos"]').style.display='block';
+    switchView('recebimentos');
   }
   async function sendOrderToFinance(orderId){
     PEDIDOS=await getJSON('producao_pedidos',PEDIDOS);RECEBIMENTOS=await getJSON('empresa_recebimentos',RECEBIMENTOS);const p=PEDIDOS.find(x=>x.id===orderId);if(!p)return;
@@ -1542,7 +1764,7 @@
   function renderPedidosKanban(){
     const kanban = document.getElementById('ped-kanban');
     kanban.innerHTML = STATUSES.map(status=>{
-      const items = PEDIDOS.filter(p=>p.status===status);
+      const items = PEDIDOS.filter(p=>p.status===status&&!p.archivedAt);
       const meta=STAGE_META[status],collapsed=COLLAPSED_STAGES.has(status),salesTotal=items.filter(p=>orderPurpose(p)==='Venda').reduce((s,p)=>s+Number(p.value||0),0),costTotal=items.filter(p=>orderPurpose(p)!=='Venda').reduce((s,p)=>s+Number(p.cost||0),0);
       return `
       <div class="kanban-col ${collapsed?'collapsed':''}" data-stage="${meta.slug}">
@@ -1561,7 +1783,7 @@
               ${prevStatus ? `<button data-move-ped="${p.id}|${prevStatus}">← ${prevStatus}</button>` : ''}
               ${nextStatus ? `<button data-move-ped="${p.id}|${nextStatus}">${nextStatus} →</button>` : ''}
               ${p.status==='Concluído'||p.status==='Pago'?`<button data-finance-ped="${p.id}">${RECEBIMENTOS.some(r=>(r.orderId===p.id||r.sourceOrderId===p.id)&&r.status!=='Estornado'&&r.status!=='Cancelado')?'✏️ Editar financeiro':'💰 Enviar ao financeiro'}</button>`:''}
-              <button data-del-ped="${p.id}" style="color:var(--red);">✕</button>
+              ${p.status==='Pago'?`<button data-archive-ped="${p.id}" title="Ocultar da coluna Pago e manter no histórico">✓ Finalizar e arquivar</button>`:`<button data-del-ped="${p.id}" style="color:var(--red);" title="Remover definitivamente">✕</button>`}
             </div>
           </div>`;
         }).join('') || '<div class="empty" style="padding:18px 8px;">Nenhum item nesta etapa</div>'}</div>
@@ -1574,13 +1796,16 @@
       const [id, newStatus] = b.dataset.movePed.split('|');
       PEDIDOS = await getJSON('producao_pedidos', PEDIDOS);
       const p = PEDIDOS.find(p=>p.id===id);
-      if(p){ p.status = newStatus; await setJSON('producao_pedidos', PEDIDOS); renderPedidos(); }
+      if(p){try{await changeOrderStatus(id,newStatus);}catch(e){alert(e.message);}}
+    }));
+    root.querySelectorAll('[data-archive-ped]').forEach(b=>b.addEventListener('click',async()=>{
+      if(!confirm('Finalizar este pedido e retirá-lo da coluna Pago? Ele continuará no histórico abaixo.'))return;
+      try{await archivePaidOrder(b.dataset.archivePed);}catch(e){alert(e.message);}
     }));
     root.querySelectorAll('[data-del-ped]').forEach(b=>b.addEventListener('click', async ()=>{
       if(!confirm('Remover este pedido da fila?')) return;
-      PEDIDOS = await getJSON('producao_pedidos', PEDIDOS);
-      PEDIDOS = PEDIDOS.filter(p=>p.id!==b.dataset.delPed);
-      await setJSON('producao_pedidos', PEDIDOS);
+      const current=await getJSON('producao_pedidos',PEDIDOS),next=current.filter(p=>p.id!==b.dataset.delPed);
+      await setJSON('producao_pedidos',next);PEDIDOS=next;
       renderPedidos();
     }));
     root.querySelectorAll('[data-finance-ped]').forEach(b=>b.addEventListener('click',()=>sendOrderToFinance(b.dataset.financePed)));
@@ -1603,6 +1828,7 @@
     });
     document.getElementById('ped-list-tbody').innerHTML = sorted.length ? sorted.map(p=>{
       const atrasado = isPedidoAtrasado(p);
+      const timeline = orderHistory(p);
       return `
       <tr style="${atrasado ? 'background:rgba(194,51,73,.06);' : ''}">
         <td>${escapeHtml(p.client)||'—'}</td>
@@ -1610,10 +1836,15 @@
         <td><span class="tag ${orderPurpose(p)==='Venda'?'pago':'producao'}">${escapeHtml(orderPurpose(p))}</span></td><td>${orderPurpose(p)==='Venda'?fmtMoney(p.value):'Custo '+fmtMoney(p.cost||0)}</td>
         <td>${fmtDate(p.date)}</td>
         <td style="${atrasado ? 'color:var(--red);font-weight:700;' : ''}">${p.deliveryDate ? fmtDate(p.deliveryDate) : '—'}${atrasado ? ' ⚠️' : ''}</td>
-        <td><span class="tag ${statusTagClass[p.status]}">${p.status}</span></td><td>${p.status==='Concluído'||p.status==='Pago'?`<button class="btn secondary small" data-finance-ped="${p.id}">${RECEBIMENTOS.some(r=>(r.orderId===p.id||r.sourceOrderId===p.id)&&r.status!=='Estornado'&&r.status!=='Cancelado')?'Editar financeiro':'Enviar ao financeiro'}</button>`:'—'}</td>
+        <td><span class="tag ${statusTagClass[p.status]}">${p.status}</span>${p.archivedAt?'<br><span class="tag concluido" style="margin-top:5px;">Arquivado</span>':''}</td>
+        <td><details><summary style="cursor:pointer;font-weight:700;">Ver datas e horários (${timeline.length})</summary><div style="min-width:235px;margin-top:8px;">${timeline.map(event=>`<div style="padding:6px 0;border-bottom:1px solid var(--line);"><strong>${escapeHtml(event.label||event.status||'Alteração')}</strong><br><small>${escapeHtml(orderEventDate(event))}</small></div>`).join('')}</div></details><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">${p.status==='Concluído'||p.status==='Pago'?`<button class="btn secondary small" data-finance-ped="${p.id}">${RECEBIMENTOS.some(r=>(r.orderId===p.id||r.sourceOrderId===p.id)&&r.status!=='Estornado'&&r.status!=='Cancelado')?'Editar financeiro':'Enviar ao financeiro'}</button>`:''}${p.archivedAt?`<button class="btn secondary small" data-restore-ped="${p.id}">Reexibir na fila</button>`:''}</div></td>
       </tr>`;
     }).join('') : '<tr><td colspan="8" class="empty">Nenhum pedido na fila ainda.</td></tr>';
     root.querySelectorAll('#ped-list-table [data-finance-ped]').forEach(b=>b.addEventListener('click',()=>sendOrderToFinance(b.dataset.financePed)));
+    root.querySelectorAll('#ped-list-table [data-restore-ped]').forEach(b=>b.addEventListener('click',async()=>{
+      if(!confirm('Reexibir este pedido na coluna Pago?'))return;
+      try{await restoreArchivedOrder(b.dataset.restorePed);}catch(e){alert(e.message);}
+    }));
   }
   document.getElementById('ped-sort').addEventListener('change', renderPedidosList);
 
@@ -1638,9 +1869,9 @@
   function productKey(name){ return (name||'Produto não informado').trim().toLocaleLowerCase('pt-BR').replace(/\s+/g,' '); }
   async function saveClientName(name){
     name=(name||'').trim(); if(!name)return;
-    CLIENTES=await getJSON('empresa_clientes',CLIENTES); const key=clientKey(name),found=CLIENTES.find(c=>clientKey(c.name)===key);
-    if(found){found.name=name;found.updatedAt=new Date().toISOString();}else CLIENTES.push({id:nextSeqId(CLIENTES,'CLI'),name,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});
-    await setJSON('empresa_clientes',CLIENTES);populateClientList();
+    const current=await getJSON('empresa_clientes',CLIENTES),next=current.map(c=>({...c})),key=clientKey(name),found=next.find(c=>clientKey(c.name)===key);
+    if(found){found.name=name;found.updatedAt=new Date().toISOString();}else next.push({id:nextSeqId(next,'CLI'),name,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});
+    await setJSON('empresa_clientes',next);CLIENTES=next;populateClientList();
   }
   function populateClientList(){
     const names=new Map(); CLIENTES.forEach(c=>{if(c.name)names.set(clientKey(c.name),c.name)}); RECEBIMENTOS.filter(r=>transactionType(r)==='Entrada'&&r.client).forEach(r=>names.set(clientKey(r.client),r.client));
@@ -1650,8 +1881,21 @@
   function monthLabel(key){ const [y,m]=key.split('-'); return new Intl.DateTimeFormat('pt-BR',{month:'long',year:'numeric'}).format(new Date(Number(y),Number(m)-1,1)); }
   function receivedForOrder(orderId){ return RECEBIMENTOS.filter(r=>transactionType(r)==='Entrada'&&r.orderId===orderId&&r.status==='Recebido').reduce((s,r)=>s+Number(r.value||0),0); }
   async function updateOrderPaidStatus(orderId){
-    if(!orderId)return; PEDIDOS=await getJSON('producao_pedidos',PEDIDOS); const p=PEDIDOS.find(x=>x.id===orderId);
-    if(p&&receivedForOrder(orderId)>=Number(p.value||0)){p.status='Pago';await setJSON('producao_pedidos',PEDIDOS);renderPedidos();}
+    if(!orderId)return;
+    PEDIDOS=await getJSON('producao_pedidos',PEDIDOS);
+    const p=PEDIDOS.find(x=>x.id===orderId);if(!p)return;
+    const totalRecebido=receivedForOrder(orderId),valorPedido=Math.max(0,Number(p.value||0));
+    const quitado=valorPedido>0&&totalRecebido>=valorPedido;
+    let changed=false;
+    if(quitado&&p.status!=='Pago'){
+      const previous=p.status||'Pendente';p.statusBeforePaid=previous;p.status='Pago';p.archivedAt=null;changed=true;
+      addOrderEvent(p,{type:'status',status:'Pago',label:`Etapa alterada automaticamente: ${previous} → Pago`});
+    }else if(!quitado&&p.status==='Pago'){
+      const restored=['Pendente','Em produção','Concluído'].includes(p.statusBeforePaid)?p.statusBeforePaid:'Concluído';
+      p.status=restored;p.archivedAt=null;changed=true;
+      addOrderEvent(p,{type:'status',status:restored,label:`Pagamento deixou de estar quitado: Pago → ${restored}`});
+    }
+    if(changed){await setJSON('producao_pedidos',PEDIDOS);renderPedidos();}
   }
   function populateReceiptOrders(){
     const sel=document.getElementById('rec-order'); if(!sel) return;
@@ -1684,13 +1928,19 @@
   document.getElementById('rec-add-btn').addEventListener('click',async()=>{
     const type=document.getElementById('rec-type').value,value=parseFloat(document.getElementById('rec-value').value), fee=type==='Entrada'?(parseFloat(document.getElementById('rec-fee').value)||0):0,costRaw=document.getElementById('rec-cost').value,cost=type==='Entrada'&&costRaw!==''?Math.max(0,parseFloat(costRaw)||0):null,msg=document.getElementById('rec-msg');
     if(isNaN(value)||value<=0){msg.innerHTML='<div class="msg err">Informe um valor válido.</div>';return;}
+    if(!Number.isFinite(fee)||fee<0||fee>value){msg.innerHTML='<div class="msg err">A taxa deve ficar entre zero e o valor bruto.</div>';return;}
     const orderId=type==='Entrada'?(document.getElementById('rec-order').value||null):null;
     RECEBIMENTOS=await getJSON('empresa_recebimentos',RECEBIMENTOS);const existing=EDITING_RECEIPT_ID?RECEBIMENTOS.find(r=>r.id===EDITING_RECEIPT_ID):null,id=existing?existing.id:nextSeqId(RECEBIMENTOS,'REC');
     const rec={id,type,category:document.getElementById('rec-category').value,date:document.getElementById('rec-date').value||todayISO(),createdAt:existing?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString(),value,fee,cost,productQty:type==='Entrada'?Math.max(1,parseInt(document.getElementById('rec-product-qty').value,10)||1):null,status:document.getElementById('rec-status').value,payment:document.getElementById('rec-payment').value,channel:document.getElementById('rec-channel').value,client:document.getElementById('rec-client').value.trim(),description:document.getElementById('rec-description').value.trim(),deliveryDate:type==='Entrada'?(document.getElementById('rec-delivery').value||null):null,notes:document.getElementById('rec-notes').value.trim(),orderId,sourceOrderId:existing?.sourceOrderId||PENDING_SOURCE_ORDER_ID||null};
-    if(existing)RECEBIMENTOS[RECEBIMENTOS.findIndex(r=>r.id===existing.id)]=rec;else RECEBIMENTOS.push(rec);await setJSON('empresa_recebimentos',RECEBIMENTOS);
-    if(type==='Entrada'&&rec.client)await saveClientName(rec.client);
-    if(orderId&&rec.status==='Recebido') await updateOrderPaidStatus(orderId);
-    const wasEditing=Boolean(existing);resetReceiptForm();msg.innerHTML=`<div class="msg ok">Lançamento ${wasEditing?'atualizado':'registrado'} com sucesso.</div>`;renderRecebimentos();
+    const previousOrderId=existing?.orderId||null;
+    const next=RECEBIMENTOS.slice();if(existing)next[next.findIndex(r=>r.id===existing.id)]=rec;else next.push(rec);
+    try{
+      await setJSON('empresa_recebimentos',next);RECEBIMENTOS=next;
+      let warning='';
+      if(type==='Entrada'&&rec.client){try{await saveClientName(rec.client);}catch(e){warning=' O lançamento foi salvo, mas o cadastro auxiliar do cliente não pôde ser atualizado.';}}
+      for(const linkedId of [...new Set([previousOrderId,orderId].filter(Boolean))]){try{await updateOrderPaidStatus(linkedId);}catch(e){warning+=' O financeiro foi salvo, mas revise o status do pedido vinculado.';}}
+      const wasEditing=Boolean(existing);resetReceiptForm();msg.innerHTML=`<div class="msg ${warning?'err':'ok'}">Lançamento ${wasEditing?'atualizado':'registrado'} com sucesso.${escapeHtml(warning)}</div>`;renderRecebimentos();
+    }catch(e){msg.innerHTML=`<div class="msg err">${escapeHtml(e.message)}</div>`;}
   });
   function filteredReceipts(){
     const type=document.getElementById('rec-filter-type').value,category=document.getElementById('rec-filter-category').value,channel=document.getElementById('rec-filter-channel').value,status=document.getElementById('rec-filter-status').value,q=document.getElementById('rec-search').value.trim().toLowerCase();
@@ -1706,13 +1956,13 @@
     const current=monthKey(todayISO()), groups=new Map([[current,[]]]); rows.forEach(r=>{const k=monthKey(r.date);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(r);});
     const keys=[current,...[...groups.keys()].filter(k=>k!==current).sort((a,b)=>b.localeCompare(a))];
     document.getElementById('rec-months').innerHTML=keys.map(key=>{const items=groups.get(key),entries=items.filter(r=>transactionType(r)==='Entrada'&&isConfirmed(r)),exits=items.filter(r=>transactionType(r)==='Saída'&&isConfirmed(r)),sales=entries.filter(r=>(r.category||'Venda')==='Venda'),gross=sales.reduce((s,r)=>s+Number(r.value||0),0),income=entries.reduce((s,r)=>s+receiptNet(r),0),known=sales.filter(r=>r.cost!==null&&r.cost!==undefined&&r.cost!==''),profit=known.reduce((s,r)=>s+receiptNet(r)-Number(r.cost||0),0),expenses=exits.reduce((s,r)=>s+Number(r.value||0),0),pending=items.filter(r=>r.status==='Pendente').reduce((s,r)=>s+Number(r.value||0),0);return `<div class="month-group"><div class="month-head"><h3>${monthLabel(key)}${key===current?' · mês atual':''}</h3><div class="month-totals"><span>Bruto: <strong>${fmtMoney(gross)}</strong></span><span>Entrou líquido: <strong style="color:var(--green);">${fmtMoney(income)}</strong></span><span>Lucro apurado: <strong>${known.length?fmtMoney(profit):'—'}</strong></span><span>Saídas: <strong style="color:var(--red);">${fmtMoney(expenses)}</strong></span><span>Saldo: <strong>${fmtMoney(income-expenses)}</strong></span>${pending?`<span>Pendente: <strong style="color:var(--coral);">${fmtMoney(pending)}</strong></span>`:''}</div></div>${items.length?items.map(r=>{const type=transactionType(r),exit=type==='Saída',category=r.category||(exit?'Outros':'Venda');return `<div class="receipt-row"><span>${fmtDate(r.date)}</span><div class="receipt-main"><strong><span class="tag ${exit?'cancelado':'pago'}">${type}</span> ${escapeHtml(r.client||(exit?'Despesa avulsa':'Venda avulsa'))}</strong><small>${escapeHtml(category)} · ${escapeHtml(r.description||r.orderId||r.id)}${r.deliveryDate?' · entrega '+fmtDate(r.deliveryDate):''}</small></div><span class="mobile-hide">${escapeHtml(r.channel||'—')}<br><small style="color:var(--muted);">${escapeHtml(r.payment||'—')}</small></span><span class="tag ${isConfirmed(r)?'pago':r.status==='Pendente'?'pendente':'producao'} mobile-hide">${escapeHtml(r.status)}</span><div><div class="receipt-value" style="color:${exit?'var(--red)':'var(--green)'};">${exit?'−':'+'} ${fmtMoney(exit?r.value:receiptNet(r))}</div>${!exit?`<div class="receipt-net">bruto ${fmtMoney(r.value)}${Number(r.fee)>0?' · taxa '+fmtMoney(r.fee):''}${r.cost!==null&&r.cost!==undefined?' · lucro '+fmtMoney(receiptNet(r)-Number(r.cost||0)):''}</div>`:''}</div><div class="actions">${r.status==='Pendente'?`<button data-confirm-rec="${r.id}">Confirmar</button>`:''}<button data-edit-rec="${r.id}">Editar</button><button data-del-rec="${r.id}">Remover</button></div></div>`;}).join(''):'<div class="empty">Nenhum lançamento neste mês.</div>'}</div>`;}).join('');
-    document.querySelectorAll('[data-confirm-rec]').forEach(b=>b.addEventListener('click',async()=>{RECEBIMENTOS=await getJSON('empresa_recebimentos',RECEBIMENTOS);const r=RECEBIMENTOS.find(x=>x.id===b.dataset.confirmRec);if(r){r.status=transactionType(r)==='Saída'?'Pago':'Recebido';await setJSON('empresa_recebimentos',RECEBIMENTOS);if(transactionType(r)==='Entrada')await updateOrderPaidStatus(r.orderId);renderRecebimentos();}}));
+    document.querySelectorAll('[data-confirm-rec]').forEach(b=>b.addEventListener('click',async()=>{try{const current=await getJSON('empresa_recebimentos',RECEBIMENTOS),next=current.map(r=>r.id===b.dataset.confirmRec?{...r,status:transactionType(r)==='Saída'?'Pago':'Recebido',updatedAt:new Date().toISOString()}:r),changed=next.find(r=>r.id===b.dataset.confirmRec);await setJSON('empresa_recebimentos',next);RECEBIMENTOS=next;if(changed&&transactionType(changed)==='Entrada')await updateOrderPaidStatus(changed.orderId);renderRecebimentos();}catch(e){alert(e.message);}}));
     document.querySelectorAll('[data-edit-rec]').forEach(b=>b.addEventListener('click',()=>editReceipt(b.dataset.editRec)));
-    document.querySelectorAll('[data-del-rec]').forEach(b=>b.addEventListener('click',async()=>{if(!confirm('Remover este lançamento financeiro?'))return;RECEBIMENTOS=await getJSON('empresa_recebimentos',RECEBIMENTOS);RECEBIMENTOS=RECEBIMENTOS.filter(r=>r.id!==b.dataset.delRec);await setJSON('empresa_recebimentos',RECEBIMENTOS);if(EDITING_RECEIPT_ID===b.dataset.delRec)resetReceiptForm();renderRecebimentos();}));
+    document.querySelectorAll('[data-del-rec]').forEach(b=>b.addEventListener('click',async()=>{if(!confirm('Remover este lançamento financeiro?'))return;try{const current=await getJSON('empresa_recebimentos',RECEBIMENTOS),removed=current.find(r=>r.id===b.dataset.delRec),next=current.filter(r=>r.id!==b.dataset.delRec);await setJSON('empresa_recebimentos',next);RECEBIMENTOS=next;if(EDITING_RECEIPT_ID===b.dataset.delRec)resetReceiptForm();if(removed?.orderId)await updateOrderPaidStatus(removed.orderId);renderRecebimentos();}catch(e){alert(e.message);}}));
   }
   function clientPeriodStart(){
     const p=document.getElementById('client-period').value;if(p==='all')return null;if(p==='current')return monthKey(todayISO())+'-01';
-    const d=new Date();d.setMonth(d.getMonth()-Number(p));return d.toISOString().slice(0,10);
+    const d=new Date();d.setMonth(d.getMonth()-Number(p));return localISODate(d);
   }
   function renderClientAnalytics(){
     const start=clientPeriodStart(),q=document.getElementById('client-search').value.trim().toLocaleLowerCase('pt-BR');
