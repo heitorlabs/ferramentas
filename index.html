@@ -195,6 +195,9 @@
   #app-root :is(button,a,input,select,textarea,summary):focus-visible{outline:3px solid color-mix(in srgb,var(--violet) 72%,white);outline-offset:3px;}
   #app-root button:disabled{opacity:.55;cursor:not-allowed;}
   #app-root .nav-group-label{display:none;}
+  #app-root .sidebar-brand,#app-root .sidebar-toggle{display:none;}
+  #app-root .nav-icon{display:inline-flex;align-items:center;justify-content:center;min-width:20px;font-size:17px;line-height:1;}
+  #app-root .nav-label{white-space:nowrap;}
   #app-root .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
   #app-root [data-mobile-more]{display:none;}
   #app-root .global-search{position:relative;min-width:210px;}
@@ -237,18 +240,156 @@
   #app-root :is(.kanban-card .kc-value,.quote-item .muted,.quote-saved-meta,.month-totals){font-size:13px;}
   #app-root :is(.quote-eyebrow,.receipt-net){font-size:12px;}
   #app-root .step{font-size:13px;}
+  /* Versão 19 — hierarquia visual de cartões, indicadores e tabelas */
+  #app-root{
+    --shadow-sm:0 2px 8px rgba(22,18,25,.045);
+    --shadow-md:0 10px 30px rgba(22,18,25,.075);
+    --focus-soft:color-mix(in srgb,var(--violet) 11%,transparent);
+  }
+  #app-root.theme-dark{--shadow-sm:0 2px 10px rgba(0,0,0,.22);--shadow-md:0 12px 34px rgba(0,0,0,.3);}
+  #app-root .view>.panel:not(.dashboard-hero):not(.quote-hero){border-top:3px solid color-mix(in srgb,var(--violet) 65%,var(--cyan));}
+  #app-root .panel{box-shadow:var(--shadow-sm);transition:border-color .18s ease,box-shadow .18s ease;}
+  #app-root .panel:hover{border-color:color-mix(in srgb,var(--line) 55%,var(--violet));box-shadow:var(--shadow-md);}
+  #app-root .section-card{border-radius:14px;padding:18px;border-color:color-mix(in srgb,var(--line) 82%,var(--violet));box-shadow:var(--shadow-sm);}
+  #app-root .section-title{font-size:15px;margin-bottom:15px;}
+  #app-root .step{width:28px;height:28px;border-radius:9px;background:color-mix(in srgb,var(--violet) 13%,var(--panel));font-weight:800;}
+  #app-root .finance-kpis{gap:14px;}
+  #app-root .finance-kpi,#app-root .today-card{min-height:116px;border-radius:15px;padding:18px 18px 17px;box-shadow:var(--shadow-sm);transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;}
+  #app-root .finance-kpi:hover,#app-root .today-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--line) 45%,var(--violet));box-shadow:var(--shadow-md);}
+  #app-root .finance-kpi{position:relative;overflow:hidden;}
+  #app-root .finance-kpi:after{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--kpi-color,var(--violet));}
+  #app-root .finance-kpi.green:after{background:var(--green);}
+  #app-root .finance-kpi.coral:after{background:var(--coral);}
+  #app-root .finance-kpi .label{font:700 12px/1.35 inherit;text-transform:none;letter-spacing:0;color:var(--muted);}
+  #app-root .finance-kpi strong{font-size:24px;line-height:1.2;margin-top:9px;}
+  #app-root .finance-kpi small{display:block;margin-top:5px;color:var(--muted);font-size:12px;}
+  #app-root .quote-saved{border-left-width:5px;border-radius:13px;padding:16px;box-shadow:var(--shadow-sm);transition:transform .16s ease,box-shadow .16s ease;}
+  #app-root .quote-saved:hover{transform:translateY(-1px);box-shadow:var(--shadow-md);}
+  #app-root .list-row{padding:13px 10px;border-radius:9px;transition:background .15s ease;}
+  #app-root .list-row:hover{background:var(--panel-2);}
+  #app-root .table-scroll{border:1px solid var(--line);border-radius:13px;overflow:auto;background:var(--panel);}
+  #app-root .table-scroll table{min-width:680px;}
+  #app-root table{border-collapse:separate;border-spacing:0;}
+  #app-root thead{background:var(--panel-2);}
+  #app-root th{position:sticky;top:0;z-index:2;background:var(--panel-2);color:var(--ink);font-family:inherit;font-weight:750;text-transform:none;letter-spacing:0;border-bottom:1px solid var(--line);white-space:nowrap;}
+  #app-root tbody tr:nth-child(even){background:color-mix(in srgb,var(--panel-2) 52%,transparent);}
+  #app-root tbody tr{transition:background .14s ease;}
+  #app-root tbody tr:hover{background:color-mix(in srgb,var(--violet) 8%,var(--panel));}
+  #app-root td{vertical-align:middle;}
+  #app-root .month-group{border-radius:15px;box-shadow:var(--shadow-sm);}
+  #app-root .month-head{padding:16px 18px;background:linear-gradient(100deg,var(--panel-2),color-mix(in srgb,var(--panel-2) 78%,var(--violet)));}
+  #app-root .month-head h3{font-size:17px;}
+  #app-root .receipt-row{min-height:70px;transition:background .14s ease;}
+  #app-root .receipt-row:hover{background:color-mix(in srgb,var(--violet) 6%,var(--panel));}
+  #app-root input:hover,#app-root select:hover,#app-root textarea:hover{border-color:color-mix(in srgb,var(--line) 35%,var(--violet));}
+  #app-root input:focus,#app-root select:focus,#app-root textarea:focus{border-color:var(--violet);box-shadow:0 0 0 4px var(--focus-soft);outline:none;background:var(--panel);}
+  #app-root .btn{box-shadow:0 5px 14px rgba(105,71,199,.15);transition:transform .14s ease,box-shadow .14s ease,filter .14s ease;}
+  #app-root .btn:hover{transform:translateY(-1px);filter:saturate(1.08);box-shadow:0 8px 18px rgba(105,71,199,.22);}
+  #app-root .btn.secondary{box-shadow:none;}
+  #app-root .tag{border:1px solid currentColor;line-height:1.25;}
+  /* Versão 20 — orientação por módulo e iconografia consistente */
+  #app-root .nav-icon svg{width:20px;height:20px;display:block;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+  #app-root .view-context{display:flex;align-items:center;gap:15px;margin:0 0 20px;padding:15px 18px;border:1px solid var(--line);border-radius:15px;background:linear-gradient(105deg,var(--panel),color-mix(in srgb,var(--panel) 88%,var(--violet)));box-shadow:var(--shadow-sm);}
+  #app-root .view-context-icon{width:48px;height:48px;flex:0 0 48px;display:grid;place-items:center;border-radius:14px;background:var(--grad);color:#fff;box-shadow:0 8px 18px rgba(105,71,199,.2);}
+  #app-root .view-context-icon svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+  #app-root .view-context-copy{min-width:0;}
+  #app-root .view-context-kicker{display:block;margin-bottom:2px;color:var(--violet);font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;}
+  #app-root .view-context h1{margin:0;color:var(--ink);font-size:22px;line-height:1.2;}
+  #app-root .view-context p{margin:4px 0 0;color:var(--muted);font-size:13px;line-height:1.45;}
+  /* Versão 21 — painel compacto de módulos no celular */
+  #app-root .mobile-more-backdrop,#app-root .mobile-more-panel{display:none;}
+  /* Versão 22 — estados vazios, avisos e feedback de ações */
+  #app-root .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:112px;margin:8px 0;padding:24px 18px;border:1px dashed color-mix(in srgb,var(--line) 65%,var(--violet));border-radius:13px;background:color-mix(in srgb,var(--panel-2) 62%,transparent);color:var(--muted);line-height:1.5;}
+  #app-root .empty:before{content:"◇";display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:color-mix(in srgb,var(--violet) 12%,var(--panel));color:var(--violet);font-size:20px;font-weight:800;}
+  #app-root .msg{display:flex;align-items:flex-start;gap:10px;min-height:46px;padding:12px 14px;border-radius:11px;font-weight:600;line-height:1.45;}
+  #app-root .msg:before{display:grid;place-items:center;flex:0 0 22px;width:22px;height:22px;border-radius:50%;font-size:13px;font-weight:900;}
+  #app-root .msg.ok:before{content:"✓";background:var(--green);color:#fff;}
+  #app-root .msg.err:before{content:"!";background:var(--red);color:#fff;}
+  #app-root .tag{display:inline-flex;align-items:center;gap:6px;}
+  #app-root .tag:before{content:"";width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:currentColor;}
+  #app-root .tag.cancelado,#app-root .tag.estornado{background:rgba(194,51,73,.13);color:var(--red);}
+  #app-root .tag.rascunho,#app-root .tag.arquivado{background:var(--panel-2);color:var(--muted);}
+  #app-root .toast{display:grid;grid-template-columns:28px minmax(0,1fr) 34px;align-items:center;gap:9px;min-height:58px;}
+  #app-root .toast:before{content:"✓";display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--green);color:#fff;font-weight:900;}
+  #app-root .toast.error:before{content:"!";background:var(--red);}
+  #app-root .toast-message{min-width:0;line-height:1.45;}
+  #app-root .toast-close{display:grid;place-items:center;width:34px;height:34px;padding:0;border:0;border-radius:9px;background:var(--panel-2);color:var(--muted);font-size:18px;cursor:pointer;}
+  #app-root .toast-close:hover{color:var(--ink);}
+  /* Versão 23 — identidade cromática por módulo */
+  #app-root{--module-accent:var(--violet);--module-accent-2:var(--cyan);}
+  #app-root[data-current-view="solicitacoes"]{--module-accent:#c86b28;--module-accent-2:#d99a2b;}
+  #app-root[data-current-view="orcamentos"]{--module-accent:var(--magenta);--module-accent-2:var(--violet);}
+  #app-root[data-current-view="calculadora"]{--module-accent:var(--violet);--module-accent-2:#8b5cf6;}
+  #app-root[data-current-view="pedidos"]{--module-accent:var(--cyan);--module-accent-2:var(--violet);}
+  #app-root[data-current-view="recebimentos"]{--module-accent:var(--green);--module-accent-2:var(--cyan);}
+  #app-root[data-current-view="catalogo-admin"]{--module-accent:var(--teal);--module-accent-2:var(--green);}
+  #app-root[data-current-view="config"]{--module-accent:#68707c;--module-accent-2:var(--violet);}
+  #app-root .view-context{position:relative;overflow:hidden;background:linear-gradient(105deg,var(--panel),color-mix(in srgb,var(--panel) 86%,var(--module-accent)));border-color:color-mix(in srgb,var(--line) 55%,var(--module-accent));}
+  #app-root .view-context:after{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,var(--module-accent),var(--module-accent-2));}
+  #app-root .view-context-icon{background:linear-gradient(135deg,var(--module-accent),var(--module-accent-2));}
+  #app-root .view-context-kicker{color:var(--module-accent);}
+  #app-root .view>.panel:not(.dashboard-hero):not(.quote-hero){border-top-color:var(--module-accent);}
+  #app-root .section-card{border-color:color-mix(in srgb,var(--line) 72%,var(--module-accent));}
+  #app-root .step{color:var(--module-accent);background:color-mix(in srgb,var(--module-accent) 12%,var(--panel));}
+  #app-root input:focus,#app-root select:focus,#app-root textarea:focus{border-color:var(--module-accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--module-accent) 11%,transparent);}
+  #app-root nav button.active{background:linear-gradient(100deg,var(--module-accent),var(--module-accent-2));color:#fff;}
+  #app-root .mobile-module-btn .nav-icon{color:var(--module-accent);}
+  /* Versão 24 — densidade visual ajustável */
+  #app-root #density-toggle-btn{white-space:nowrap;}
+  @media(min-width:801px){
+    #app-root.density-compact main{padding-top:20px;padding-bottom:20px;}
+    #app-root.density-compact .view-context{margin-bottom:14px;padding:10px 14px;}
+    #app-root.density-compact .view-context-icon{width:42px;height:42px;flex-basis:42px;border-radius:12px;}
+    #app-root.density-compact .view-context h1{font-size:20px;}
+    #app-root.density-compact .panel{padding:18px;margin-bottom:14px;}
+    #app-root.density-compact .section-card{padding:13px;margin-bottom:10px;}
+    #app-root.density-compact .section-title{margin-bottom:10px;}
+    #app-root.density-compact .row{margin-bottom:7px;}
+    #app-root.density-compact .finance-kpis{gap:9px;margin-bottom:14px;}
+    #app-root.density-compact .finance-kpi,#app-root.density-compact .today-card{min-height:92px;padding:13px 15px;}
+    #app-root.density-compact .finance-kpi strong{font-size:21px;margin-top:5px;}
+    #app-root.density-compact th,#app-root.density-compact td{padding:7px 9px;}
+    #app-root.density-compact .receipt-row{min-height:56px;padding:8px 13px;}
+    #app-root.density-compact .quote-saved{padding:11px 13px;margin-bottom:7px;}
+    #app-root.density-compact .kanban-card{padding:9px 10px;margin-bottom:6px;}
+    #app-root.density-compact .list-row{padding:8px 7px;}
+    #app-root.density-compact .empty{min-height:82px;padding:16px;}
+    #app-root.density-compact .month-head{padding:11px 14px;}
+  }
   @keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-  @media(max-width:1100px){#app-root .topbar{position:relative}.global-search{order:4;width:100%}.today-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(min-width:1101px){
+    #app-root{--sidebar-width:250px;}
+    #app-root.sidebar-collapsed{--sidebar-width:78px;}
+    #app-root .topbar{margin-left:var(--sidebar-width);min-height:78px;padding:16px 24px;justify-content:flex-end;transition:margin-left .22s ease;}
+    #app-root .topbar>.brand{display:none;}
+    #app-root .sidebar-toggle{display:inline-grid;place-items:center;width:44px;height:44px;margin-right:auto;border:1px solid var(--line);border-radius:11px;background:var(--panel-2);color:var(--ink);font-size:24px;cursor:pointer;flex:0 0 auto;}
+    #app-root nav{position:fixed;z-index:50;left:0;top:0;bottom:0;width:var(--sidebar-width);display:flex;flex-direction:column;flex-wrap:nowrap;gap:4px;padding:14px 10px 18px;border-radius:0;border-right:1px solid var(--line);background:var(--panel);box-shadow:7px 0 28px rgba(22,18,25,.06);overflow-x:hidden;overflow-y:auto;transition:width .22s ease;}
+    #app-root .sidebar-brand{display:flex;align-items:center;gap:11px;min-height:52px;margin:0 4px 14px;padding:2px 4px 14px;border-bottom:1px solid var(--line);overflow:hidden;}
+    #app-root .sidebar-brand .mark{width:42px;height:42px;flex:0 0 42px;}
+    #app-root .sidebar-brand-copy{min-width:150px;transition:opacity .14s ease;}
+    #app-root .nav-group-label{display:block;margin:16px 10px 5px;color:var(--muted);font-size:11px;font-weight:750;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;}
+    #app-root nav button{display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:9px;width:100%;min-height:46px;padding:10px 12px;text-align:left;border-radius:10px;}
+    #app-root nav button:hover{background:var(--panel-2);color:var(--ink);}
+    #app-root nav button.active{box-shadow:0 6px 16px rgba(105,71,199,.2);}
+    #app-root [data-mobile-more]{display:none!important;}
+    #app-root main{max-width:none;margin-left:var(--sidebar-width);padding:30px clamp(24px,3vw,46px);transition:margin-left .22s ease;}
+    #app-root.sidebar-collapsed .sidebar-brand-copy,#app-root.sidebar-collapsed .nav-label,#app-root.sidebar-collapsed .nav-group-label{display:none;}
+    #app-root.sidebar-collapsed .sidebar-brand{justify-content:center;margin-inline:0;padding-inline:0;}
+    #app-root.sidebar-collapsed nav button{grid-template-columns:1fr;justify-items:center;padding-inline:8px;}
+    #app-root.sidebar-collapsed .nav-icon{font-size:19px;}
+  }
+  @media(max-width:1100px){#app-root .topbar{position:relative}.global-search{order:4;width:100%}.today-grid{grid-template-columns:repeat(2,1fr)}#app-root .sidebar-brand,#app-root .sidebar-toggle,#app-root .nav-group-label{display:none!important;}}
   @media(max-width:800px){
     #app-root main{padding:18px 14px 96px;}
     #app-root .topbar{padding:14px;gap:12px;}
     #app-root .panel{padding:18px 15px;border-radius:14px;}
     #app-root nav{position:fixed;z-index:60;left:0;right:0;bottom:0;border-radius:16px 16px 0 0;padding:6px 6px max(6px,env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,1fr);gap:3px;box-shadow:0 -8px 30px rgba(0,0,0,.14);}
-    #app-root nav button{font-size:12px;padding:7px 3px;min-height:52px;line-height:1.15;}
+    #app-root nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;padding:7px 3px;min-height:52px;line-height:1.15;}
+    #app-root nav .nav-icon{font-size:17px;}
     #app-root nav button.mobile-secondary{display:none;}
     #app-root [data-mobile-more]{display:block;}
-    #app-root nav.mobile-more-open{grid-template-columns:repeat(3,1fr);}
-    #app-root nav.mobile-more-open button.mobile-secondary{display:block;}
+    #app-root nav.mobile-more-open{grid-template-columns:repeat(5,1fr);}
+    #app-root nav.mobile-more-open button.mobile-secondary{display:none;}
     #app-root .today-grid,#app-root .today-columns{grid-template-columns:1fr;}
     #app-root .finance-kpis{grid-template-columns:1fr;}
     #app-root .search-result{grid-template-columns:1fr auto;}.search-result>span:first-child{display:none;}
@@ -256,11 +397,27 @@
     #app-root .global-search{min-width:100%;}
     #app-root .summary-row{align-items:flex-start;}
     #app-root .catalog-admin-frame{height:calc(100vh - 245px);min-height:680px;}
+    #app-root .view-context{align-items:flex-start;margin-bottom:15px;padding:13px 14px;}
+    #app-root .view-context-icon{width:42px;height:42px;flex-basis:42px;border-radius:12px;}
+    #app-root .view-context h1{font-size:19px;}
+    #app-root .view-context p{font-size:12px;}
+    #app-root #density-toggle-btn{display:none;}
+    #app-root .mobile-more-backdrop.open{display:block;position:fixed;z-index:55;inset:0;background:rgba(8,7,10,.46);backdrop-filter:blur(2px);}
+    #app-root .mobile-more-panel.open{display:block;position:fixed;z-index:70;left:12px;right:12px;bottom:82px;padding:16px;border:1px solid var(--line);border-radius:18px;background:var(--panel);box-shadow:0 22px 65px rgba(0,0,0,.3);animation:mobile-sheet-in .18s ease-out;}
+    #app-root .mobile-more-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px;}
+    #app-root .mobile-more-head strong{font-size:16px;}
+    #app-root .mobile-more-close{width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2);color:var(--ink);font-size:20px;cursor:pointer;}
+    #app-root .mobile-more-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;}
+    #app-root .mobile-module-btn{display:flex;align-items:center;gap:10px;min-height:62px;padding:11px 12px;border:1px solid var(--line);border-radius:13px;background:var(--panel-2);color:var(--ink);text-align:left;font:700 13px inherit;cursor:pointer;}
+    #app-root .mobile-module-btn .nav-icon{display:grid;place-items:center;width:34px;height:34px;flex:0 0 34px;border-radius:10px;background:color-mix(in srgb,var(--violet) 13%,var(--panel));color:var(--violet);}
+    #app-root .mobile-module-btn .nav-icon svg{width:19px;height:19px;}
   }
+  @keyframes mobile-sheet-in{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){#app-root *,#app-root *:before,#app-root *:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}}
 </style>
 </head>
 <body>
-<div id="app-root">
+<div id="app-root" data-current-view="inicio">
 
   <div class="gate-box" id="gate-box">
     <div class="mark"><div style="width:100%;height:100%;border-radius:16px;background:linear-gradient(90deg,#0E8A96,#6947C7 45%,#B62E82 75%,#C85A28);padding:3px;">
@@ -282,22 +439,41 @@
           <div class="brand-sub">Ferramentas internas</div>
         </div>
       </div>
+      <button type="button" id="sidebar-toggle-btn" class="sidebar-toggle" aria-label="Recolher menu lateral" aria-expanded="true" title="Recolher menu lateral">‹</button>
       <nav aria-label="Navegação principal">
-        <button data-view="inicio" class="active" title="Visão geral do dia">⌂<span> Início</span></button>
-        <button data-view="calculadora" class="mobile-secondary" title="Operação · Calculadora">▧<span> Calculadora</span></button>
-        <button data-view="solicitacoes" title="Comercial · Pedidos de orçamento">◷<span> Solicitações</span></button>
-        <button data-view="orcamentos" class="mobile-secondary" title="Comercial · Orçamentos">▤<span> Orçamentos</span></button>
-        <button data-view="pedidos" title="Operação · Fila de pedidos">▦<span> Produção</span></button>
-        <button data-view="recebimentos" title="Gestão · Financeiro">$<span> Financeiro</span></button>
-        <button data-view="catalogo-admin" class="mobile-secondary" title="Gestão · Produtos e parceiros">◇<span> Produtos e parceiros</span></button>
-        <button data-view="config" class="mobile-secondary" title="Administração · Configurações">⚙<span> Configurações</span></button>
-        <button type="button" data-mobile-more title="Exibir todos os módulos" aria-expanded="false">•••<span> Mais</span></button>
+        <div class="sidebar-brand" aria-hidden="true"><div class="mark"><div class="mark-ring">3D</div></div><div class="sidebar-brand-copy"><div class="brand-text">HL 3D Solutions</div><div class="brand-sub">Ferramentas internas</div></div></div>
+        <div class="nav-group-label">Principal</div>
+        <button data-view="inicio" class="active" title="Visão geral do dia"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg></span><span class="nav-label">Início</span></button>
+        <div class="nav-group-label">Comercial</div>
+        <button data-view="solicitacoes" title="Comercial · Pedidos de orçamento"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2M8 3.5 6 2M16 3.5 18 2"/></svg></span><span class="nav-label">Solicitações</span></button>
+        <button data-view="orcamentos" class="mobile-secondary" title="Comercial · Orçamentos"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l3 3v15H6zM15 3v4h4M9 11h6M9 15h6"/></svg></span><span class="nav-label">Orçamentos</span></button>
+        <div class="nav-group-label">Operação</div>
+        <button data-view="calculadora" class="mobile-secondary" title="Operação · Calculadora"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M14 11h2M8 15h2M14 15h2"/></svg></span><span class="nav-label">Calculadora</span></button>
+        <button data-view="pedidos" title="Operação · Fila de pedidos"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5v14H4zM10.5 5h4v9h-4zM16 5h4v11h-4z"/></svg></span><span class="nav-label">Produção</span></button>
+        <div class="nav-group-label">Gestão</div>
+        <button data-view="recebimentos" title="Gestão · Financeiro"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15 8.5c-.7-.7-1.7-1-3-1-1.7 0-3 .8-3 2s1 1.8 3 2.3 3 1.1 3 2.5-1.3 2.2-3 2.2c-1.3 0-2.5-.4-3.3-1.2M12 5.5v13"/></svg></span><span class="nav-label">Financeiro</span></button>
+        <button data-view="catalogo-admin" class="mobile-secondary" title="Gestão · Produtos e parceiros"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9zM4.5 7.8 12 12l7.5-4.2M12 12v9"/></svg></span><span class="nav-label">Produtos e parceiros</span></button>
+        <div class="nav-group-label">Administração</div>
+        <button data-view="config" class="mobile-secondary" title="Administração · Configurações"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3V2.8h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1z"/></svg></span><span class="nav-label">Configurações</span></button>
+        <button type="button" data-mobile-more title="Exibir todos os módulos" aria-expanded="false"><span class="nav-icon">•••</span><span class="nav-label">Mais</span></button>
       </nav>
       <div class="global-search"><label for="global-search" class="sr-only">Buscar em todo o portal</label><input id="global-search" type="search" placeholder="Buscar cliente, produto ou número…" autocomplete="off"><div id="global-search-results" class="search-results" style="display:none;"></div></div>
-      <div class="topbar-actions" style="display:flex;gap:7px;align-items:center;"><a class="btn secondary small" id="products-portal-btn" href="#" target="_blank" rel="noopener" style="display:none;">Produtos</a><button type="button" id="theme-toggle-btn" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">🌙</button><button class="btn secondary small" id="logout-btn">Sair</button></div>
+      <div class="topbar-actions" style="display:flex;gap:7px;align-items:center;"><a class="btn secondary small" id="products-portal-btn" href="#" target="_blank" rel="noopener" style="display:none;">Produtos</a><button type="button" class="btn secondary small" id="density-toggle-btn" aria-pressed="false" title="Exibir mais informações na tela">Compactar</button><button type="button" id="theme-toggle-btn" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">🌙</button><button class="btn secondary small" id="logout-btn">Sair</button></div>
+    </div>
+
+    <div class="mobile-more-backdrop" id="mobile-more-backdrop" aria-hidden="true"></div>
+    <div class="mobile-more-panel" id="mobile-more-panel" role="dialog" aria-modal="true" aria-labelledby="mobile-more-title" aria-hidden="true">
+      <div class="mobile-more-head"><div><strong id="mobile-more-title">Outros módulos</strong><div class="brand-sub">Acesso rápido</div></div><button type="button" class="mobile-more-close" id="mobile-more-close" aria-label="Fechar outros módulos">×</button></div>
+      <div class="mobile-more-grid">
+        <button type="button" class="mobile-module-btn" data-mobile-view="calculadora"><span class="nav-icon"></span><span>Calculadora</span></button>
+        <button type="button" class="mobile-module-btn" data-mobile-view="orcamentos"><span class="nav-icon"></span><span>Orçamentos</span></button>
+        <button type="button" class="mobile-module-btn" data-mobile-view="catalogo-admin"><span class="nav-icon"></span><span>Produtos e parceiros</span></button>
+        <button type="button" class="mobile-module-btn" data-mobile-view="config"><span class="nav-icon"></span><span>Configurações</span></button>
+      </div>
     </div>
 
     <main>
+      <div class="view-context" id="view-context" style="display:none;" aria-live="polite"><div class="view-context-icon" id="view-context-icon" aria-hidden="true"></div><div class="view-context-copy"><span class="view-context-kicker" id="view-context-kicker"></span><h1 id="view-context-title"></h1><p id="view-context-description"></p></div></div>
       <!-- ============ INÍCIO / HOJE ============ -->
       <div class="view" data-view="inicio">
         <div class="panel dashboard-hero">
@@ -657,6 +833,11 @@
 <script>
 (function(){
   const root = document.getElementById('app-root');
+  root.querySelectorAll('table').forEach(table=>{
+    if(table.parentElement?.classList.contains('table-scroll'))return;
+    const wrapper=document.createElement('div');wrapper.className='table-scroll';
+    table.parentNode.insertBefore(wrapper,table);wrapper.appendChild(table);
+  });
   const SUPABASE_URL = "https://fgbmvagormiwgdkkiqda.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_DPHmmsLWAwopwAtv_aoPuA_72GLjuHT";
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -696,7 +877,10 @@
   });
   function showToast(message,type='ok'){
     const region=document.getElementById('toast-region');if(!region)return;
-    const item=document.createElement('div');item.className=`toast ${type==='error'?'error':''}`;item.textContent=String(message);region.appendChild(item);
+    const item=document.createElement('div');item.className=`toast ${type==='error'?'error':''}`;item.setAttribute('role',type==='error'?'alert':'status');
+    const copy=document.createElement('span');copy.className='toast-message';copy.textContent=String(message);
+    const close=document.createElement('button');close.type='button';close.className='toast-close';close.setAttribute('aria-label','Fechar aviso');close.textContent='×';close.addEventListener('click',()=>item.remove());
+    item.append(copy,close);region.appendChild(item);
     setTimeout(()=>item.remove(),5200);
   }
   window.alert=message=>showToast(message,/erro|não foi possível|incorret|inválid|falh/i.test(String(message))?'error':'ok');
@@ -914,19 +1098,64 @@
     },{once:true});
     frame.src=CATALOG_PORTAL_URL;
   }
+  const VIEW_CONTEXT={
+    calculadora:{group:'Operação',title:'Calculadora',description:'Calcule custos, defina preços e consulte os cálculos já salvos.'},
+    solicitacoes:{group:'Comercial',title:'Solicitações',description:'Registre o que cada cliente pediu antes de localizar produtos e valores.'},
+    orcamentos:{group:'Comercial',title:'Orçamentos',description:'Monte propostas, revise condições comerciais e gere o PDF para o cliente.'},
+    pedidos:{group:'Operação',title:'Produção',description:'Acompanhe cada pedido desde a fila até a conclusão e o pagamento.'},
+    recebimentos:{group:'Gestão',title:'Financeiro',description:'Controle entradas, saídas, lucro apurado e desempenho dos clientes.'},
+    'catalogo-admin':{group:'Gestão',title:'Produtos e parceiros',description:'Gerencie o catálogo e os dados usados pelo portal de parceiros.'},
+    config:{group:'Administração',title:'Configurações',description:'Atualize custos, materiais, máquinas e dados comerciais do portal.'}
+  };
+  function updateViewContext(view){
+    const bar=document.getElementById('view-context'),meta=VIEW_CONTEXT[view];
+    if(!bar)return;
+    if(!meta){bar.style.display='none';return;}
+    document.getElementById('view-context-kicker').textContent=meta.group;
+    document.getElementById('view-context-title').textContent=meta.title;
+    document.getElementById('view-context-description').textContent=meta.description;
+    const icon=root.querySelector(`nav button[data-view="${view}"] .nav-icon`);
+    document.getElementById('view-context-icon').innerHTML=icon?.innerHTML||'';
+    bar.style.display='flex';
+  }
+  const mobileMorePanel=document.getElementById('mobile-more-panel'),mobileMoreBackdrop=document.getElementById('mobile-more-backdrop'),mobileMoreButton=root.querySelector('[data-mobile-more]');
+  function setMobileMore(open){
+    root.querySelector('nav')?.classList.toggle('mobile-more-open',open);
+    mobileMorePanel?.classList.toggle('open',open);mobileMoreBackdrop?.classList.toggle('open',open);
+    mobileMorePanel?.setAttribute('aria-hidden',String(!open));mobileMoreBackdrop?.setAttribute('aria-hidden',String(!open));
+    if(mobileMoreButton){mobileMoreButton.setAttribute('aria-expanded',String(open));mobileMoreButton.querySelector('.nav-label').textContent=open?'Fechar':'Mais';}
+    if(open)document.getElementById('mobile-more-close')?.focus();
+  }
   function switchView(view){
     const target=root.querySelector(`.view[data-view="${view}"]`);if(!target)return;
+    root.dataset.currentView=view;
     root.querySelectorAll('nav button[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
     root.querySelectorAll('.view').forEach(v=>v.style.display='none');target.style.display='block';
-    if(view==='recebimentos')renderRecebimentos();if(view==='solicitacoes')renderRequests();if(view==='inicio')renderDashboard();if(view==='catalogo-admin')loadCatalogAdmin();
-    root.querySelector('nav')?.classList.remove('mobile-more-open');const more=root.querySelector('[data-mobile-more]');if(more){more.setAttribute('aria-expanded','false');more.querySelector('span').textContent=' Mais';}window.scrollTo({top:0,behavior:'smooth'});
+    updateViewContext(view);if(view==='recebimentos')renderRecebimentos();if(view==='solicitacoes')renderRequests();if(view==='inicio')renderDashboard();if(view==='catalogo-admin')loadCatalogAdmin();
+    setMobileMore(false);window.scrollTo({top:0,behavior:'smooth'});
   }
+  const SIDEBAR_STATE_KEY='hl_sidebar_collapsed';
+  const sidebarToggle=document.getElementById('sidebar-toggle-btn');
+  function applySidebarState(collapsed){
+    root.classList.toggle('sidebar-collapsed',collapsed);
+    if(!sidebarToggle)return;
+    sidebarToggle.textContent=collapsed?'›':'‹';
+    sidebarToggle.setAttribute('aria-expanded',String(!collapsed));
+    sidebarToggle.setAttribute('aria-label',collapsed?'Expandir menu lateral':'Recolher menu lateral');
+    sidebarToggle.title=collapsed?'Expandir menu lateral':'Recolher menu lateral';
+  }
+  try{applySidebarState(localStorage.getItem(SIDEBAR_STATE_KEY)==='1');}catch(e){applySidebarState(false);}
+  sidebarToggle?.addEventListener('click',()=>{const collapsed=!root.classList.contains('sidebar-collapsed');applySidebarState(collapsed);try{localStorage.setItem(SIDEBAR_STATE_KEY,collapsed?'1':'0');}catch(e){}});
   root.querySelectorAll('nav button[data-view]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       switchView(btn.dataset.view);
     });
   });
-  root.querySelector('[data-mobile-more]').addEventListener('click',e=>{const open=root.querySelector('nav').classList.toggle('mobile-more-open');e.currentTarget.setAttribute('aria-expanded',String(open));e.currentTarget.querySelector('span').textContent=open?' Fechar':' Mais';});
+  root.querySelector('[data-mobile-more]').addEventListener('click',()=>setMobileMore(!mobileMorePanel.classList.contains('open')));
+  root.querySelectorAll('[data-mobile-view]').forEach(btn=>{const source=root.querySelector(`nav button[data-view="${btn.dataset.mobileView}"] .nav-icon`);btn.querySelector('.nav-icon').innerHTML=source?.innerHTML||'';btn.addEventListener('click',()=>switchView(btn.dataset.mobileView));});
+  document.getElementById('mobile-more-close').addEventListener('click',()=>setMobileMore(false));
+  mobileMoreBackdrop.addEventListener('click',()=>setMobileMore(false));
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&mobileMorePanel.classList.contains('open'))setMobileMore(false);});
   root.querySelectorAll('[data-go-view]').forEach(btn=>btn.addEventListener('click',()=>switchView(btn.dataset.goView)));
 
   function renderDashboard(){
@@ -2029,6 +2258,15 @@
   document.getElementById('client-period').addEventListener('change',renderClientAnalytics);document.getElementById('client-search').addEventListener('input',renderClientAnalytics);
 
   // ---------- tema claro/escuro compartilhado com o portal de produtos ----------
+  const DENSITY_KEY='hl_density';
+  const densityButton=document.getElementById('density-toggle-btn');
+  function applyDensity(mode){
+    const compact=mode==='compact';root.classList.toggle('density-compact',compact);
+    densityButton.setAttribute('aria-pressed',String(compact));densityButton.textContent=compact?'Espaçar':'Compactar';densityButton.title=compact?'Usar visual mais espaçado':'Exibir mais informações na tela';
+  }
+  try{applyDensity(localStorage.getItem(DENSITY_KEY)||'comfortable');}catch(e){applyDensity('comfortable');}
+  densityButton.addEventListener('click',()=>{const next=root.classList.contains('density-compact')?'comfortable':'compact';applyDensity(next);try{localStorage.setItem(DENSITY_KEY,next);}catch(e){}showToast(next==='compact'?'Modo compacto ativado.':'Modo confortável ativado.');});
+
   const THEME_KEY = 'hl_theme';
   function applyTheme(theme){
     const dark=theme==='dark'; root.classList.toggle('theme-dark',dark); document.body.style.background=dark?'#0A0A0D':'#F7F4EF';
