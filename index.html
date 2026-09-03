@@ -1049,7 +1049,7 @@
     await setJSON('custos_config_initialized',true);
   }
   document.getElementById('cfg-empresa-save-btn').addEventListener('click', async ()=>{
-    EMPRESA = {
+    const nextEmpresa = {
       pix: document.getElementById('cfg-empresa-pix').value.trim(),
       prazo: document.getElementById('cfg-empresa-prazo').value.trim(),
       validade: document.getElementById('cfg-empresa-validade').value.trim(),
@@ -1057,7 +1057,8 @@
       portfolioUrl: document.getElementById('cfg-empresa-portfolio-url').value.trim(),
     };
     try{
-      await setJSON('empresa_config', EMPRESA);
+      await setJSON('empresa_config', nextEmpresa);
+      EMPRESA = nextEmpresa;
       applyProductsPortalLink();
       document.getElementById('cfg-empresa-msg').innerHTML = '<div class="msg ok">Dados salvos! Já valem pros próximos orçamentos.</div>';
     }catch(e){ document.getElementById('cfg-empresa-msg').innerHTML=`<div class="msg err">${escapeHtml(e.message)}</div>`; }
@@ -1076,7 +1077,7 @@
     }catch(e){ alert(e.message); }
   });
 
-  const CATALOG_PORTAL_URL='https://heitorlabs.github.io/heitorlabs/';
+  const CATALOG_PORTAL_URL='https://heitorlabs.github.io/heitorlabs/?internal=admin';
   let catalogAdminStarted=false;
   function loadCatalogAdmin(){
     const frame=document.getElementById('catalog-admin-frame'),status=document.getElementById('catalog-admin-status');if(!frame)return;
@@ -1084,7 +1085,6 @@
     frame.addEventListener('load',()=>{
       try{
         const doc=frame.contentDocument;if(!doc)throw new Error('indisponível');
-        const adminButton=doc.querySelector('button[data-view="admin"]');if(adminButton)adminButton.click();
         const prepare=()=>{
           try{
             doc.querySelector('.topbar')?.style.setProperty('display','none');doc.querySelector('footer')?.style.setProperty('display','none');
@@ -1988,19 +1988,26 @@
   }
   function updatePedPurpose(){const purpose=document.getElementById('ped-purpose').value,isSale=purpose==='Venda',value=document.getElementById('ped-value');value.disabled=!isSale;if(!isSale)value.value='0';document.getElementById('ped-client').placeholder=isSale?'Ex.: Maria':purpose==='Brinde'?'Destinatário do brinde (opcional)':'Uso interno / responsável (opcional)';}
   document.getElementById('ped-purpose').addEventListener('change',updatePedPurpose);updatePedPurpose();
+  let orderSaveBusy=false;
   document.getElementById('ped-add-btn').addEventListener('click', async ()=>{
+    if(orderSaveBusy)return;
+    const addButton=document.getElementById('ped-add-btn');
     const client = document.getElementById('ped-client').value.trim();
     const desc = document.getElementById('ped-desc').value.trim();
     const purpose=document.getElementById('ped-purpose').value,value=purpose==='Venda'?(parseFloat(document.getElementById('ped-value').value)||0):0,cost=parseFloat(document.getElementById('ped-cost').value)||0;
     const deliveryDate = document.getElementById('ped-delivery').value || null;
-    if(!desc) return;
+    if(!desc){alert('Descreva o produto ou serviço antes de adicionar à fila.');document.getElementById('ped-desc').focus();return;}
     if(purpose==='Venda'&&value<=0){alert('Informe o valor da venda.');return;}
     if(purpose!=='Venda'&&cost<=0){alert('Para brinde ou uso próprio, informe o custo de produção.');return;}
-    const current=await getJSON('producao_pedidos',PEDIDOS),id=nextSeqId(current,'PRD');
-    const next=[...current,{id,client,desc,purpose,value,cost,status:'Pendente',date:todayISO(),deliveryDate,statusHistory:[{type:'status',status:'Pendente',at:new Date().toISOString(),label:'Pedido incluído'}]}];
-    await setJSON('producao_pedidos',next);PEDIDOS=next;
-    document.getElementById('ped-client').value='';document.getElementById('ped-desc').value='';document.getElementById('ped-purpose').value='Venda';document.getElementById('ped-value').value='';document.getElementById('ped-cost').value='';document.getElementById('ped-delivery').value='';updatePedPurpose();
-    renderPedidos();
+    orderSaveBusy=true;addButton.disabled=true;addButton.textContent='Salvando…';
+    try{
+      const current=await getJSON('producao_pedidos',PEDIDOS),id=nextSeqId(current,'PRD');
+      const next=[...current,{id,client,desc,purpose,value,cost,status:'Pendente',date:todayISO(),deliveryDate,statusHistory:[{type:'status',status:'Pendente',at:new Date().toISOString(),label:'Pedido incluído'}]}];
+      await setJSON('producao_pedidos',next);PEDIDOS=next;
+      document.getElementById('ped-client').value='';document.getElementById('ped-desc').value='';document.getElementById('ped-purpose').value='Venda';document.getElementById('ped-value').value='';document.getElementById('ped-cost').value='';document.getElementById('ped-delivery').value='';updatePedPurpose();
+      renderPedidos();
+    }catch(e){alert(e.message||'Não foi possível adicionar o pedido. Tente novamente.');}
+    finally{orderSaveBusy=false;addButton.disabled=false;addButton.textContent='+ Adicionar à fila';}
   });
 
   function isPedidoAtrasado(p){
@@ -2111,7 +2118,7 @@
         <td><span class="tag ${statusTagClass[p.status]}">${p.status}</span>${p.archivedAt?'<br><span class="tag concluido" style="margin-top:5px;">Arquivado</span>':''}</td>
         <td><details><summary style="cursor:pointer;font-weight:700;">Ver datas e horários (${timeline.length})</summary><div style="min-width:235px;margin-top:8px;">${timeline.map(event=>`<div style="padding:6px 0;border-bottom:1px solid var(--line);"><strong>${escapeHtml(event.label||event.status||'Alteração')}</strong><br><small>${escapeHtml(orderEventDate(event))}</small></div>`).join('')}</div></details><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">${p.status==='Concluído'||p.status==='Pago'?`<button class="btn secondary small" data-finance-ped="${p.id}">${RECEBIMENTOS.some(r=>(r.orderId===p.id||r.sourceOrderId===p.id)&&r.status!=='Estornado'&&r.status!=='Cancelado')?'Editar financeiro':'Enviar ao financeiro'}</button>`:''}${p.archivedAt?`<button class="btn secondary small" data-restore-ped="${p.id}">Reexibir na fila</button>`:''}</div></td>
       </tr>`;
-    }).join('') : '<tr><td colspan="8" class="empty">Nenhum pedido na fila ainda.</td></tr>';
+    }).join('') : '<tr><td colspan="8"><div class="empty">Nenhum pedido na fila ainda.</div></td></tr>';
     root.querySelectorAll('#ped-list-table [data-finance-ped]').forEach(b=>b.addEventListener('click',()=>sendOrderToFinance(b.dataset.financePed)));
     root.querySelectorAll('#ped-list-table [data-restore-ped]').forEach(b=>b.addEventListener('click',async()=>{
       if(!confirm('Reexibir este pedido na coluna Pago?'))return;
