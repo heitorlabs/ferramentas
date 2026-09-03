@@ -226,6 +226,11 @@
   #app-root .toast-region{position:fixed;z-index:120;right:18px;bottom:18px;display:grid;gap:9px;width:min(390px,calc(100vw - 36px));}
   #app-root .toast{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--green);border-radius:12px;padding:13px 15px;box-shadow:0 16px 45px rgba(0,0,0,.2);font-size:14px;animation:toast-in .18s ease-out;}
   #app-root .toast.error{border-left-color:var(--red);}
+  #app-root .catalog-admin-shell{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 8px 28px rgba(22,18,25,.08);}
+  #app-root .catalog-admin-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 20px;border-bottom:1px solid var(--line);background:var(--panel-2);flex-wrap:wrap;}
+  #app-root .catalog-admin-head h2{margin:0 0 3px;}
+  #app-root .catalog-admin-frame{display:block;width:100%;height:max(760px,calc(100vh - 205px));border:0;background:#0a0a0d;}
+  #app-root .catalog-admin-status{padding:12px 18px;font-size:13px;color:var(--muted);border-bottom:1px solid var(--line);}
   #app-root :is(.brand-text,h2,h3,.btn,nav button){font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
   #app-root :is(.brand-sub,.summary-row,th){font-family:ui-monospace,SFMono-Regular,Consolas,monospace;}
   #app-root :is(.today-card,.today-item,.search-result){font-family:inherit;}
@@ -250,6 +255,7 @@
     #app-root .topbar-actions{width:100%;flex-wrap:wrap;}
     #app-root .global-search{min-width:100%;}
     #app-root .summary-row{align-items:flex-start;}
+    #app-root .catalog-admin-frame{height:calc(100vh - 245px);min-height:680px;}
   }
 </style>
 </head>
@@ -283,6 +289,7 @@
         <button data-view="orcamentos" class="mobile-secondary" title="Comercial · Orçamentos">▤<span> Orçamentos</span></button>
         <button data-view="pedidos" title="Operação · Fila de pedidos">▦<span> Produção</span></button>
         <button data-view="recebimentos" title="Gestão · Financeiro">$<span> Financeiro</span></button>
+        <button data-view="catalogo-admin" class="mobile-secondary" title="Gestão · Produtos e parceiros">◇<span> Produtos e parceiros</span></button>
         <button data-view="config" class="mobile-secondary" title="Administração · Configurações">⚙<span> Configurações</span></button>
         <button type="button" data-mobile-more title="Exibir todos os módulos" aria-expanded="false">•••<span> Mais</span></button>
       </nav>
@@ -301,6 +308,7 @@
             <button class="btn secondary" type="button" data-go-view="calculadora">Novo cálculo</button>
             <button class="btn secondary" type="button" data-go-view="orcamentos">Novo orçamento</button>
             <button class="btn secondary" type="button" data-go-view="recebimentos">Novo lançamento</button>
+            <button class="btn secondary" type="button" data-go-view="catalogo-admin">Gerenciar produtos e parceiros</button>
           </div>
         </div>
         <div class="today-grid" id="dashboard-kpis"></div>
@@ -519,6 +527,18 @@
       </div>
 
       <!-- ============ CONFIGURAÇÕES ============ -->
+      <!-- ============ PRODUTOS E PARCEIROS ============ -->
+      <div class="view" data-view="catalogo-admin" style="display:none;">
+        <div class="catalog-admin-shell">
+          <div class="catalog-admin-head">
+            <div><h2>Produtos e parceiros</h2><p class="hint" style="margin:0;">Administre a vitrine e o consignado sem sair das Ferramentas.</p></div>
+            <a class="btn secondary" href="https://heitorlabs.github.io/heitorlabs/" target="_blank" rel="noopener">Abrir vitrine pública</a>
+          </div>
+          <div id="catalog-admin-status" class="catalog-admin-status">O painel administrativo será carregado usando sua sessão segura.</div>
+          <iframe id="catalog-admin-frame" class="catalog-admin-frame" title="Painel administrativo de produtos e parceiros" loading="lazy" sandbox="allow-scripts allow-same-origin allow-forms allow-downloads allow-modals allow-popups" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        </div>
+      </div>
+
       <div class="view" data-view="config" style="display:none;">
         <div class="panel">
           <h3>🏢 Dados pro orçamento em PDF</h3>
@@ -872,11 +892,33 @@
     }catch(e){ alert(e.message); }
   });
 
+  const CATALOG_PORTAL_URL='https://heitorlabs.github.io/heitorlabs/';
+  let catalogAdminStarted=false;
+  function loadCatalogAdmin(){
+    const frame=document.getElementById('catalog-admin-frame'),status=document.getElementById('catalog-admin-status');if(!frame)return;
+    if(catalogAdminStarted)return;catalogAdminStarted=true;status.textContent='Conectando ao painel administrativo…';
+    frame.addEventListener('load',()=>{
+      try{
+        const doc=frame.contentDocument;if(!doc)throw new Error('indisponível');
+        const adminButton=doc.querySelector('button[data-view="admin"]');if(adminButton)adminButton.click();
+        const prepare=()=>{
+          try{
+            doc.querySelector('.topbar')?.style.setProperty('display','none');doc.querySelector('footer')?.style.setProperty('display','none');
+            doc.querySelector('#admin-logout-btn')?.style.setProperty('display','none');
+            doc.body.style.margin='0';doc.documentElement.style.scrollBehavior='smooth';
+            status.textContent=doc.querySelector('#admin-dashboard')?.style.display!=='none'?'Painel conectado. As alterações são refletidas imediatamente na vitrine e na área dos parceiros.':'A sessão ainda está sendo confirmada…';
+          }catch(e){status.textContent='Painel carregado. Use sua conta administrativa se uma confirmação de acesso aparecer.';}
+        };
+        setTimeout(prepare,350);setTimeout(prepare,1300);
+      }catch(e){status.textContent='Painel carregado. Quando esta página estiver publicada no GitHub, a sessão administrativa será compartilhada automaticamente.';}
+    },{once:true});
+    frame.src=CATALOG_PORTAL_URL;
+  }
   function switchView(view){
     const target=root.querySelector(`.view[data-view="${view}"]`);if(!target)return;
     root.querySelectorAll('nav button[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
     root.querySelectorAll('.view').forEach(v=>v.style.display='none');target.style.display='block';
-    if(view==='recebimentos')renderRecebimentos();if(view==='solicitacoes')renderRequests();if(view==='inicio')renderDashboard();
+    if(view==='recebimentos')renderRecebimentos();if(view==='solicitacoes')renderRequests();if(view==='inicio')renderDashboard();if(view==='catalogo-admin')loadCatalogAdmin();
     root.querySelector('nav')?.classList.remove('mobile-more-open');const more=root.querySelector('[data-mobile-more]');if(more){more.setAttribute('aria-expanded','false');more.querySelector('span').textContent=' Mais';}window.scrollTo({top:0,behavior:'smooth'});
   }
   root.querySelectorAll('nav button[data-view]').forEach(btn=>{
@@ -904,7 +946,8 @@
     ...ORCAMENTOS.filter(x=>has(x.id,x.clientName,x.client,x.items?.map(i=>i.desc||i.description).join(' '))).map(x=>({view:'orcamentos',type:'Orçamento',title:x.clientName||x.client||x.id,meta:x.id})),
     ...PEDIDOS.filter(x=>has(x.id,x.client,x.desc,x.status)).map(x=>({view:'pedidos',type:'Produção',title:x.client||x.desc,meta:`${x.id} · ${x.status}`})),
     ...RECEBIMENTOS.filter(x=>has(x.id,x.client,x.description,x.orderId)).map(x=>({view:'recebimentos',type:'Financeiro',title:x.client||x.description||x.id,meta:`${x.id} · ${fmtMoney(x.value)}`})),
-    ...CALCULOS.filter(x=>has(x.id,x.inputs?.['calc-product-name'],x.inputs?.['calc-client'],x.inputs?.['calc-product-details'])).map(x=>({view:'calculadora',type:'Cálculo',title:x.inputs?.['calc-product-name']||x.id,meta:x.inputs?.['calc-client']||x.id}))].slice(0,18)}
+    ...CALCULOS.filter(x=>has(x.id,x.inputs?.['calc-product-name'],x.inputs?.['calc-client'],x.inputs?.['calc-product-details'])).map(x=>({view:'calculadora',type:'Cálculo',title:x.inputs?.['calc-product-name']||x.id,meta:x.inputs?.['calc-client']||x.id})),
+    ...PRODUCTS.filter(x=>has(x.code,x.name,x.categories?.join?.(' '),x.category)).map(x=>({view:'catalogo-admin',type:'Produto',title:x.name||x.code,meta:x.code||'Produto da vitrine'}))].slice(0,18)}
   globalSearch.addEventListener('input',()=>{const rows=globalSearchRows(globalSearch.value);globalResults.style.display=globalSearch.value.trim().length>=2?'block':'none';globalResults.innerHTML=rows.length?rows.map(x=>`<button class="search-result" data-search-view="${x.view}" style="width:100%;color:inherit;text-align:left;background:transparent;border-left:0;border-right:0;border-top:0"><span class="tag producao">${x.type}</span><span><strong>${escapeHtml(x.title)}</strong><small>${escapeHtml(x.meta)}</small></span><span aria-hidden="true">→</span></button>`).join(''):'<div class="empty">Nenhum resultado encontrado.</div>';globalResults.querySelectorAll('[data-search-view]').forEach(b=>b.addEventListener('click',()=>{switchView(b.dataset.searchView);globalSearch.value='';globalResults.style.display='none'}));});
   document.addEventListener('click',e=>{if(!e.target.closest('.global-search'))globalResults.style.display='none';});
   globalSearch.addEventListener('keydown',e=>{if(e.key==='Escape'){globalSearch.value='';globalResults.style.display='none';globalSearch.blur();}});
@@ -1990,6 +2033,7 @@
   function applyTheme(theme){
     const dark=theme==='dark'; root.classList.toggle('theme-dark',dark); document.body.style.background=dark?'#0A0A0D':'#F7F4EF';
     const btn=document.getElementById('theme-toggle-btn'); if(btn) btn.textContent=dark?'☀️':'🌙';
+    try{const child=document.getElementById('catalog-admin-frame')?.contentDocument?.getElementById('portal-root');if(child){child.classList.toggle('theme-dark',dark);child.classList.toggle('theme-light',!dark);}}catch(e){}
   }
   document.getElementById('theme-toggle-btn').addEventListener('click',()=>{ const next=root.classList.contains('theme-dark')?'light':'dark'; applyTheme(next); try{localStorage.setItem(THEME_KEY,next);}catch(e){} });
   try{ applyTheme(localStorage.getItem(THEME_KEY)||'light'); }catch(e){ applyTheme('light'); }
