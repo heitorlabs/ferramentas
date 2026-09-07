@@ -234,6 +234,13 @@
   #app-root .catalog-admin-head h2{margin:0 0 3px;}
   #app-root .catalog-admin-frame{display:block;width:100%;height:max(760px,calc(100vh - 205px));border:0;background:#0a0a0d;}
   #app-root .catalog-admin-status{padding:12px 18px;font-size:13px;color:var(--muted);border-bottom:1px solid var(--line);}
+  #app-root .catalog-admin-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;}
+  #app-root .catalog-admin-shell.focus-mode{position:fixed;z-index:200;inset:0;display:flex;flex-direction:column;border:0;border-radius:0;background:var(--panel);box-shadow:none;}
+  #app-root .catalog-admin-shell.focus-mode .catalog-admin-head{flex:0 0 auto;padding:11px 16px;}
+  #app-root .catalog-admin-shell.focus-mode .catalog-admin-head h2{font-size:18px;}
+  #app-root .catalog-admin-shell.focus-mode .catalog-admin-head .hint,#app-root .catalog-admin-shell.focus-mode .catalog-admin-status{display:none;}
+  #app-root .catalog-admin-shell.focus-mode .catalog-admin-frame{flex:1 1 auto;height:auto;min-height:0;}
+  body.catalog-focus-open{overflow:hidden;}
   #app-root :is(.brand-text,h2,h3,.btn,nav button){font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
   #app-root :is(.brand-sub,.summary-row,th){font-family:ui-monospace,SFMono-Regular,Consolas,monospace;}
   #app-root :is(.today-card,.today-item,.search-result){font-family:inherit;}
@@ -708,10 +715,10 @@
         <div class="catalog-admin-shell">
           <div class="catalog-admin-head">
             <div><h2>Produtos e parceiros</h2><p class="hint" style="margin:0;">Administre a vitrine e o consignado sem sair das Ferramentas.</p></div>
-            <a class="btn secondary" href="https://heitorlabs.github.io/heitorlabs/" target="_blank" rel="noopener">Abrir vitrine pública</a>
+            <div class="catalog-admin-actions"><button type="button" class="btn" id="catalog-focus-btn" aria-pressed="false">Ampliar área de trabalho</button><a class="btn secondary" href="https://heitorlabs.github.io/heitorlabs/" target="_blank" rel="noopener">Abrir vitrine pública</a></div>
           </div>
           <div id="catalog-admin-status" class="catalog-admin-status">O painel administrativo será carregado usando sua sessão segura.</div>
-          <iframe id="catalog-admin-frame" class="catalog-admin-frame" title="Painel administrativo de produtos e parceiros" loading="lazy" sandbox="allow-scripts allow-same-origin allow-forms allow-downloads allow-modals allow-popups" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+          <iframe id="catalog-admin-frame" class="catalog-admin-frame" title="Painel administrativo de produtos e parceiros" loading="lazy" sandbox="allow-scripts allow-same-origin allow-forms allow-downloads allow-modals allow-popups" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
         </div>
       </div>
 
@@ -1081,6 +1088,7 @@
   let catalogAdminStarted=false;
   function loadCatalogAdmin(){
     const frame=document.getElementById('catalog-admin-frame'),status=document.getElementById('catalog-admin-status');if(!frame)return;
+    setCatalogFocus(true);
     if(catalogAdminStarted)return;catalogAdminStarted=true;status.textContent='Conectando ao painel administrativo…';
     frame.addEventListener('load',()=>{
       try{
@@ -1098,6 +1106,14 @@
     },{once:true});
     frame.src=CATALOG_PORTAL_URL;
   }
+  function setCatalogFocus(active){
+    const shell=document.querySelector('.catalog-admin-shell'),button=document.getElementById('catalog-focus-btn');
+    if(!shell||!button)return;
+    shell.classList.toggle('focus-mode',active);document.body.classList.toggle('catalog-focus-open',active);
+    button.setAttribute('aria-pressed',String(active));button.textContent=active?'Sair do modo ampliado':'Ampliar área de trabalho';
+  }
+  document.getElementById('catalog-focus-btn').addEventListener('click',()=>setCatalogFocus(!document.querySelector('.catalog-admin-shell').classList.contains('focus-mode')));
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&document.querySelector('.catalog-admin-shell')?.classList.contains('focus-mode'))setCatalogFocus(false);});
   const VIEW_CONTEXT={
     calculadora:{group:'Operação',title:'Calculadora',description:'Calcule custos, defina preços e consulte os cálculos já salvos.'},
     solicitacoes:{group:'Comercial',title:'Solicitações',description:'Registre o que cada cliente pediu antes de localizar produtos e valores.'},
