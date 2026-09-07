@@ -558,7 +558,7 @@
             <div class="field" style="flex:0;align-self:flex-end;"><button class="btn secondary small" id="calc-history-refresh" type="button">Atualizar lista</button></div>
           </div>
           <p class="hint" id="calc-history-count"></p>
-          <div style="overflow-x:auto;"><table><thead><tr><th>Data</th><th>Produto / detalhes</th><th>Cliente</th><th>Quantidade</th><th>Custo total</th><th>Preço por peça</th><th>Valor total</th><th>Ação</th></tr></thead><tbody id="calc-history-body"></tbody></table></div>
+          <div style="overflow-x:auto;"><table><thead><tr><th>Data</th><th>Produto / detalhes</th><th>Cliente</th><th>Quantidade</th><th>Custo total</th><th>Custo por peça</th><th>Preço por peça</th><th>Valor total</th><th>Ação</th></tr></thead><tbody id="calc-history-body"></tbody></table></div>
         </div>
       </div>
 
@@ -1420,9 +1420,10 @@
     const tributoValor = valorFinal * (taxPct/100);
     const lucro = valorFinal - tributoValor - custosTotal;
     const margemReal = valorFinal>0?(lucro/valorFinal)*100:0;
+    const custoPorPeca = custosTotal / qtyPieces;
     const precoPorPeca = valorFinal / qtyPieces;
 
-    return { equipCost, materialCost, shippingCost, extrasCost, fixedCost, custosTotal, valorFinal, tributoValor, lucro, margemReal, precoPorPeca, qtyPieces };
+    return { equipCost, materialCost, shippingCost, extrasCost, fixedCost, custosTotal, custoPorPeca, valorFinal, tributoValor, lucro, margemReal, precoPorPeca, qtyPieces };
   }
 
   function updateCalcSummary(){
@@ -1434,6 +1435,7 @@
       <div class="summary-row"><span>Frete (repassado sem acréscimo)</span><span>${fmtMoney(r.shippingCost)}</span></div>
       <div class="summary-row"><span>Extras</span><span>${fmtMoney(r.extrasCost)}</span></div>
       <div class="summary-row" style="border-top:1px solid var(--line);margin-top:6px;padding-top:8px;"><span>Custos totais</span><span>${fmtMoney(r.custosTotal)}</span></div>
+      <div class="summary-row" style="color:var(--teal);"><span>Custo por peça (${r.qtyPieces}x)</span><span><strong>${fmtMoney(r.custoPorPeca)}</strong></span></div>
       <div class="summary-row"><span>Tributo</span><span>${fmtMoney(r.tributoValor)}</span></div>
       <div class="summary-row profit"><span>Lucro estimado</span><span>${fmtMoney(r.lucro)}</span></div>
       <div class="summary-row"><span>Margem real sobre a venda</span><span>${r.margemReal.toFixed(1).replace('.',',')}%</span></div>
@@ -1515,8 +1517,8 @@
       <td title="Última atualização">${escapeHtml(new Date(r.updatedAt).toLocaleDateString('pt-BR'))}</td>
       <td><strong>${escapeHtml(r.inputs['calc-product-name'])}</strong><div class="hint">${escapeHtml(r.inputs['calc-product-details'])}</div></td>
       <td>${escapeHtml(r.inputs['calc-client']||'Não informado')}</td><td>${r.result.qtyPieces}</td>
-      <td>${fmtMoney(r.result.custosTotal)}</td><td>${fmtMoney(r.result.precoPorPeca)}</td><td><strong>${fmtMoney(r.result.valorFinal)}</strong></td>
-      <td><button type="button" class="btn secondary small" data-edit-calc="${escapeHtml(r.id)}">Consultar / editar</button></td></tr>`).join('')||'<tr><td colspan="8">'+(CALCULOS.length?'Nenhum cálculo corresponde à busca.':'Nenhum cálculo salvo. Preencha a calculadora e clique em Salvar cálculo.')+'</td></tr>';
+      <td>${fmtMoney(r.result.custosTotal)}</td><td>${fmtMoney(r.result.custoPorPeca!=null?r.result.custoPorPeca:r.result.custosTotal/Math.max(1,r.result.qtyPieces||1))}</td><td>${fmtMoney(r.result.precoPorPeca)}</td><td><strong>${fmtMoney(r.result.valorFinal)}</strong></td>
+      <td><button type="button" class="btn secondary small" data-edit-calc="${escapeHtml(r.id)}">Consultar / editar</button></td></tr>`).join('')||'<tr><td colspan="9">'+(CALCULOS.length?'Nenhum cálculo corresponde à busca.':'Nenhum cálculo salvo. Preencha a calculadora e clique em Salvar cálculo.')+'</td></tr>';
     document.querySelectorAll('[data-edit-calc]').forEach(btn=>btn.addEventListener('click',()=>openSavedCalc(btn.dataset.editCalc)));
   }
   function openSavedCalc(id){
