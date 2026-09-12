@@ -482,7 +482,8 @@
   #app-root .shortcut-editor.open{display:block}.shortcut-options{display:flex;gap:8px;flex-wrap:wrap}.shortcut-options label{display:flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid #514857;border-radius:9px;font-size:12px;cursor:pointer;}
   #app-root .mobile-primary-action{display:none;}
   @media(max-width:760px){
-    #app-root .save-state{position:fixed;right:12px;top:10px;z-index:68;padding:6px 9px;border:1px solid var(--line);border-radius:999px;background:var(--panel);box-shadow:0 5px 18px rgba(0,0,0,.1)}
+    #app-root .save-state{display:none;position:fixed;right:12px;top:10px;z-index:68;padding:6px 9px;border:1px solid var(--line);border-radius:999px;background:var(--panel);box-shadow:0 5px 18px rgba(0,0,0,.1)}
+    #app-root .save-state.saving,#app-root .save-state.saved,#app-root .save-state.error{display:inline-flex;}
     #app-root .mobile-primary-action.show{position:fixed;z-index:58;right:12px;bottom:calc(72px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:center;min-height:46px;max-width:calc(100vw - 24px);padding:10px 17px;border:0;border-radius:14px;background:var(--grad);color:#0a0a0d;font-weight:800;box-shadow:0 12px 28px rgba(0,0,0,.25);}
     #app-root .mode-chip{margin-left:0}.long-panel-toggle{min-height:40px!important}
   }
@@ -997,13 +998,13 @@
   }
   async function setJSON(key, value){
     if(readFailures.has(key)) throw new Error(`A gravação de ${key} foi bloqueada porque os dados não foram carregados com segurança.`);
-    setSaveState('saving','Salvando…');
+    activeSaveCount++;if(activeSaveCount===1){saveBatchFailed=false;setSaveState('saving','Salvando…');}
     try{
-      const { error } = await supabaseClient.from('kv_store').upsert({ key, value, updated_at: new Date().toISOString() });
-      if(error){ console.error('Erro ao salvar', key, error); throw new Error(`Não foi possível salvar ${key}. Seus dados continuam na tela.`); }
-      setSaveState('saved','Salvo');
+      const write=async()=>{const {error}=await supabaseClient.from('kv_store').upsert({key,value,updated_at:new Date().toISOString()});if(error)throw error;};
+      if(navigator.locks?.request)await navigator.locks.request(`hl-kv-${key}`,write);else await write();
       return true;
-    }catch(e){ setSaveState('error','Falha ao salvar');console.error(e); throw e instanceof Error?e:new Error(`Não foi possível salvar ${key}.`); }
+    }catch(e){saveBatchFailed=true;console.error('Erro ao salvar',key,e);throw new Error(`Não foi possível salvar ${key}. Seus dados continuam na tela.`);}
+    finally{activeSaveCount=Math.max(0,activeSaveCount-1);if(activeSaveCount===0)setSaveState(saveBatchFailed?'error':'saved',saveBatchFailed?'Falha ao salvar':'Salvo');}
   }
   window.addEventListener('unhandledrejection',event=>{
     if(event.reason instanceof Error){event.preventDefault();alert(event.reason.message+' Os dados preenchidos foram mantidos; atualize a página antes de tentar novamente.');}
@@ -1017,7 +1018,7 @@
     setTimeout(()=>item.remove(),5200);
   }
   window.alert=message=>showToast(message,/erro|não foi possível|incorret|inválid|falh/i.test(String(message))?'error':'ok');
-  let saveStateTimer=null;
+  let saveStateTimer=null,activeSaveCount=0,saveBatchFailed=false;
   function setSaveState(state,text){
     const el=document.getElementById('global-save-state');if(!el)return;
     clearTimeout(saveStateTimer);el.className=`save-state ${state||''}`;el.textContent=text||'Pronto';
