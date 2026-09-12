@@ -467,6 +467,25 @@
   }
   @keyframes mobile-sheet-in{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
   @media(prefers-reduced-motion:reduce){#app-root *,#app-root *:before,#app-root *:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}}
+  /* PACOTE 6 — experiência visual e navegação */
+  #app-root .save-state{display:inline-flex;align-items:center;gap:6px;min-width:64px;color:var(--muted);font-size:11px;font-weight:700;transition:.2s;}
+  #app-root .save-state:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--muted);}
+  #app-root .save-state.saving{color:var(--mustard,#b67b16)}#app-root .save-state.saving:before{background:currentColor;animation:pulse-save .8s infinite alternate}
+  #app-root .save-state.saved{color:var(--green)}#app-root .save-state.saved:before{background:currentColor}
+  #app-root .save-state.error{color:var(--red)}#app-root .save-state.error:before{background:currentColor}
+  @keyframes pulse-save{to{opacity:.25}}
+  #app-root .mode-chip{display:inline-flex;align-items:center;margin-left:auto;padding:5px 9px;border-radius:999px;background:color-mix(in srgb,var(--violet) 12%,var(--panel));color:var(--violet);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;}
+  #app-root .long-panel{position:relative;padding-top:52px;transition:max-height .24s ease;}
+  #app-root .long-panel-toggle{position:absolute;right:14px;top:12px;z-index:3;min-height:34px;padding:6px 11px;border:1px solid var(--line);border-radius:9px;background:var(--panel-2);color:var(--ink);font-size:11px;font-weight:750;cursor:pointer;}
+  #app-root .long-panel.ui-collapsed{max-height:98px!important;overflow:hidden;}
+  #app-root .shortcut-editor{display:none;margin-top:14px;padding:14px;border:1px solid #453d49;border-radius:12px;background:#211d25;color:#fff;}
+  #app-root .shortcut-editor.open{display:block}.shortcut-options{display:flex;gap:8px;flex-wrap:wrap}.shortcut-options label{display:flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid #514857;border-radius:9px;font-size:12px;cursor:pointer;}
+  #app-root .mobile-primary-action{display:none;}
+  @media(max-width:760px){
+    #app-root .save-state{position:fixed;right:12px;top:10px;z-index:68;padding:6px 9px;border:1px solid var(--line);border-radius:999px;background:var(--panel);box-shadow:0 5px 18px rgba(0,0,0,.1)}
+    #app-root .mobile-primary-action.show{position:fixed;z-index:58;right:12px;bottom:calc(72px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:center;min-height:46px;max-width:calc(100vw - 24px);padding:10px 17px;border:0;border-radius:14px;background:var(--grad);color:#0a0a0d;font-weight:800;box-shadow:0 12px 28px rgba(0,0,0,.25);}
+    #app-root .mode-chip{margin-left:0}.long-panel-toggle{min-height:40px!important}
+  }
 </style>
 </head>
 <body>
@@ -512,7 +531,7 @@
         <button type="button" data-mobile-more title="Exibir todos os módulos" aria-expanded="false"><span class="nav-icon">•••</span><span class="nav-label">Mais</span></button>
       </nav>
       <div class="global-search"><label for="global-search" class="sr-only">Buscar em todo o portal</label><input id="global-search" type="search" placeholder="Buscar cliente, produto ou número…" autocomplete="off"><div id="global-search-results" class="search-results" style="display:none;"></div></div>
-      <div class="topbar-actions" style="display:flex;gap:7px;align-items:center;"><a class="btn secondary small" id="products-portal-btn" href="#" target="_blank" rel="noopener" style="display:none;">Produtos</a><button type="button" class="btn secondary small" id="density-toggle-btn" aria-pressed="false" title="Exibir mais informações na tela">Compactar</button><button type="button" id="theme-toggle-btn" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">🌙</button><button class="btn secondary small" id="logout-btn">Sair</button></div>
+      <div class="topbar-actions" style="display:flex;gap:7px;align-items:center;"><span id="global-save-state" class="save-state" aria-live="polite">Pronto</span><a class="btn secondary small" id="products-portal-btn" href="#" target="_blank" rel="noopener" style="display:none;">Produtos</a><button type="button" class="btn secondary small" id="density-toggle-btn" aria-pressed="false" title="Exibir mais informações na tela">Compactar</button><button type="button" id="theme-toggle-btn" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">🌙</button><button class="btn secondary small" id="logout-btn">Sair</button></div>
     </div>
 
     <div class="mobile-more-backdrop" id="mobile-more-backdrop" aria-hidden="true"></div>
@@ -528,19 +547,21 @@
     </div>
 
     <main>
-      <div class="view-context" id="view-context" style="display:none;" aria-live="polite"><div class="view-context-icon" id="view-context-icon" aria-hidden="true"></div><div class="view-context-copy"><span class="view-context-kicker" id="view-context-kicker"></span><h1 id="view-context-title"></h1><p id="view-context-description"></p></div></div>
+      <div class="view-context" id="view-context" style="display:none;" aria-live="polite"><div class="view-context-icon" id="view-context-icon" aria-hidden="true"></div><div class="view-context-copy"><span class="view-context-kicker" id="view-context-kicker"></span><h1 id="view-context-title"></h1><p id="view-context-description"></p></div><span id="view-mode-chip" class="mode-chip">Consulta</span></div>
       <!-- ============ INÍCIO / HOJE ============ -->
       <div class="view" data-view="inicio">
         <div class="panel dashboard-hero">
           <h2 id="dashboard-greeting">Visão geral de hoje</h2>
           <p class="hint">Veja o que precisa de atenção e continue o trabalho de onde parou.</p>
-          <div class="quick-actions">
+          <div class="quick-actions" id="dashboard-shortcuts">
             <button class="btn" type="button" data-go-view="solicitacoes">Nova solicitação</button>
             <button class="btn secondary" type="button" data-go-view="calculadora">Novo cálculo</button>
             <button class="btn secondary" type="button" data-go-view="orcamentos">Novo orçamento</button>
             <button class="btn secondary" type="button" data-go-view="recebimentos">Novo lançamento</button>
             <button class="btn secondary" type="button" data-go-view="catalogo-admin">Gerenciar produtos e parceiros</button>
+            <button class="btn secondary" type="button" id="customize-shortcuts-btn">⚙ Personalizar</button>
           </div>
+          <div class="shortcut-editor" id="shortcut-editor"><strong>Escolha até cinco atalhos</strong><p style="font-size:11px;color:#c9c3cc;">A preferência fica salva neste aparelho.</p><div class="shortcut-options" id="shortcut-options"></div></div>
         </div>
         <div class="today-grid" id="dashboard-kpis"></div>
         <div class="today-columns">
@@ -937,6 +958,7 @@
     </main>
   </div>
   <div id="toast-region" class="toast-region" role="status" aria-live="polite"></div>
+  <button type="button" id="mobile-primary-action" class="mobile-primary-action"></button>
 </div>
 
 <script>
@@ -975,11 +997,13 @@
   }
   async function setJSON(key, value){
     if(readFailures.has(key)) throw new Error(`A gravação de ${key} foi bloqueada porque os dados não foram carregados com segurança.`);
+    setSaveState('saving','Salvando…');
     try{
       const { error } = await supabaseClient.from('kv_store').upsert({ key, value, updated_at: new Date().toISOString() });
       if(error){ console.error('Erro ao salvar', key, error); throw new Error(`Não foi possível salvar ${key}. Seus dados continuam na tela.`); }
+      setSaveState('saved','Salvo');
       return true;
-    }catch(e){ console.error(e); throw e instanceof Error?e:new Error(`Não foi possível salvar ${key}.`); }
+    }catch(e){ setSaveState('error','Falha ao salvar');console.error(e); throw e instanceof Error?e:new Error(`Não foi possível salvar ${key}.`); }
   }
   window.addEventListener('unhandledrejection',event=>{
     if(event.reason instanceof Error){event.preventDefault();alert(event.reason.message+' Os dados preenchidos foram mantidos; atualize a página antes de tentar novamente.');}
@@ -993,6 +1017,12 @@
     setTimeout(()=>item.remove(),5200);
   }
   window.alert=message=>showToast(message,/erro|não foi possível|incorret|inválid|falh/i.test(String(message))?'error':'ok');
+  let saveStateTimer=null;
+  function setSaveState(state,text){
+    const el=document.getElementById('global-save-state');if(!el)return;
+    clearTimeout(saveStateTimer);el.className=`save-state ${state||''}`;el.textContent=text||'Pronto';
+    if(state==='saved')saveStateTimer=setTimeout(()=>{el.className='save-state';el.textContent='Pronto';},2400);
+  }
 
   // ---------- estado ----------
   let CFG = { labor:[], fixed:[], equip:[], materials:[], shipping:[], extras:[], globals:{energyKwh:1.34, paybackMonths:12, depreciationPct:10, fixedHoursBase:160} };
@@ -1267,6 +1297,8 @@
     document.getElementById('view-context-description').textContent=meta.description;
     const icon=root.querySelector(`nav button[data-view="${view}"] .nav-icon`);
     document.getElementById('view-context-icon').innerHTML=icon?.innerHTML||'';
+    const mode=document.getElementById('view-mode-chip');
+    if(mode)mode.textContent=view==='inicio'?'Resumo':['calculadora'].includes(view)?'Cálculo':['partner-activity','catalogo-admin'].includes(view)?'Consulta':'Cadastro';
     bar.style.display='flex';
   }
   const mobileMorePanel=document.getElementById('mobile-more-panel'),mobileMoreBackdrop=document.getElementById('mobile-more-backdrop'),mobileMoreButton=root.querySelector('[data-mobile-more]');
@@ -1283,7 +1315,7 @@
     root.querySelectorAll('nav button[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
     root.querySelectorAll('.view').forEach(v=>v.style.display='none');target.style.display='block';
     updateViewContext(view);if(view==='recebimentos')renderRecebimentos();if(view==='solicitacoes')renderRequests();if(view==='inicio')renderDashboard();if(view==='catalogo-admin')loadCatalogAdmin();if(view==='partner-activity')loadPartnerActivity();
-    setMobileMore(false);window.scrollTo({top:0,behavior:'smooth'});
+    setMobileMore(false);window.scrollTo({top:0,behavior:'smooth'});setTimeout(()=>{updateMobilePrimaryAction();enhanceLongPanels();},80);
   }
   const SIDEBAR_STATE_KEY='hl_sidebar_collapsed';
   const sidebarToggle=document.getElementById('sidebar-toggle-btn');
@@ -1308,6 +1340,55 @@
   mobileMoreBackdrop.addEventListener('click',()=>setMobileMore(false));
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&mobileMorePanel.classList.contains('open'))setMobileMore(false);});
   root.querySelectorAll('[data-go-view]').forEach(btn=>btn.addEventListener('click',()=>switchView(btn.dataset.goView)));
+
+  const SHORTCUT_KEY='hl_dashboard_shortcuts';
+  const shortcutDefinitions=[
+    ['solicitacoes','Nova solicitação'],['calculadora','Novo cálculo'],['orcamentos','Novo orçamento'],
+    ['pedidos','Produção'],['recebimentos','Novo lançamento'],['catalogo-admin','Produtos e parceiros']
+  ];
+  function readShortcutPreference(){
+    try{const saved=JSON.parse(localStorage.getItem(SHORTCUT_KEY)||'null');if(Array.isArray(saved)&&saved.length)return saved.filter(v=>shortcutDefinitions.some(([id])=>id===v)).slice(0,5);}catch(e){}
+    return ['solicitacoes','calculadora','orcamentos','pedidos','recebimentos'];
+  }
+  function applyDashboardShortcuts(){
+    const selected=readShortcutPreference(),box=document.getElementById('dashboard-shortcuts');if(!box)return;
+    box.querySelectorAll('[data-go-view]').forEach(btn=>btn.style.display=selected.includes(btn.dataset.goView)?'inline-flex':'none');
+    document.querySelectorAll('#shortcut-options input').forEach(input=>input.checked=selected.includes(input.value));
+  }
+  function buildShortcutEditor(){
+    const options=document.getElementById('shortcut-options'),editor=document.getElementById('shortcut-editor'),toggle=document.getElementById('customize-shortcuts-btn');if(!options||!editor||!toggle)return;
+    options.innerHTML=shortcutDefinitions.map(([id,label])=>`<label><input type="checkbox" value="${id}"> ${label}</label>`).join('');
+    applyDashboardShortcuts();
+    options.addEventListener('change',event=>{const chosen=[...options.querySelectorAll('input:checked')].map(i=>i.value);if(chosen.length>5){event.target.checked=false;showToast('Escolha no máximo cinco atalhos.','error');return;}if(!chosen.length){event.target.checked=true;showToast('Mantenha pelo menos um atalho.','error');return;}try{localStorage.setItem(SHORTCUT_KEY,JSON.stringify(chosen));}catch(e){}applyDashboardShortcuts();showToast('Atalhos atualizados.');});
+    toggle.addEventListener('click',()=>{const open=editor.classList.toggle('open');toggle.setAttribute('aria-expanded',String(open));toggle.textContent=open?'Concluir':'⚙ Personalizar';});
+  }
+  buildShortcutEditor();
+
+  function updateMobilePrimaryAction(){
+    const dock=document.getElementById('mobile-primary-action'),view=root.dataset.currentView;if(!dock)return;
+    const preferred={calculadora:['calc-save-btn','Salvar cálculo'],solicitacoes:['sol-save','Salvar solicitação'],orcamentos:['orc-save-btn','Salvar orçamento'],pedidos:['ped-add-btn','Adicionar à fila'],recebimentos:['rec-add-btn','Registrar lançamento']}[view];
+    const source=preferred&&document.getElementById(preferred[0]);
+    const show=window.matchMedia('(max-width:700px)').matches&&source&&source.offsetParent!==null;
+    dock.classList.toggle('show',Boolean(show));dock.textContent=preferred?.[1]||'';dock.onclick=show?()=>source.click():null;
+  }
+  window.addEventListener('resize',updateMobilePrimaryAction,{passive:true});
+  document.addEventListener('click',event=>{
+    const edit=event.target.closest('[data-edit-rec],[data-edit-calc],[data-edit-sol],[data-edit-ped],[data-edit-orc],button');
+    if(edit&&(/editar/i.test(edit.textContent||'')||[...edit.attributes].some(a=>a.name.startsWith('data-edit-')))){const chip=document.getElementById('view-mode-chip');if(chip)chip.textContent='Edição';setTimeout(updateMobilePrimaryAction,60);}
+  },true);
+
+  const COLLAPSED_PANEL_KEY='hl_collapsed_panels';
+  function collapsedPanelKeys(){try{return new Set(JSON.parse(localStorage.getItem(COLLAPSED_PANEL_KEY)||'[]'));}catch(e){return new Set();}}
+  function enhanceLongPanels(){
+    const view=root.querySelector('.view[style*="display: block"]')||root.querySelector(`.view[data-view="${root.dataset.currentView}"]`);if(!view)return;
+    [...view.querySelectorAll(':scope > .panel, :scope > .content-grid > .panel')].forEach((panel,index)=>{
+      if(panel.dataset.uiEnhanced||panel.scrollHeight<650||panel.classList.contains('production-entry')||panel.id==='dashboard-shortcuts')return;
+      panel.dataset.uiEnhanced='1';panel.classList.add('long-panel');const key=`${view.dataset.view||'view'}-${index}`;panel.dataset.uiPanelKey=key;
+      const button=document.createElement('button');button.type='button';button.className='long-panel-toggle';button.setAttribute('aria-expanded','true');button.textContent='Reduzir seção';panel.prepend(button);
+      const saved=collapsedPanelKeys();if(saved.has(key)){panel.classList.add('ui-collapsed');button.textContent='Expandir seção';button.setAttribute('aria-expanded','false');}
+      button.addEventListener('click',()=>{panel.classList.toggle('ui-collapsed');const collapsed=panel.classList.contains('ui-collapsed'),keys=collapsedPanelKeys();collapsed?keys.add(key):keys.delete(key);try{localStorage.setItem(COLLAPSED_PANEL_KEY,JSON.stringify([...keys]));}catch(e){}button.textContent=collapsed?'Expandir seção':'Reduzir seção';button.setAttribute('aria-expanded',String(!collapsed));});
+    });
+  }
 
   function renderDashboard(){
     const today=todayISO(),openRequests=SOLICITACOES.filter(s=>!['Cancelado','Aceito / produção'].includes(requestStatus(s))&&!ORCAMENTOS.some(o=>o.sourceRequestId===s.id)),overdue=PEDIDOS.filter(isPedidoAtrasado),inProduction=PEDIDOS.filter(p=>p.status==='Em produção'&&!p.archivedAt),pendingMoney=RECEBIMENTOS.filter(r=>r.status==='Pendente'),month=monthKey(today),monthNet=RECEBIMENTOS.filter(r=>monthKey(r.date)===month&&transactionType(r)==='Entrada'&&r.status==='Recebido').reduce((s,r)=>s+receiptNet(r),0);
