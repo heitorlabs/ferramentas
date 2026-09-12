@@ -237,6 +237,9 @@
   #app-root .color-choice.selected{border-color:var(--violet);box-shadow:0 0 0 3px var(--focus-soft);color:var(--violet);}
   #app-root .color-swatch{width:22px;height:22px;flex:0 0 22px;border-radius:7px;border:1px solid rgba(0,0,0,.2);box-shadow:inset 0 0 0 1px rgba(255,255,255,.22);}
   #app-root .order-specs{display:flex;gap:5px;flex-wrap:wrap;margin:7px 0;}
+  #app-root .order-item-checklist{display:grid;gap:5px;margin:9px 0;}
+  #app-root .order-item-check{display:flex;align-items:center;gap:7px;width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--panel-2);color:var(--ink);text-align:left;font-size:11px;cursor:pointer;}
+  #app-root .order-item-check.done{opacity:.68;text-decoration:line-through;border-color:var(--green);}
   #app-root .order-spec{display:inline-flex;align-items:center;padding:3px 7px;border-radius:6px;background:var(--panel-2);color:var(--muted);font-size:10.5px;border:1px solid var(--line);}
   #app-root .advanced-panel>summary{cursor:pointer;padding:14px 16px;font-weight:750;list-style:none;min-height:48px;display:flex;align-items:center;justify-content:space-between;}
   #app-root .advanced-panel>summary:after{content:"＋";color:var(--violet);font-size:20px;}
@@ -691,7 +694,12 @@
           </div>
           <div class="production-tab-panel active" role="tabpanel" data-ped-panel="produto">
             <div class="row">
-              <div class="field" style="flex:1.4;"><label>Cliente ou canal</label><input id="ped-client" placeholder="Ex.: Mercado Livre, Instagram ou nome do cliente"></div>
+              <div class="field"><label>Canal da venda</label><select id="ped-channel"><option value="">Não informado</option><option>Mercado Livre</option><option>Instagram</option><option>WhatsApp</option><option>Presencial</option><option>Consignação</option><option>Shopee</option><option>Outro</option></select></div>
+              <div class="field" style="flex:1.4;"><label>Nome do cliente</label><input id="ped-client" placeholder="Nome da pessoa ou empresa"></div>
+              <div class="field"><label>Nº do pedido externo</label><input id="ped-external-order" placeholder="Ex.: pedido do Mercado Livre"></div>
+            </div>
+            <div class="row">
+              <div class="field" style="flex:1.2;"><label>Buscar no catálogo</label><select id="ped-catalog-product"><option value="">Produto manual</option></select></div>
               <div class="field" style="flex:2;"><label>Produto *</label><input id="ped-product" placeholder="Ex.: Vasilha pet personalizada 750 ml"></div>
               <div class="field" style="max-width:120px;"><label>Quantidade</label><input id="ped-qty" type="number" min="1" step="1" value="1"></div>
               <div class="field"><label>Finalidade</label><select id="ped-purpose"><option>Venda</option><option>Brinde</option><option>Uso próprio</option></select></div>
@@ -722,7 +730,7 @@
             <div class="row"><div class="field"><label>Nome ou texto a personalizar</label><input id="ped-personalization" placeholder="Ex.: Sunny"></div><div class="field"><label>Forma de escrita</label><select id="ped-letter-style"><option value="">Não informada</option><option>Primeira letra maiúscula</option><option>Todas maiúsculas</option><option>Todas minúsculas</option><option>Conforme escrito</option></select></div></div>
             <div class="field"><label>Detalhes da personalização</label><textarea id="ped-personalization-notes" rows="3" placeholder="Ex.: fonte DOGWAYS, pata e coração, posição do nome, medidas ou outras características."></textarea></div>
           </div>
-          <div class="production-form-footer"><div class="production-form-summary" id="ped-form-summary">Preencha ao menos o nome do produto.</div><button class="btn" id="ped-add-btn" type="button">+ Adicionar à fila</button></div>
+          <div class="production-form-footer"><div class="production-form-summary" id="ped-form-summary">Preencha ao menos o nome do produto.</div><div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn secondary" id="ped-cancel-edit-btn" type="button" style="display:none;">Cancelar edição</button><button class="btn" id="ped-add-btn" type="button">+ Adicionar à fila</button></div></div>
         </div>
 
         <div class="finance-kpis production-kpis" id="ped-summary"></div>
@@ -1840,7 +1848,8 @@
       if(!order && orc.convertedToPedido)throw new Error('Este orçamento já foi convertido. Verifique a fila antes de criar outro pedido.');
       if(!order){
         const now=new Date().toISOString();
-        order={id:nextSeqId(orders,'PRD'),client:orc.clientName,desc:orc.items.map(it=>`${it.qty}x ${it.desc}`).join(', '),value:orc.total,status:'Pendente',date:todayISO(),deliveryDate:null,orcamentoId:orc.id,sourceRequestId:orc.sourceRequestId||null,statusHistory:[{type:'status',status:'Pendente',at:now,label:'Pedido incluído'}]};
+        const orderId=nextSeqId(orders,'PRD');
+        order={id:orderId,client:orc.clientName,channel:'',externalOrder:'',desc:orc.items.map(it=>`${it.qty}x ${it.desc}`).join(', '),items:orc.items.map((it,index)=>({id:`${orderId}-${index+1}`,productName:it.desc,quantity:Number(it.qty)||1,color:it.color||'',details:it.details||'',catalogProductCode:it.productCode||'',done:false})),value:orc.total,status:'Pendente',date:todayISO(),deliveryDate:null,orcamentoId:orc.id,sourceRequestId:orc.sourceRequestId||null,statusHistory:[{type:'status',status:'Pendente',at:now,label:'Pedido incluído'}]};
         if(!await setJSON('producao_pedidos',[...orders,order]))throw new Error('Não foi possível criar o pedido. Nenhum aceite foi registrado.');
         PEDIDOS=[...orders,order];
       }else{PEDIDOS=orders;}
@@ -2068,6 +2077,14 @@
   try{COLLAPSED_STAGES=new Set(JSON.parse(localStorage.getItem(KANBAN_COLLAPSE_KEY)||'[]'));}catch(e){}
   function saveCollapsedStages(){try{localStorage.setItem(KANBAN_COLLAPSE_KEY,JSON.stringify([...COLLAPSED_STAGES]));}catch(e){}}
   function orderPurpose(p){return p.purpose||'Venda';}
+  function orderItems(p){
+    if(Array.isArray(p.items)&&p.items.length)return p.items;
+    return [{id:`${p.id||'item'}-1`,productName:p.productName||p.desc||'Item',quantity:Number(p.quantity)||1,color:p.color||'',details:[p.finish,p.personalization,p.personalizationNotes].filter(Boolean).join(' · '),done:['Concluído','Pago'].includes(p.status)}];
+  }
+  function orderItemsHtml(p){
+    const items=orderItems(p);if(items.length<2)return '';
+    return `<div class="order-item-checklist">${items.map((item,index)=>`<button type="button" data-toggle-order-item="${p.id}|${index}" class="order-item-check ${item.done?'done':''}" title="Marcar este item como ${item.done?'pendente':'concluído'}"><span>${item.done?'✓':'○'}</span><span>${escapeHtml(`${item.quantity||1}x ${item.productName||item.desc||'Item'}${item.color?' · '+item.color:''}`)}</span></button>`).join('')}</div>`;
+  }
   function orderHistory(p){
     const history=Array.isArray(p.statusHistory)?p.statusHistory.slice():[];
     if(!history.length&&p.date) history.push({type:'status',status:'Pendente',dateOnly:p.date,label:'Pedido incluído — horário não registrado'});
@@ -2109,12 +2126,26 @@
     if(!await setJSON('producao_pedidos',latest))throw new Error('Não foi possível reexibir. Tente novamente.');
     PEDIDOS=latest;renderPedidos();
   }
-  let selectedPedColor='';
+  let selectedPedColor='',editingProductionOrderId=null;
   function switchPedFormTab(tab){
     root.querySelectorAll('[data-ped-tab]').forEach(button=>{const active=button.dataset.pedTab===tab;button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active));});
     root.querySelectorAll('[data-ped-panel]').forEach(panel=>panel.classList.toggle('active',panel.dataset.pedPanel===tab));
   }
   root.querySelectorAll('[data-ped-tab]').forEach(button=>button.addEventListener('click',()=>switchPedFormTab(button.dataset.pedTab)));
+  function populateProductionCatalog(){
+    const select=document.getElementById('ped-catalog-product');if(!select)return;
+    const current=select.value,active=(Array.isArray(PRODUCTS)?PRODUCTS:[]).filter(p=>p.active!==false).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'pt-BR'));
+    select.innerHTML='<option value="">Produto manual</option>'+active.map(p=>`<option value="${escapeHtml(p.code)}">${escapeHtml(p.name)} · ${escapeHtml(p.code)}</option>`).join('');
+    if(active.some(p=>p.code===current))select.value=current;
+  }
+  document.getElementById('ped-catalog-product').addEventListener('change',event=>{
+    const product=(PRODUCTS||[]).find(p=>p.code===event.target.value);if(!product)return;
+    document.getElementById('ped-product').value=product.name||'';
+    const price=Number(product.publicPrice||product.price||0);if(price>0)document.getElementById('ped-value').value=price.toFixed(2);
+    const first=(product.colors||[]).find(c=>Number(c.stock)>0)||(product.colors||[])[0];
+    if(first){selectedPedColor=first.name||'';document.getElementById('ped-color-custom').value=selectedPedColor;root.querySelectorAll('[data-ped-color]').forEach(item=>item.classList.toggle('selected',item.dataset.pedColor===selectedPedColor));}
+    updatePedFormSummary();
+  });
   root.querySelectorAll('[data-ped-color]').forEach(button=>button.addEventListener('click',()=>{
     selectedPedColor=button.dataset.pedColor;document.getElementById('ped-color-custom').value='';
     root.querySelectorAll('[data-ped-color]').forEach(item=>item.classList.toggle('selected',item===button));updatePedFormSummary();
@@ -2131,9 +2162,10 @@
   }
   ['ped-product','ped-qty','ped-personalization'].forEach(id=>document.getElementById(id).addEventListener('input',updatePedFormSummary));
   function resetPedForm(){
-    ['ped-client','ped-product','ped-value','ped-cost','ped-delivery','ped-desc','ped-color-custom','ped-finish','ped-personalization','ped-personalization-notes'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('ped-qty').value='1';document.getElementById('ped-purpose').value='Venda';document.getElementById('ped-letter-style').value='';selectedPedColor='';root.querySelectorAll('[data-ped-color]').forEach(item=>item.classList.remove('selected'));updatePedPurpose();switchPedFormTab('produto');updatePedFormSummary();
+    ['ped-client','ped-external-order','ped-product','ped-value','ped-cost','ped-delivery','ped-desc','ped-color-custom','ped-finish','ped-personalization','ped-personalization-notes'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('ped-channel').value='';document.getElementById('ped-catalog-product').value='';document.getElementById('ped-qty').value='1';document.getElementById('ped-purpose').value='Venda';document.getElementById('ped-letter-style').value='';selectedPedColor='';editingProductionOrderId=null;root.querySelectorAll('[data-ped-color]').forEach(item=>item.classList.remove('selected'));document.getElementById('ped-add-btn').textContent='+ Adicionar à fila';document.getElementById('ped-cancel-edit-btn').style.display='none';updatePedPurpose();switchPedFormTab('produto');updatePedFormSummary();
   }
+  document.getElementById('ped-cancel-edit-btn').addEventListener('click',resetPedForm);
   function updatePedPurpose(){const purpose=document.getElementById('ped-purpose').value,isSale=purpose==='Venda',value=document.getElementById('ped-value');value.disabled=!isSale;if(!isSale)value.value='0';document.getElementById('ped-client').placeholder=isSale?'Ex.: Mercado Livre, Instagram ou nome do cliente':purpose==='Brinde'?'Destinatário do brinde (opcional)':'Uso interno / responsável (opcional)';}
   document.getElementById('ped-purpose').addEventListener('change',updatePedPurpose);updatePedPurpose();
   let orderSaveBusy=false;
@@ -2141,6 +2173,7 @@
     if(orderSaveBusy)return;
     const addButton=document.getElementById('ped-add-btn');
     const client = document.getElementById('ped-client').value.trim();
+    const channel=document.getElementById('ped-channel').value,externalOrder=document.getElementById('ped-external-order').value.trim(),catalogProductCode=document.getElementById('ped-catalog-product').value;
     const productName=document.getElementById('ped-product').value.trim(),quantity=Math.max(1,parseInt(document.getElementById('ped-qty').value)||1),color=productionColor(),finish=document.getElementById('ped-finish').value.trim(),personalization=document.getElementById('ped-personalization').value.trim(),letterStyle=document.getElementById('ped-letter-style').value,personalizationNotes=document.getElementById('ped-personalization-notes').value.trim(),notes=document.getElementById('ped-desc').value.trim();
     const desc=productionDescription({productName,qty:quantity,color,finish,personalization,letterStyle,personalizationNotes,notes});
     const purpose=document.getElementById('ped-purpose').value,value=purpose==='Venda'?(parseFloat(document.getElementById('ped-value').value)||0):0,cost=parseFloat(document.getElementById('ped-cost').value)||0;
@@ -2150,13 +2183,16 @@
     if(purpose!=='Venda'&&cost<=0){alert('Para brinde ou uso próprio, informe o custo de produção.');return;}
     orderSaveBusy=true;addButton.disabled=true;addButton.textContent='Salvando…';
     try{
-      const current=await getJSON('producao_pedidos',PEDIDOS),id=nextSeqId(current,'PRD');
-      const next=[...current,{id,client,desc,productName,quantity,color,finish,personalization,letterStyle,personalizationNotes,notes,purpose,value,cost,status:'Pendente',date:todayISO(),deliveryDate,statusHistory:[{type:'status',status:'Pendente',at:new Date().toISOString(),label:'Pedido incluído'}]}];
+      const current=await getJSON('producao_pedidos',PEDIDOS),existing=current.find(p=>p.id===editingProductionOrderId),id=existing?.id||nextSeqId(current,'PRD');
+      const data={id,client,channel,externalOrder,catalogProductCode,desc,productName,quantity,color,finish,personalization,letterStyle,personalizationNotes,notes,purpose,value,cost,deliveryDate};
+      let next;
+      if(existing){Object.assign(existing,data);addOrderEvent(existing,{type:'edit',status:existing.status,label:'Dados do pedido editados'});next=current;}
+      else{next=[...current,{...data,status:'Pendente',date:todayISO(),items:[{id:`${id}-1`,productName,quantity,color,details:[finish,personalization,personalizationNotes].filter(Boolean).join(' · '),done:false}],statusHistory:[{type:'status',status:'Pendente',at:new Date().toISOString(),label:'Pedido incluído'}]}];}
       await setJSON('producao_pedidos',next);PEDIDOS=next;
       resetPedForm();
       renderPedidos();
     }catch(e){alert(e.message||'Não foi possível adicionar o pedido. Tente novamente.');}
-    finally{orderSaveBusy=false;addButton.disabled=false;addButton.textContent='+ Adicionar à fila';}
+    finally{orderSaveBusy=false;addButton.disabled=false;if(!editingProductionOrderId)addButton.textContent='+ Adicionar à fila';}
   });
 
   function isPedidoAtrasado(p){
@@ -2186,12 +2222,20 @@
     const existing=RECEBIMENTOS.find(r=>(r.orderId===orderId||r.sourceOrderId===orderId)&&r.status!=='Estornado'&&r.status!=='Cancelado');
     openFinancialView();renderRecebimentos();
     if(existing){editReceipt(existing.id);document.getElementById('rec-msg').innerHTML='<div class="msg ok">Este pedido já possui um lançamento financeiro. Você pode revisar e editar as informações abaixo.</div>';return;}
-    const purpose=orderPurpose(p),isSale=purpose==='Venda';resetReceiptForm();PENDING_SOURCE_ORDER_ID=p.id;document.getElementById('rec-type').value=isSale?'Entrada':'Saída';updateTransactionForm();document.getElementById('rec-category').value=isSale?'Venda':purpose==='Brinde'?'Brindes / divulgação':'Uso próprio';if(isSale)document.getElementById('rec-order').value=p.id;document.getElementById('rec-status').value='Pendente';document.getElementById('rec-client').value=p.client||'';document.getElementById('rec-description').value=p.desc||'';if(isSale)document.getElementById('rec-delivery').value=p.deliveryDate||'';document.getElementById('rec-value').value=Number(isSale?p.value:p.cost||0).toFixed(2);document.getElementById('rec-cost').value=isSale&&Number(p.cost||0)>0?Number(p.cost).toFixed(2):'';document.getElementById('rec-product-qty').value=String(Math.max(1,Number(p.quantity)||1));document.getElementById('rec-notes').value=`${purpose} importado da fila de produção · ${p.id}`;document.getElementById('rec-msg').innerHTML=`<div class="msg ok">${isSale?'Venda':'Custo de '+purpose.toLocaleLowerCase('pt-BR')} carregado. Revise as informações antes de registrar.</div>`;document.getElementById('rec-type').scrollIntoView({behavior:'smooth',block:'center'});
+    const purpose=orderPurpose(p),isSale=purpose==='Venda';resetReceiptForm();PENDING_SOURCE_ORDER_ID=p.id;document.getElementById('rec-type').value=isSale?'Entrada':'Saída';updateTransactionForm();document.getElementById('rec-category').value=isSale?'Venda':purpose==='Brinde'?'Brindes / divulgação':'Uso próprio';if(isSale)document.getElementById('rec-order').value=p.id;document.getElementById('rec-status').value='Pendente';document.getElementById('rec-client').value=p.client||'';document.getElementById('rec-description').value=p.desc||p.productName||'';if(isSale)document.getElementById('rec-delivery').value=p.deliveryDate||'';if(p.channel&&[...document.getElementById('rec-channel').options].some(option=>option.value===p.channel))document.getElementById('rec-channel').value=p.channel;document.getElementById('rec-value').value=Number(isSale?p.value:p.cost||0).toFixed(2);document.getElementById('rec-cost').value=isSale&&Number(p.cost||0)>0?Number(p.cost).toFixed(2):'';document.getElementById('rec-product-qty').value=String(Math.max(1,Number(p.quantity)||1));document.getElementById('rec-notes').value=`${purpose} importado da fila de produção · ${p.id}${p.externalOrder?' · Pedido externo '+p.externalOrder:''}`;document.getElementById('rec-msg').innerHTML=`<div class="msg ok">${isSale?'Venda':'Custo de '+purpose.toLocaleLowerCase('pt-BR')} carregado. Revise as informações antes de registrar.</div>`;document.getElementById('rec-type').scrollIntoView({behavior:'smooth',block:'center'});
   }
 
   function orderSpecsHtml(p){
     const specs=[Number(p.quantity)>1?`${p.quantity} unidades`:'',p.color?`Cor: ${p.color}`:'',p.finish?`Acabamento: ${p.finish}`:'',p.personalization?`Personalização: ${p.personalization}`:'',p.letterStyle||''].filter(Boolean);
     return specs.length?`<div class="order-specs">${specs.map(spec=>`<span class="order-spec">${escapeHtml(spec)}</span>`).join('')}</div>`:'';
+  }
+  function editProductionOrder(id){
+    const p=PEDIDOS.find(item=>item.id===id);if(!p)return;
+    editingProductionOrderId=id;document.getElementById('ped-channel').value=p.channel||'';document.getElementById('ped-client').value=p.client||'';document.getElementById('ped-external-order').value=p.externalOrder||'';document.getElementById('ped-catalog-product').value=p.catalogProductCode||'';document.getElementById('ped-product').value=p.productName||p.desc||'';document.getElementById('ped-qty').value=Number(p.quantity)||1;document.getElementById('ped-purpose').value=orderPurpose(p);document.getElementById('ped-value').value=Number(p.value||0);document.getElementById('ped-cost').value=Number(p.cost||0)||'';document.getElementById('ped-delivery').value=p.deliveryDate||'';document.getElementById('ped-desc').value=p.notes||'';document.getElementById('ped-color-custom').value=p.color||'';selectedPedColor=p.color||'';document.getElementById('ped-finish').value=p.finish||'';document.getElementById('ped-personalization').value=p.personalization||'';document.getElementById('ped-letter-style').value=p.letterStyle||'';document.getElementById('ped-personalization-notes').value=p.personalizationNotes||'';updatePedPurpose();updatePedFormSummary();document.getElementById('ped-add-btn').textContent='Salvar alterações';document.getElementById('ped-cancel-edit-btn').style.display='inline-flex';switchPedFormTab('produto');document.querySelector('.production-entry').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  async function toggleProductionItem(orderId,index){
+    const latest=await getJSON('producao_pedidos',PEDIDOS),p=latest.find(item=>item.id===orderId);if(!p)return;
+    if(!Array.isArray(p.items)||!p.items[index])p.items=orderItems(p);const item=p.items[index];item.done=!item.done;addOrderEvent(p,{type:'item',status:p.status,label:`Item ${item.done?'concluído':'reaberto'}: ${item.productName||item.desc||'Item'}`});await setJSON('producao_pedidos',latest);PEDIDOS=latest;renderPedidos();
   }
 
   function renderPedidosKanban(){
@@ -2212,14 +2256,16 @@
           <div class="kanban-card" style="${atrasado ? 'border-color:var(--red);' : ''}">
             <div class="kc-name">${p.client ? escapeHtml(p.client)+' — ' : ''}${escapeHtml(p.productName||p.desc)}</div>
             ${orderSpecsHtml(p)}
+            ${orderItemsHtml(p)}
             ${p.productName&&(p.personalizationNotes||p.notes)?`<div class="kc-value">${escapeHtml([p.personalizationNotes,p.notes].filter(Boolean).join(' · '))}</div>`:''}
             <div class="kc-value"><span class="tag ${orderPurpose(p)==='Venda'?'pago':'producao'}">${escapeHtml(orderPurpose(p))}</span> ${orderPurpose(p)==='Venda'?'venda '+fmtMoney(p.value):'custo '+fmtMoney(p.cost||0)} · incluído ${fmtDate(p.date)}</div>
             ${p.deliveryDate ? `<div class="kc-value" style="${atrasado ? 'color:var(--red);font-weight:700;' : ''}">${atrasado ? '⚠️ atrasado — ' : '📦 entrega '}${fmtDate(p.deliveryDate)}</div>` : ''}
             <div class="kc-actions">
+              <button data-edit-ped="${p.id}">✏️ Editar</button>
               ${prevStatus ? `<button data-move-ped="${p.id}|${prevStatus}">← ${prevStatus}</button>` : ''}
               ${nextStatus ? `<button data-move-ped="${p.id}|${nextStatus}">${nextStatus} →</button>` : ''}
               ${p.status==='Concluído'||p.status==='Pago'?`<button data-finance-ped="${p.id}">${RECEBIMENTOS.some(r=>(r.orderId===p.id||r.sourceOrderId===p.id)&&r.status!=='Estornado'&&r.status!=='Cancelado')?'✏️ Editar financeiro':'💰 Enviar ao financeiro'}</button>`:''}
-              ${canArchive?`<button data-archive-ped="${p.id}" title="Finalizar, ocultar da fila e manter no histórico">✓ Finalizar e arquivar</button>`:`<button data-del-ped="${p.id}" style="color:var(--red);" title="Remover definitivamente">✕</button>`}
+              ${canArchive?`<button data-archive-ped="${p.id}" title="Finalizar, ocultar da fila e manter no histórico">✓ Finalizar e arquivar</button>`:`<button data-del-ped="${p.id}" style="color:var(--red);" title="Cancelar e manter no histórico">Cancelar</button>`}
             </div>
           </div>`;
         }).join('') || '<div class="empty" style="padding:18px 8px;">Nenhum item nesta etapa</div>'}</div>
@@ -2227,6 +2273,8 @@
     }).join('');
 
     root.querySelectorAll('[data-toggle-stage]').forEach(b=>b.addEventListener('click',()=>{const status=b.dataset.toggleStage;if(COLLAPSED_STAGES.has(status))COLLAPSED_STAGES.delete(status);else COLLAPSED_STAGES.add(status);saveCollapsedStages();renderPedidosKanban();}));
+    root.querySelectorAll('#ped-kanban [data-edit-ped]').forEach(b=>b.addEventListener('click',()=>editProductionOrder(b.dataset.editPed)));
+    root.querySelectorAll('#ped-kanban [data-toggle-order-item]').forEach(b=>b.addEventListener('click',async()=>{const [id,index]=b.dataset.toggleOrderItem.split('|');try{await toggleProductionItem(id,Number(index));}catch(e){alert(e.message);}}));
 
     root.querySelectorAll('[data-move-ped]').forEach(b=>b.addEventListener('click', async ()=>{
       const [id, newStatus] = b.dataset.movePed.split('|');
@@ -2239,9 +2287,9 @@
       try{await archiveFinishedOrder(b.dataset.archivePed);}catch(e){alert(e.message);}
     }));
     root.querySelectorAll('[data-del-ped]').forEach(b=>b.addEventListener('click', async ()=>{
-      if(!confirm('Remover este pedido da fila?')) return;
-      const current=await getJSON('producao_pedidos',PEDIDOS),next=current.filter(p=>p.id!==b.dataset.delPed);
-      await setJSON('producao_pedidos',next);PEDIDOS=next;
+      if(!confirm('Cancelar e retirar este pedido da fila? Ele continuará no histórico e poderá ser reexibido.')) return;
+      const current=await getJSON('producao_pedidos',PEDIDOS),item=current.find(p=>p.id===b.dataset.delPed);if(!item)return;item.archivedAt=new Date().toISOString();addOrderEvent(item,{type:'cancel',status:item.status,label:'Pedido cancelado e retirado da fila'});
+      await setJSON('producao_pedidos',current);PEDIDOS=current;
       renderPedidos();
     }));
     root.querySelectorAll('[data-finance-ped]').forEach(b=>b.addEventListener('click',()=>sendOrderToFinance(b.dataset.financePed)));
@@ -2267,16 +2315,18 @@
       const timeline = orderHistory(p);
       return `
       <tr style="${atrasado ? 'background:rgba(194,51,73,.06);' : ''}">
-        <td>${escapeHtml(p.client)||'—'}</td>
-        <td><strong>${escapeHtml(p.productName||p.desc)}</strong>${orderSpecsHtml(p)}${p.productName&&(p.personalizationNotes||p.notes)?`<small>${escapeHtml([p.personalizationNotes,p.notes].filter(Boolean).join(' · '))}</small>`:''}</td>
+        <td>${escapeHtml(p.client)||'—'}${p.channel?`<small style="display:block;color:var(--muted);">${escapeHtml(p.channel)}</small>`:''}${p.externalOrder?`<small style="display:block;color:var(--muted);">Pedido: ${escapeHtml(p.externalOrder)}</small>`:''}</td>
+        <td><strong>${escapeHtml(p.productName||p.desc)}</strong>${orderSpecsHtml(p)}${orderItemsHtml(p)}${p.productName&&(p.personalizationNotes||p.notes)?`<small>${escapeHtml([p.personalizationNotes,p.notes].filter(Boolean).join(' · '))}</small>`:''}</td>
         <td><span class="tag ${orderPurpose(p)==='Venda'?'pago':'producao'}">${escapeHtml(orderPurpose(p))}</span></td><td>${orderPurpose(p)==='Venda'?fmtMoney(p.value):'Custo '+fmtMoney(p.cost||0)}</td>
         <td>${fmtDate(p.date)}</td>
         <td style="${atrasado ? 'color:var(--red);font-weight:700;' : ''}">${p.deliveryDate ? fmtDate(p.deliveryDate) : '—'}${atrasado ? ' ⚠️' : ''}</td>
         <td><span class="tag ${statusTagClass[p.status]}">${p.status}</span>${p.archivedAt?'<br><span class="tag concluido" style="margin-top:5px;">Arquivado</span>':''}</td>
-        <td><details><summary style="cursor:pointer;font-weight:700;">Ver datas e horários (${timeline.length})</summary><div style="min-width:235px;margin-top:8px;">${timeline.map(event=>`<div style="padding:6px 0;border-bottom:1px solid var(--line);"><strong>${escapeHtml(event.label||event.status||'Alteração')}</strong><br><small>${escapeHtml(orderEventDate(event))}</small></div>`).join('')}</div></details><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">${p.status==='Concluído'||p.status==='Pago'?`<button class="btn secondary small" data-finance-ped="${p.id}">${RECEBIMENTOS.some(r=>(r.orderId===p.id||r.sourceOrderId===p.id)&&r.status!=='Estornado'&&r.status!=='Cancelado')?'Editar financeiro':'Enviar ao financeiro'}</button>`:''}${p.archivedAt?`<button class="btn secondary small" data-restore-ped="${p.id}">Reexibir na fila</button>`:''}</div></td>
+        <td><details><summary style="cursor:pointer;font-weight:700;">Ver datas e horários (${timeline.length})</summary><div style="min-width:235px;margin-top:8px;">${timeline.map(event=>`<div style="padding:6px 0;border-bottom:1px solid var(--line);"><strong>${escapeHtml(event.label||event.status||'Alteração')}</strong><br><small>${escapeHtml(orderEventDate(event))}</small></div>`).join('')}</div></details><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;"><button class="btn secondary small" data-edit-ped="${p.id}">Editar pedido</button>${p.status==='Concluído'||p.status==='Pago'?`<button class="btn secondary small" data-finance-ped="${p.id}">${RECEBIMENTOS.some(r=>(r.orderId===p.id||r.sourceOrderId===p.id)&&r.status!=='Estornado'&&r.status!=='Cancelado')?'Editar financeiro':'Enviar ao financeiro'}</button>`:''}${p.archivedAt?`<button class="btn secondary small" data-restore-ped="${p.id}">Reexibir na fila</button>`:''}</div></td>
       </tr>`;
     }).join('') : '<tr><td colspan="8"><div class="empty">Nenhum pedido na fila ainda.</div></td></tr>';
     root.querySelectorAll('#ped-list-table [data-finance-ped]').forEach(b=>b.addEventListener('click',()=>sendOrderToFinance(b.dataset.financePed)));
+    root.querySelectorAll('#ped-list-table [data-edit-ped]').forEach(b=>b.addEventListener('click',()=>editProductionOrder(b.dataset.editPed)));
+    root.querySelectorAll('#ped-list-table [data-toggle-order-item]').forEach(b=>b.addEventListener('click',async()=>{const [id,index]=b.dataset.toggleOrderItem.split('|');try{await toggleProductionItem(id,Number(index));}catch(e){alert(e.message);}}));
     root.querySelectorAll('#ped-list-table [data-restore-ped]').forEach(b=>b.addEventListener('click',async()=>{
       const order=PEDIDOS.find(item=>item.id===b.dataset.restorePed);
       if(!confirm(`Reexibir este item na coluna ${order?.status||'correspondente'}?`))return;
@@ -2286,6 +2336,7 @@
   document.getElementById('ped-sort').addEventListener('change', renderPedidosList);
 
   function renderPedidos(){
+    populateProductionCatalog();
     renderPedidosSummary();
     renderPedidosKanban();
     renderPedidosList();
