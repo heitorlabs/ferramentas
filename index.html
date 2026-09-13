@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -127,6 +126,28 @@
   #app-root .quote-saved-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:9px;}
   #app-root .quote-saved-meta{color:var(--muted);font-size:11px;margin-top:3px;}
   #app-root .quote-saved-total{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;white-space:nowrap;}
+  #app-root .task-hero{background:linear-gradient(135deg,color-mix(in srgb,var(--violet) 16%,var(--panel)),color-mix(in srgb,var(--cyan) 9%,var(--panel)));border-top:0!important;overflow:hidden;position:relative;}
+  #app-root .task-hero:after{content:"";position:absolute;inset:auto -60px -95px auto;width:220px;height:220px;border-radius:50%;background:color-mix(in srgb,var(--cyan) 16%,transparent);pointer-events:none;}
+  #app-root .task-hero-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;position:relative;z-index:1;}
+  #app-root .task-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0;}
+  #app-root .task-stat{border:1px solid var(--line);border-top:4px solid var(--task-color,var(--violet));background:var(--panel);border-radius:14px;padding:14px;text-align:left;color:inherit;}
+  #app-root .task-stat span{display:block;color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
+  #app-root .task-stat strong{display:block;font-family:'Space Grotesk',sans-serif;font-size:25px;margin-top:5px;}
+  #app-root .task-toolbar{display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+  #app-root .task-toolbar .field{min-width:150px;margin:0;}
+  #app-root .task-board{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:14px;align-items:start;}
+  #app-root .task-column{border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,var(--panel) 88%,var(--bg));overflow:hidden;}
+  #app-root .task-column-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);border-top:4px solid var(--column-color,var(--violet));font-weight:700;}
+  #app-root .task-column-head span{min-width:25px;height:25px;padding:0 7px;border-radius:999px;background:color-mix(in srgb,var(--column-color,var(--violet)) 17%,transparent);display:grid;place-items:center;font-size:11px;}
+  #app-root .task-column-body{padding:10px;display:grid;gap:10px;}
+  #app-root .task-card{border:1px solid var(--line);border-left:4px solid var(--priority-color,var(--cyan));background:var(--panel);border-radius:11px;padding:12px;box-shadow:var(--shadow-sm);}
+  #app-root .task-card.overdue{box-shadow:0 0 0 2px color-mix(in srgb,var(--red) 25%,transparent);}
+  #app-root .task-card-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;}
+  #app-root .task-card-title{font-weight:750;line-height:1.3;overflow-wrap:anywhere;}
+  #app-root .task-meta{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5;}
+  #app-root .task-card .actions{margin-top:10px;display:flex;gap:7px;flex-wrap:wrap;}
+  #app-root .task-card .actions button{padding:7px 9px;font-size:11px;}
+  #app-root .task-empty{color:var(--muted);font-size:12px;text-align:center;padding:20px 8px;}
   #app-root .catalog-picker{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px;}
   #app-root .catalog-preview{display:flex;gap:12px;align-items:center;margin-top:10px;padding:10px;background:var(--panel);border-radius:9px;border:1px solid var(--line);}
   #app-root .catalog-thumb{width:58px;height:58px;border-radius:8px;background:var(--panel-2);object-fit:cover;flex-shrink:0;}
@@ -162,6 +183,9 @@
     #app-root .quote-item{grid-template-columns:1fr auto;}
     #app-root .quote-item > *:not(:first-child):not(:last-child){display:none;}
     #app-root .quote-logo{width:90px;height:64px;}
+    #app-root .task-summary{grid-template-columns:repeat(2,minmax(0,1fr));}
+    #app-root .task-board{grid-template-columns:1fr;}
+    #app-root .task-hero-head{display:block;}
     #app-root .finance-kpis{grid-template-columns:repeat(2,1fr);}
     #app-root .receipt-row{grid-template-columns:80px 1fr auto;}
     #app-root .receipt-row .mobile-hide{display:none;}
@@ -519,7 +543,7 @@
         <div class="nav-group-label">Principal</div>
         <button data-view="inicio" class="active" title="Visão geral do dia"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10M9.5 20v-6h5v6"/></svg></span><span class="nav-label">Início</span></button>
         <div class="nav-group-label">Comercial</div>
-        <button data-view="solicitacoes" title="Comercial · Pedidos de orçamento"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2M8 3.5 6 2M16 3.5 18 2"/></svg></span><span class="nav-label">Solicitações</span></button>
+        <button data-view="solicitacoes" title="Organização · Tarefas e lembretes"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v16H7zM9.5 8h5M9.5 12h5M9.5 16h3"/><path d="m4 8 1 1 2-2M4 12l1 1 2-2M4 16l1 1 2-2"/></svg></span><span class="nav-label">Tarefas</span></button>
         <button data-view="orcamentos" class="mobile-secondary" title="Comercial · Orçamentos"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l3 3v15H6zM15 3v4h4M9 11h6M9 15h6"/></svg></span><span class="nav-label">Orçamentos</span></button>
         <div class="nav-group-label">Operação</div>
         <button data-view="calculadora" class="mobile-secondary" title="Operação · Calculadora"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M14 11h2M8 15h2M14 15h2"/></svg></span><span class="nav-label">Calculadora</span></button>
@@ -556,7 +580,7 @@
           <h2 id="dashboard-greeting">Visão geral de hoje</h2>
           <p class="hint">Veja o que precisa de atenção e continue o trabalho de onde parou.</p>
           <div class="quick-actions" id="dashboard-shortcuts">
-            <button class="btn" type="button" data-go-view="solicitacoes">Nova solicitação</button>
+            <button class="btn" type="button" data-go-view="solicitacoes">Nova tarefa</button>
             <button class="btn secondary" type="button" data-go-view="calculadora">Novo cálculo</button>
             <button class="btn secondary" type="button" data-go-view="orcamentos">Novo orçamento</button>
             <button class="btn secondary" type="button" data-go-view="recebimentos">Novo lançamento</button>
@@ -567,7 +591,7 @@
         </div>
         <div class="today-grid" id="dashboard-kpis"></div>
         <div class="today-columns">
-          <div class="panel"><h2>Precisa de atenção</h2><p class="hint">Prazos, solicitações e pagamentos pendentes.</p><div class="today-list" id="dashboard-attention"></div></div>
+          <div class="panel"><h2>Precisa de atenção</h2><p class="hint">Tarefas, prazos e pagamentos pendentes.</p><div class="today-list" id="dashboard-attention"></div></div>
           <div class="panel"><h2>Atividade recente</h2><p class="hint">Últimos registros comerciais e de produção.</p><div class="today-list" id="dashboard-recent"></div></div>
         </div>
       </div>
@@ -641,43 +665,48 @@
       </div>
 
       <div class="view" data-view="solicitacoes" style="display:none;">
-        <div class="panel">
-          <h2>Pedidos de orçamento</h2>
-          <p class="hint">Registre o que o cliente pediu, mesmo sem saber o preço. Localize a peça ou referência e prepare a proposta quando estiver pronto.</p>
+        <div class="panel task-hero">
+          <div class="task-hero-head"><div><div class="quote-eyebrow">Organização pessoal</div><h2>Tarefas e lembretes</h2><p class="hint">Registre o que precisa fazer e visualize rapidamente o que está atrasado, previsto para hoje ou aguardando retorno.</p></div><button id="task-focus-new" class="btn" type="button">+ Nova tarefa</button></div>
+          <div class="task-summary" id="task-summary"></div>
+        </div>
+        <div class="panel" id="task-form-panel">
+          <h3 id="task-form-title">Adicionar tarefa</h3>
           <div class="row">
-            <div class="field"><label for="sol-date">Data do pedido *</label><input id="sol-date" type="date"></div>
-            <div class="field"><label for="sol-client">Cliente *</label><input id="sol-client" placeholder="Nome da pessoa ou empresa"></div>
-            <div class="field"><label for="sol-contact">WhatsApp / contato</label><input id="sol-contact" placeholder="Telefone, @perfil ou outro contato"></div>
-            <div class="field"><label for="sol-channel">Canal</label><select id="sol-channel"><option>WhatsApp</option><option>Instagram</option><option>Mercado Livre</option><option>Shopee</option><option>Presencial</option><option>Outro</option></select></div>
-          </div>
-          <div class="row">
-            <div class="field" style="flex:2;"><label for="sol-title">Produto / identificação *</label><input id="sol-title" placeholder="Ex.: Miniatura de caminhão personalizado"></div>
-            <div class="field"><label for="sol-qty">Quantidade desejada</label><input id="sol-qty" type="number" min="1" step="1" value="1"></div>
-          </div>
-          <div class="row"><div class="field"><label for="sol-description">O que o cliente solicitou *</label><textarea id="sol-description" rows="4" placeholder="Descreva a peça, modelo, tamanho, cores, personalização e demais requisitos."></textarea></div></div>
-          <div class="row">
-            <div class="field" style="flex:2;"><label for="sol-reference">Link de referência / modelo localizado</label><input id="sol-reference" type="url" placeholder="https://..."></div>
-            <div class="field"><label for="sol-status">Etapa de acompanhamento</label><select id="sol-status"><option>Em busca</option><option>Localizado</option><option>Aguardando retorno</option><option>Cancelado</option></select></div>
+            <div class="field"><label for="sol-date">Data de criação *</label><input id="sol-date" type="date"></div>
+            <div class="field"><label for="sol-followup">Prazo / lembrete</label><input id="sol-followup" type="date"></div>
+            <div class="field"><label for="sol-time">Horário</label><input id="sol-time" type="time"></div>
             <div class="field"><label for="sol-priority">Prioridade</label><select id="sol-priority"><option>Normal</option><option>Alta</option><option>Baixa</option></select></div>
           </div>
           <div class="row">
-            <div class="field"><label for="sol-followup">Data para retornar ao cliente</label><input id="sol-followup" type="date"></div>
-            <div class="field"><label for="sol-needed">Data desejada pelo cliente</label><input id="sol-needed" type="date"></div>
+            <div class="field" style="flex:2;"><label for="sol-title">O que precisa ser feito? *</label><input id="sol-title" placeholder="Ex.: Comprar filamento branco"></div>
+            <div class="field"><label for="sol-category">Categoria</label><select id="sol-category"><option>Geral</option><option>Orçamento / pesquisa</option><option>Cliente / retorno</option><option>Produção</option><option>Compras / insumos</option><option>Financeiro</option><option>Manutenção</option><option>Administrativo</option></select></div>
+            <div class="field"><label for="sol-status">Situação</label><select id="sol-status"><option>A fazer</option><option>Em andamento</option><option>Aguardando</option><option>Concluída</option><option>Cancelada</option></select></div>
           </div>
-          <div class="row"><div class="field"><label for="sol-notes">Anotações internas</label><textarea id="sol-notes" rows="3" placeholder="Onde procurar, fornecedor, andamento da busca, dúvidas a confirmar. Este campo não vai para o orçamento nem para o PDF."></textarea></div></div>
+          <div class="row"><div class="field"><label for="sol-description">Descrição e detalhes</label><textarea id="sol-description" rows="4" placeholder="Anote informações, etapas, materiais, nomes, medidas ou tudo o que não pode esquecer."></textarea></div></div>
+          <div class="row">
+            <div class="field"><label for="sol-client">Pessoa / cliente relacionado</label><input id="sol-client" placeholder="Opcional"></div>
+            <div class="field"><label for="sol-contact">Contato</label><input id="sol-contact" placeholder="Telefone, @perfil ou outro contato"></div>
+            <div class="field"><label for="sol-channel">Origem</label><select id="sol-channel"><option>Interno</option><option>WhatsApp</option><option>Instagram</option><option>Mercado Livre</option><option>Shopee</option><option>Presencial</option><option>Outro</option></select></div>
+          </div>
+          <div class="row">
+            <div class="field" style="flex:2;"><label for="sol-reference">Link ou referência</label><input id="sol-reference" type="url" placeholder="https://..."></div>
+            <div class="field"><label for="sol-needed">Data desejada pelo cliente</label><input id="sol-needed" type="date"></div>
+            <div class="field"><label for="sol-qty">Quantidade, se aplicável</label><input id="sol-qty" type="number" min="1" step="1" value="1"></div>
+          </div>
+          <div class="row"><div class="field"><label for="sol-notes">Anotações internas</label><textarea id="sol-notes" rows="3" placeholder="Próximo passo, fornecedor, dúvidas ou observações adicionais."></textarea></div></div>
           <p id="sol-edit-notice" class="hint"></p>
           <div id="sol-msg" role="status" aria-live="polite"></div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;"><button id="sol-save" class="btn" type="button">Salvar solicitação</button><button id="sol-new" class="btn secondary" type="button">Nova / cancelar edição</button></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;"><button id="sol-save" class="btn" type="button">Salvar tarefa</button><button id="sol-new" class="btn secondary" type="button">Limpar / cancelar edição</button></div>
         </div>
         <div class="panel">
-          <h3>Solicitações registradas</h3>
-          <div class="row">
-            <div class="field"><label for="sol-search">Pesquisar</label><input id="sol-search" type="search" placeholder="Cliente, produto, descrição ou código"></div>
-            <div class="field"><label for="sol-filter">Situação</label><select id="sol-filter"><option value="">Todas</option><option>Em busca</option><option>Localizado</option><option>Aguardando retorno</option><option>Orçamento preparado</option><option>Aceito / produção</option><option>Cancelado</option></select></div>
-            <div class="field"><label for="sol-sort">Ordenar</label><select id="sol-sort"><option value="recent">Pedidos mais recentes</option><option value="followup">Próximo retorno</option><option value="priority">Prioridade</option><option value="client">Cliente A–Z</option></select></div>
-            <div class="field" style="flex:0;align-self:flex-end;"><button id="sol-refresh" class="btn secondary small" type="button">Atualizar</button></div>
+          <h3>Meu quadro</h3>
+          <div class="task-toolbar">
+            <div class="field" style="flex:2;"><label for="sol-search">Pesquisar</label><input id="sol-search" type="search" placeholder="Tarefa, cliente, categoria ou anotação"></div>
+            <div class="field"><label for="sol-filter">Exibir</label><select id="sol-filter"><option value="active">Tarefas ativas</option><option value="">Todas</option><option value="today">Hoje e atrasadas</option><option>A fazer</option><option>Em andamento</option><option>Aguardando</option><option>Concluída</option><option>Cancelada</option><option value="archived">Arquivadas</option></select></div>
+            <div class="field"><label for="sol-sort">Ordenar</label><select id="sol-sort"><option value="followup">Prazo mais próximo</option><option value="priority">Prioridade</option><option value="recent">Mais recentes</option><option value="client">Nome A–Z</option></select></div>
+            <button id="sol-refresh" class="btn secondary small" type="button">Atualizar</button>
           </div>
-          <p id="sol-count" class="hint"></p><div id="sol-list"></div>
+          <p id="sol-count" class="hint"></p><div id="sol-list" class="task-board"></div>
         </div>
       </div>
 
@@ -1314,7 +1343,7 @@
   document.getElementById('activity-period').addEventListener('change',loadPartnerActivity);
   const VIEW_CONTEXT={
     calculadora:{group:'Operação',title:'Calculadora',description:'Calcule custos, defina preços e consulte os cálculos já salvos.'},
-    solicitacoes:{group:'Comercial',title:'Solicitações',description:'Registre o que cada cliente pediu antes de localizar produtos e valores.'},
+    solicitacoes:{group:'Organização',title:'Tarefas',description:'Organize lembretes, prazos, pesquisas, retornos e atividades da empresa.'},
     orcamentos:{group:'Comercial',title:'Orçamentos',description:'Monte propostas, revise condições comerciais e gere o PDF para o cliente.'},
     pedidos:{group:'Operação',title:'Produção',description:'Acompanhe cada pedido desde a fila até a conclusão e o pagamento.'},
     recebimentos:{group:'Gestão',title:'Financeiro',description:'Controle entradas, saídas, lucro apurado e desempenho dos clientes.'},
@@ -1377,7 +1406,7 @@
 
   const SHORTCUT_KEY='hl_dashboard_shortcuts';
   const shortcutDefinitions=[
-    ['solicitacoes','Nova solicitação'],['calculadora','Novo cálculo'],['orcamentos','Novo orçamento'],
+    ['solicitacoes','Nova tarefa'],['calculadora','Novo cálculo'],['orcamentos','Novo orçamento'],
     ['pedidos','Produção'],['recebimentos','Novo lançamento'],['catalogo-admin','Produtos e parceiros']
   ];
   function readShortcutPreference(){
@@ -1400,7 +1429,7 @@
 
   function updateMobilePrimaryAction(){
     const dock=document.getElementById('mobile-primary-action'),view=root.dataset.currentView;if(!dock)return;
-    const preferred={calculadora:['calc-save-btn','Salvar cálculo'],solicitacoes:['sol-save','Salvar solicitação'],orcamentos:['orc-save-btn','Salvar orçamento'],pedidos:['ped-add-btn','Adicionar à fila'],recebimentos:['rec-add-btn','Registrar lançamento']}[view];
+    const preferred={calculadora:['calc-save-btn','Salvar cálculo'],solicitacoes:['sol-save','Salvar tarefa'],orcamentos:['orc-save-btn','Salvar orçamento'],pedidos:['ped-add-btn','Adicionar à fila'],recebimentos:['rec-add-btn','Registrar lançamento']}[view];
     const source=preferred&&document.getElementById(preferred[0]);
     const show=window.matchMedia('(max-width:700px)').matches&&source&&source.offsetParent!==null;
     dock.classList.toggle('show',Boolean(show));dock.textContent=preferred?.[1]||'';dock.onclick=show?()=>source.click():null;
@@ -1425,19 +1454,19 @@
   }
 
   function renderDashboard(){
-    const today=todayISO(),openRequests=SOLICITACOES.filter(s=>!['Cancelado','Aceito / produção'].includes(requestStatus(s))&&!ORCAMENTOS.some(o=>o.sourceRequestId===s.id)),overdue=PEDIDOS.filter(isPedidoAtrasado),inProduction=PEDIDOS.filter(p=>p.status==='Em produção'&&!p.archivedAt),pendingMoney=RECEBIMENTOS.filter(r=>r.status==='Pendente'),month=monthKey(today),monthNet=RECEBIMENTOS.filter(r=>monthKey(r.date)===month&&transactionType(r)==='Entrada'&&r.status==='Recebido').reduce((s,r)=>s+receiptNet(r),0);
+    const today=todayISO(),openRequests=SOLICITACOES.filter(s=>!s.archivedAt&&!['Concluída','Cancelada','Cancelado','Aceito / produção'].includes(requestStatus(s))),overdue=PEDIDOS.filter(isPedidoAtrasado),inProduction=PEDIDOS.filter(p=>p.status==='Em produção'&&!p.archivedAt),pendingMoney=RECEBIMENTOS.filter(r=>r.status==='Pendente'),month=monthKey(today),monthNet=RECEBIMENTOS.filter(r=>monthKey(r.date)===month&&transactionType(r)==='Entrada'&&r.status==='Recebido').reduce((s,r)=>s+receiptNet(r),0);
     const hour=new Date().getHours(),greeting=hour<12?'Bom dia':hour<18?'Boa tarde':'Boa noite';document.getElementById('dashboard-greeting').textContent=`${greeting}. O que precisa de atenção hoje?`;
-    document.getElementById('dashboard-kpis').innerHTML=`<button class="today-card" data-dash-view="solicitacoes" style="--card-color:var(--coral);text-align:left;color:inherit;cursor:pointer"><span>Solicitações sem orçamento</span><strong>${openRequests.length}</strong></button><button class="today-card" data-dash-view="pedidos" style="--card-color:var(--violet);text-align:left;color:inherit;cursor:pointer"><span>Em produção</span><strong>${inProduction.length}</strong></button><button class="today-card" data-dash-view="pedidos" style="--card-color:var(--red);text-align:left;color:inherit;cursor:pointer"><span>Pedidos atrasados</span><strong>${overdue.length}</strong></button><button class="today-card" data-dash-view="recebimentos" style="--card-color:var(--green);text-align:left;color:inherit;cursor:pointer"><span>Entrou líquido no mês</span><strong>${fmtMoney(monthNet)}</strong></button>`;
-    const attention=[...overdue.map(p=>({view:'pedidos',title:`Pedido atrasado · ${p.id}`,meta:`${p.client||p.desc} · entrega ${fmtDate(p.deliveryDate)}`})),...openRequests.slice(0,4).map(s=>({view:'solicitacoes',title:`Solicitação · ${s.id}`,meta:`${s.client||'Cliente não informado'} · ${s.description||s.request||'ver detalhes'}`})),...pendingMoney.slice(0,4).map(r=>({view:'recebimentos',title:`Financeiro pendente · ${r.id}`,meta:`${r.client||r.description||'Lançamento'} · ${fmtMoney(r.value)}`}))].slice(0,8);
+    document.getElementById('dashboard-kpis').innerHTML=`<button class="today-card" data-dash-view="solicitacoes" style="--card-color:var(--coral);text-align:left;color:inherit;cursor:pointer"><span>Tarefas em aberto</span><strong>${openRequests.length}</strong></button><button class="today-card" data-dash-view="pedidos" style="--card-color:var(--violet);text-align:left;color:inherit;cursor:pointer"><span>Em produção</span><strong>${inProduction.length}</strong></button><button class="today-card" data-dash-view="pedidos" style="--card-color:var(--red);text-align:left;color:inherit;cursor:pointer"><span>Pedidos atrasados</span><strong>${overdue.length}</strong></button><button class="today-card" data-dash-view="recebimentos" style="--card-color:var(--green);text-align:left;color:inherit;cursor:pointer"><span>Entrou líquido no mês</span><strong>${fmtMoney(monthNet)}</strong></button>`;
+    const attention=[...overdue.map(p=>({view:'pedidos',title:`Pedido atrasado · ${p.id}`,meta:`${p.client||p.desc} · entrega ${fmtDate(p.deliveryDate)}`})),...openRequests.sort((a,b)=>(a.followup||'9999').localeCompare(b.followup||'9999')).slice(0,4).map(s=>({view:'solicitacoes',title:`Tarefa · ${s.title||s.code||s.id}`,meta:`${s.followup?fmtDate(s.followup):'Sem prazo'}${s.client?' · '+s.client:''}`})),...pendingMoney.slice(0,4).map(r=>({view:'recebimentos',title:`Financeiro pendente · ${r.id}`,meta:`${r.client||r.description||'Lançamento'} · ${fmtMoney(r.value)}`}))].slice(0,8);
     document.getElementById('dashboard-attention').innerHTML=attention.length?attention.map(x=>`<button class="today-item" data-dash-view="${x.view}" style="width:100%;color:inherit;text-align:left;cursor:pointer"><span><strong>${escapeHtml(x.title)}</strong><small>${escapeHtml(x.meta)}</small></span><span aria-hidden="true">→</span></button>`).join(''):'<div class="empty">Nenhuma pendência importante agora.</div>';
-    const recent=[...PEDIDOS.map(p=>({date:p.date||'',view:'pedidos',title:p.desc,meta:`${p.id} · ${p.status}`})),...ORCAMENTOS.map(o=>({date:o.date||'',view:'orcamentos',title:o.clientName||o.client||'Orçamento',meta:`${o.id} · ${fmtMoney(o.total||0)}`})),...CALCULOS.map(c=>({date:(c.updatedAt||c.createdAt||'').slice(0,10),view:'calculadora',title:c.inputs?.['calc-product-name']||'Cálculo',meta:`${c.id} · ${fmtMoney(c.result?.valorFinal||c.valorFinal||0)}`}))].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);
+    const recent=[...SOLICITACOES.map(t=>({date:(t.updatedAt||t.createdAt||t.date||'').slice(0,10),view:'solicitacoes',title:t.title||'Tarefa',meta:`${t.code||'Tarefa'} · ${requestStatus(t)}`})),...PEDIDOS.map(p=>({date:p.date||'',view:'pedidos',title:p.desc,meta:`${p.id} · ${p.status}`})),...ORCAMENTOS.map(o=>({date:o.date||'',view:'orcamentos',title:o.clientName||o.client||'Orçamento',meta:`${o.id} · ${fmtMoney(o.total||0)}`})),...CALCULOS.map(c=>({date:(c.updatedAt||c.createdAt||'').slice(0,10),view:'calculadora',title:c.inputs?.['calc-product-name']||'Cálculo',meta:`${c.id} · ${fmtMoney(c.result?.valorFinal||c.valorFinal||0)}`}))].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);
     document.getElementById('dashboard-recent').innerHTML=recent.length?recent.map(x=>`<button class="today-item" data-dash-view="${x.view}" style="width:100%;color:inherit;text-align:left;cursor:pointer"><span><strong>${escapeHtml(x.title)}</strong><small>${escapeHtml(x.meta)}${x.date?' · '+fmtDate(x.date):''}</small></span><span aria-hidden="true">→</span></button>`).join(''):'<div class="empty">Os registros recentes aparecerão aqui.</div>';
     root.querySelectorAll('[data-dash-view]').forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.dashView)));
   }
 
   const globalSearch=document.getElementById('global-search'),globalResults=document.getElementById('global-search-results');
   function globalSearchRows(query){const q=query.trim().toLocaleLowerCase('pt-BR');if(q.length<2)return[];const has=(...v)=>v.filter(Boolean).join(' ').toLocaleLowerCase('pt-BR').includes(q);return [
-    ...SOLICITACOES.filter(x=>has(x.id,x.client,x.description,x.request,x.notes)).map(x=>({view:'solicitacoes',type:'Solicitação',title:x.client||x.id,meta:x.description||x.request||x.id})),
+    ...SOLICITACOES.filter(x=>has(x.id,x.client,x.title,x.category,x.description,x.request,x.notes)).map(x=>({view:'solicitacoes',type:'Tarefa',title:x.title||x.client||x.id,meta:x.category||x.description||x.id})),
     ...ORCAMENTOS.filter(x=>has(x.id,x.clientName,x.client,x.items?.map(i=>i.desc||i.description).join(' '))).map(x=>({view:'orcamentos',type:'Orçamento',title:x.clientName||x.client||x.id,meta:x.id})),
     ...PEDIDOS.filter(x=>has(x.id,x.client,x.desc,x.status)).map(x=>({view:'pedidos',type:'Produção',title:x.client||x.desc,meta:`${x.id} · ${x.status}`})),
     ...RECEBIMENTOS.filter(x=>has(x.id,x.client,x.description,x.orderId)).map(x=>({view:'recebimentos',type:'Financeiro',title:x.client||x.description||x.id,meta:`${x.id} · ${fmtMoney(x.value)}`})),
@@ -1860,10 +1889,10 @@
   document.getElementById('calc-history-sort').addEventListener('change',renderCalcHistory);
   document.getElementById('calc-history-refresh').addEventListener('click',refreshCalcHistory);
 
-  // ---------- Pedidos de orçamento (pré-proposta, sem valores) ----------
+  // ---------- Tarefas e lembretes (inclui pedidos de orçamento antigos) ----------
   const SOL_KEY='pedidos_orcamento';
-  const solFields=['date','client','contact','channel','title','qty','description','reference','status','priority','followup','needed','notes'];
-  const solStages=['Em busca','Localizado','Aguardando retorno','Cancelado'];
+  const solFields=['date','followup','time','priority','title','category','status','description','client','contact','channel','reference','needed','qty','notes'];
+  const solStages=['A fazer','Em andamento','Aguardando','Concluída','Cancelada','Em busca','Localizado','Aguardando retorno','Cancelado'];
   function localRequestDate(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
   function requestMessage(text,error=false){const el=document.getElementById('sol-msg');el.className='msg '+(error?'err':'ok');el.textContent=text;}
   async function requestRead(key){
@@ -1878,11 +1907,14 @@
   function linkedRequestQuotes(r){return ORCAMENTOS.filter(o=>o.sourceRequestId===r.id);}
   function requestStatus(r){
     const quotes=linkedRequestQuotes(r);
-    if(PEDIDOS.some(p=>p.sourceRequestId===r.id||quotes.some(o=>p.orcamentoId===o.id))||quotes.some(o=>o.convertedToPedido))return 'Aceito / produção';
-    if(r.status==='Cancelado')return 'Cancelado';
-    if(quotes.length)return 'Orçamento preparado';
-    return r.status||'Em busca';
+    if(r.status==='Concluída')return 'Concluída';
+    if(PEDIDOS.some(p=>p.sourceRequestId===r.id||quotes.some(o=>p.orcamentoId===o.id))||quotes.some(o=>o.convertedToPedido))return 'Concluída';
+    if(['Cancelado','Cancelada'].includes(r.status))return 'Cancelada';
+    if(quotes.length)return 'Aguardando';
+    return ({'Em busca':'Em andamento','Localizado':'Em andamento','Aguardando retorno':'Aguardando','Aceito / produção':'Concluída'}[r.status]||r.status||'A fazer');
   }
+  function taskCategory(r){return r.category||'Orçamento / pesquisa';}
+  function taskIsClosed(r){return ['Concluída','Cancelada'].includes(requestStatus(r));}
   function requestQuoteNotice(){
     const el=document.getElementById('orc-request-notice'),r=SOLICITACOES.find(x=>x.id===sourceRequestId);
     el.textContent=r?`Origem: ${r.code} · ${r.title}. Confira descrição, quantidade e preço antes de adicionar o item. As anotações internas não serão incluídas no PDF.`:'';
@@ -1890,45 +1922,68 @@
   }
   function resetRequestForm(){
     editingRequestId=null;editingRequestVersion=null;
-    solFields.forEach(k=>{const el=document.getElementById('sol-'+k);el.value=k==='date'?localRequestDate():k==='qty'?'1':k==='status'?'Em busca':k==='priority'?'Normal':k==='channel'?'WhatsApp':'';});
-    document.getElementById('sol-save').textContent='Salvar solicitação';document.getElementById('sol-edit-notice').textContent='';
+    solFields.forEach(k=>{const el=document.getElementById('sol-'+k);el.value=k==='date'?localRequestDate():k==='qty'?'1':k==='status'?'A fazer':k==='priority'?'Normal':k==='category'?'Geral':k==='channel'?'Interno':'';});
+    document.getElementById('sol-save').textContent='Salvar tarefa';document.getElementById('task-form-title').textContent='Adicionar tarefa';document.getElementById('sol-edit-notice').textContent='';
   }
   function editRequest(id){
     if(requestBusy)return;
-    if(editingRequestId&&!confirm('Abrir esta solicitação? Alterações não salvas serão descartadas.'))return;
+    if(editingRequestId&&!confirm('Abrir esta tarefa? Alterações não salvas serão descartadas.'))return;
     const r=SOLICITACOES.find(x=>x.id===id);if(!r)return;
     editingRequestId=id;editingRequestVersion=r.updatedAt;
-    solFields.forEach(k=>document.getElementById('sol-'+k).value=r[k]??'');
+    solFields.forEach(k=>{const el=document.getElementById('sol-'+k);if(!el)return;el.value=k==='category'?taskCategory(r):k==='status'?requestStatus(r):(r[k]??'');});
     document.getElementById('sol-save').textContent='Salvar alterações';
-    document.getElementById('sol-edit-notice').textContent=`Editando ${r.code}. Situação: ${requestStatus(r)}. Alterações aqui não modificam propostas já salvas.`;
-    document.getElementById('sol-client').scrollIntoView({behavior:'smooth',block:'center'});
+    document.getElementById('task-form-title').textContent=`Editar ${r.code||'tarefa'}`;
+    document.getElementById('sol-edit-notice').textContent=`Situação atual: ${requestStatus(r)}. Alterações aqui não modificam propostas já salvas.`;
+    document.getElementById('task-form-panel').scrollIntoView({behavior:'smooth',block:'start'});
   }
   function safeRequestURL(value){try{const u=new URL(value);return ['https:','http:'].includes(u.protocol)?u.href:'';}catch(e){return '';}}
   function requestRows(){
     const normalize=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
     const query=normalize(document.getElementById('sol-search').value),filter=document.getElementById('sol-filter').value,sort=document.getElementById('sol-sort').value;
-    return SOLICITACOES.filter(r=>(!filter||requestStatus(r)===filter)&&normalize([r.code,r.client,r.title,r.description,r.notes,r.contact].join(' ')).includes(query)).sort((a,b)=>{
-      if(sort==='client')return a.client.localeCompare(b.client,'pt-BR',{sensitivity:'base'});
-      if(sort==='priority'){const rank={Alta:0,Normal:1,Baixa:2};return rank[a.priority]-rank[b.priority]||b.date.localeCompare(a.date);}
+    const today=localRequestDate();
+    return SOLICITACOES.filter(r=>{
+      const status=requestStatus(r),matches=normalize([r.code,r.client,r.title,taskCategory(r),r.description,r.notes,r.contact].join(' ')).includes(query);
+      if(!matches)return false;
+      if(filter==='active')return !r.archivedAt&&!taskIsClosed(r);
+      if(filter==='archived')return !!r.archivedAt;
+      if(filter==='today')return !r.archivedAt&&!taskIsClosed(r)&&r.followup&&r.followup<=today;
+      return !filter?true:!r.archivedAt&&status===filter;
+    }).sort((a,b)=>{
+      if(sort==='client')return (a.title||a.client||'').localeCompare(b.title||b.client||'','pt-BR',{sensitivity:'base'});
+      if(sort==='priority'){const rank={Alta:0,Normal:1,Baixa:2};return (rank[a.priority]??1)-(rank[b.priority]??1)||(a.followup||'9999').localeCompare(b.followup||'9999');}
       if(sort==='followup')return (a.followup||'9999').localeCompare(b.followup||'9999');
-      return b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt);
+      return (b.date||'').localeCompare(a.date||'')||(b.createdAt||'').localeCompare(a.createdAt||'');
     });
+  }
+  function renderTaskSummary(){
+    const today=localRequestDate(),month=today.slice(0,7),active=SOLICITACOES.filter(r=>!r.archivedAt&&!taskIsClosed(r));
+    const overdue=active.filter(r=>r.followup&&r.followup<today).length,todayCount=active.filter(r=>r.followup===today).length;
+    const waiting=active.filter(r=>requestStatus(r)==='Aguardando').length,done=SOLICITACOES.filter(r=>requestStatus(r)==='Concluída'&&String(r.completedAt||r.updatedAt||r.date||'').slice(0,7)===month).length;
+    document.getElementById('task-summary').innerHTML=`<button class="task-stat" data-task-filter="active" style="--task-color:var(--violet)"><span>Em aberto</span><strong>${active.length}</strong></button><button class="task-stat" data-task-filter="today" style="--task-color:var(--red)"><span>Hoje / atrasadas</span><strong>${todayCount+overdue}</strong></button><button class="task-stat" data-task-filter="Aguardando" style="--task-color:var(--mustard)"><span>Aguardando</span><strong>${waiting}</strong></button><button class="task-stat" data-task-filter="Concluída" style="--task-color:var(--green)"><span>Concluídas no mês</span><strong>${done}</strong></button>`;
+    document.querySelectorAll('[data-task-filter]').forEach(btn=>btn.addEventListener('click',()=>{document.getElementById('sol-filter').value=btn.dataset.taskFilter;renderRequests();document.getElementById('sol-list').scrollIntoView({behavior:'smooth',block:'start'});}));
   }
   function renderRequests(){
     const rows=requestRows(),today=localRequestDate();
-    const pending=SOLICITACOES.filter(r=>r.followup&&r.followup<=today&&!['Cancelado','Aceito / produção'].includes(requestStatus(r))).length;
-    document.getElementById('sol-count').textContent=`${rows.length} de ${SOLICITACOES.length} solicitação(ões) · ${pending} retorno(s) para hoje ou em atraso. As datas são lembretes visuais no portal.`;
-    document.getElementById('sol-list').innerHTML=rows.map(r=>{
-      const status=requestStatus(r),quotes=linkedRequestQuotes(r),url=safeRequestURL(r.reference),due=r.followup&&r.followup<=today&&!['Cancelado','Aceito / produção'].includes(status);
-      const tag=status==='Aceito / produção'?'pago':status==='Localizado'||status==='Orçamento preparado'?'concluido':status==='Aguardando retorno'?'producao':'pendente';
-      return `<div class="quote-saved"><div class="quote-saved-head"><div><strong>${escapeHtml(r.code)} · ${escapeHtml(r.title)}</strong><div class="quote-saved-meta">${escapeHtml(r.client)} · ${fmtDate(r.date)} · ${Number(r.qty)} un. · ${escapeHtml(r.channel)}</div></div><span class="tag ${tag}">${escapeHtml(status)}</span></div>
-      <p class="hint">Prioridade: ${escapeHtml(r.priority)}${r.followup?` · Retorno: ${fmtDate(r.followup)}${due?' — acompanhar':''}`:''}${r.needed?` · Data desejada: ${fmtDate(r.needed)}`:''}</p>
-      <details><summary style="cursor:pointer;">Ver solicitação e anotações</summary><p style="white-space:pre-wrap;overflow-wrap:anywhere;">${escapeHtml(r.description)}</p><p>Contato: ${escapeHtml(r.contact||'Não informado')}</p>${url?`<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Abrir referência</a>`:''}${r.notes?`<p class="hint" style="white-space:pre-wrap;overflow-wrap:anywhere;">Anotações internas: ${escapeHtml(r.notes)}</p>`:''}</details>
-      <div class="actions" style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;"><button type="button" data-edit-request="${r.id}">Editar</button>${quotes.map(o=>`<button type="button" data-open-request-quote="${escapeHtml(o.id)}">Ver ${escapeHtml(o.id)}</button>`).join('')}${!quotes.length&&status!=='Cancelado'&&status!=='Aceito / produção'?`<button type="button" data-quote-request="${r.id}">Preparar orçamento →</button>`:''}</div></div>`;
-    }).join('')||'<div class="empty">'+(SOLICITACOES.length?'Nenhuma solicitação corresponde aos filtros.':'Nenhuma solicitação cadastrada. Registre acima o primeiro pedido, sem precisar informar preço.')+'</div>';
+    const pending=SOLICITACOES.filter(r=>!r.archivedAt&&!taskIsClosed(r)&&r.followup&&r.followup<=today).length;
+    document.getElementById('sol-count').textContent=`${rows.length} tarefa(s) exibida(s) · ${pending} lembrete(s) para hoje ou em atraso.`;
+    renderTaskSummary();
+    const columns=[['A fazer','A fazer','var(--cyan)'],['Em andamento','Em andamento','var(--violet)'],['Aguardando','Aguardando','var(--mustard)'],['Concluída','Concluídas','var(--green)'],['Cancelada','Canceladas','var(--red)']];
+    const card=r=>{const status=requestStatus(r),quotes=linkedRequestQuotes(r),url=safeRequestURL(r.reference),due=!taskIsClosed(r)&&r.followup&&r.followup<today,todayDue=!taskIsClosed(r)&&r.followup===today,priorityColor=r.priority==='Alta'?'var(--red)':r.priority==='Baixa'?'var(--green)':'var(--cyan)',category=taskCategory(r);return `<article class="task-card${due?' overdue':''}" style="--priority-color:${priorityColor}"><div class="task-card-head"><div class="task-card-title">${escapeHtml(r.title||'Tarefa sem título')}</div><span class="tag ${r.priority==='Alta'?'pendente':status==='Concluída'?'pago':'producao'}">${escapeHtml(r.priority||'Normal')}</span></div><div class="task-meta">${escapeHtml(category)} · ${escapeHtml(r.code||'Tarefa')}${r.followup?`<br><strong>${due?'Atrasada: ':todayDue?'Hoje: ':'Prazo: '}${fmtDate(r.followup)}${r.time?' às '+escapeHtml(r.time):''}</strong>`:'<br>Sem prazo definido'}${r.client?` · ${escapeHtml(r.client)}`:''}</div>${r.description?`<p style="white-space:pre-wrap;overflow-wrap:anywhere;margin:9px 0 0;">${escapeHtml(r.description)}</p>`:''}${r.notes||r.contact||url?`<details><summary style="cursor:pointer;margin-top:8px;">Ver detalhes</summary>${r.contact?`<p>Contato: ${escapeHtml(r.contact)}</p>`:''}${url?`<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Abrir referência</a>`:''}${r.notes?`<p class="hint" style="white-space:pre-wrap;">${escapeHtml(r.notes)}</p>`:''}</details>`:''}<div class="actions"><button type="button" data-edit-request="${r.id}">Editar</button>${status==='A fazer'?`<button type="button" data-task-status="${r.id}" data-next-status="Em andamento">Iniciar</button>`:''}${!taskIsClosed(r)?`<button type="button" data-task-status="${r.id}" data-next-status="Concluída">Concluir</button>`:`<button type="button" data-task-status="${r.id}" data-next-status="A fazer">Reabrir</button>`}${category==='Orçamento / pesquisa'&&!quotes.length&&!taskIsClosed(r)?`<button type="button" data-quote-request="${r.id}">Criar orçamento →</button>`:''}${quotes.map(o=>`<button type="button" data-open-request-quote="${escapeHtml(o.id)}">Ver ${escapeHtml(o.id)}</button>`).join('')}${taskIsClosed(r)&&!r.archivedAt?`<button type="button" data-archive-task="${r.id}">Arquivar</button>`:''}</div></article>`;};
+    const visibleColumns=columns.map(col=>[...col,rows.filter(r=>requestStatus(r)===col[0])]).filter(col=>col[3].length||document.getElementById('sol-filter').value==='active'&&!['Concluída','Cancelada'].includes(col[0]));
+    document.getElementById('sol-list').innerHTML=visibleColumns.map(([status,label,color,items])=>`<section class="task-column" style="--column-color:${color}"><div class="task-column-head">${label}<span>${items.length}</span></div><div class="task-column-body">${items.map(card).join('')||'<div class="task-empty">Nenhuma tarefa nesta etapa.</div>'}</div></section>`).join('')||(rows.length?rows.map(card).join(''):'<div class="empty">Nenhuma tarefa corresponde aos filtros.</div>');
     document.querySelectorAll('[data-edit-request]').forEach(b=>b.addEventListener('click',()=>editRequest(b.dataset.editRequest)));
     document.querySelectorAll('[data-quote-request]').forEach(b=>b.addEventListener('click',()=>prepareRequestQuote(b.dataset.quoteRequest)));
     document.querySelectorAll('[data-open-request-quote]').forEach(b=>b.addEventListener('click',()=>openRequestQuote(b.dataset.openRequestQuote)));
+    document.querySelectorAll('[data-task-status]').forEach(b=>b.addEventListener('click',()=>updateTaskStatus(b.dataset.taskStatus,b.dataset.nextStatus)));
+    document.querySelectorAll('[data-archive-task]').forEach(b=>b.addEventListener('click',()=>archiveTask(b.dataset.archiveTask)));
+  }
+  async function updateTaskStatus(id,status){
+    if(requestBusy)return;requestBusy=true;
+    try{const latest=await requestRead(SOL_KEY),now=new Date().toISOString(),next=latest.map(r=>r.id===id?{...r,status,completedAt:status==='Concluída'?now:null,archivedAt:null,updatedAt:now}:r);if(!await setJSON(SOL_KEY,next))throw new Error('Não foi possível atualizar a tarefa.');SOLICITACOES=next;renderRequests();renderDashboard();requestMessage(status==='Concluída'?'Tarefa concluída.':'Situação atualizada.');}catch(e){requestMessage(e.message,true);}finally{requestBusy=false;}
+  }
+  async function archiveTask(id){
+    if(requestBusy||!confirm('Arquivar esta tarefa? Ela continuará disponível no filtro “Arquivadas”.'))return;requestBusy=true;
+    try{const latest=await requestRead(SOL_KEY),now=new Date().toISOString(),next=latest.map(r=>r.id===id?{...r,archivedAt:now,updatedAt:now}:r);if(!await setJSON(SOL_KEY,next))throw new Error('Não foi possível arquivar a tarefa.');SOLICITACOES=next;renderRequests();renderDashboard();}catch(e){requestMessage(e.message,true);}finally{requestBusy=false;}
   }
   function openRequestQuote(id){
     root.querySelector('nav button[data-view="orcamentos"]').click();renderOrcamentos();
@@ -1940,9 +1995,11 @@
     try{
       const [requests,quotes,orders]=await Promise.all([requestRead(SOL_KEY),requestRead('orcamentos'),requestRead('producao_pedidos')]);
       SOLICITACOES=requests;ORCAMENTOS=quotes;PEDIDOS=orders;
-      const r=requests.find(x=>x.id===id);if(!r)throw new Error('Solicitação não encontrada. Atualize a lista.');
+      const r=requests.find(x=>x.id===id);if(!r)throw new Error('Tarefa não encontrada. Atualize a lista.');
       const linked=linkedRequestQuotes(r);if(linked.length){openRequestQuote(linked[linked.length-1].id);return;}
-      if(['Cancelado','Aceito / produção'].includes(requestStatus(r)))throw new Error('Esta solicitação está encerrada. Revise seu histórico antes de preparar outra proposta.');
+      if(taskCategory(r)!=='Orçamento / pesquisa')throw new Error('Altere a categoria para “Orçamento / pesquisa” antes de criar uma proposta.');
+      if(!r.client)throw new Error('Informe a pessoa ou cliente relacionado antes de criar o orçamento.');
+      if(taskIsClosed(r))throw new Error('Esta tarefa está encerrada. Reabra-a antes de preparar uma proposta.');
       if((orcItemsCart.length||document.getElementById('orc-client-name').value.trim()||document.getElementById('orc-item-desc').value.trim())&&!confirm('Substituir o rascunho de orçamento aberto? Os orçamentos já salvos serão mantidos.'))return;
       clearOrcamentoForm();sourceRequestId=id;
       document.getElementById('orc-client-name').value=r.client;document.getElementById('orc-client-contact').value=r.contact||'';
@@ -1954,21 +2011,24 @@
   document.getElementById('sol-save').addEventListener('click',async()=>{
     if(requestBusy)return;
     const fields=Object.fromEntries(solFields.map(k=>[k,document.getElementById('sol-'+k).value.trim()]));
-    if(!fields.client||!fields.title||!fields.description||!fields.date){requestMessage('Preencha data, cliente, produto e descrição da solicitação.',true);return;}
+    if(!fields.title||!fields.date){requestMessage('Preencha a data e informe o que precisa ser feito.',true);return;}
     if(!/^\d{4}-\d{2}-\d{2}$/.test(fields.date)||!Number.isInteger(Number(fields.qty))||Number(fields.qty)<1||!solStages.includes(fields.status)){requestMessage('Confira a data, a quantidade e a etapa informada.',true);return;}
     if(fields.reference&&!safeRequestURL(fields.reference)){requestMessage('Informe uma referência começando por https:// ou http://.',true);return;}
     fields.qty=Number(fields.qty);requestBusy=true;document.getElementById('sol-save').disabled=true;
     try{
       const latest=await requestRead(SOL_KEY),existing=latest.find(r=>r.id===editingRequestId);
-      if(editingRequestId&&(!existing||existing.updatedAt!==editingRequestVersion))throw new Error('Esta solicitação foi alterada ou removida em outra sessão. Atualize a lista e abra novamente.');
-      const now=new Date().toISOString();const code=existing?.code||'SOL-'+String(latest.reduce((max,r)=>Math.max(max,Number((r.code||'').split('-')[1])||0),0)+1).padStart(3,'0');
-      const record={...fields,id:existing?.id||crypto.randomUUID(),code,createdAt:existing?.createdAt||now,updatedAt:now};
+      if(editingRequestId&&(!existing||existing.updatedAt!==editingRequestVersion))throw new Error('Esta tarefa foi alterada ou removida em outra sessão. Atualize a lista e abra novamente.');
+      const now=new Date().toISOString();
+      const nextTaskNumber=latest.reduce((max,r)=>{const match=String(r.code||'').match(/^TSK-(\d+)$/);return Math.max(max,match?Number(match[1]):0);},0)+1;
+      const code=existing?.code||'TSK-'+String(nextTaskNumber).padStart(3,'0');
+      const record={...existing,...fields,id:existing?.id||crypto.randomUUID(),code,createdAt:existing?.createdAt||now,updatedAt:now,archivedAt:existing?.archivedAt||null};
       const next=existing?latest.map(r=>r.id===existing.id?record:r):[...latest,record];
       if(!await setJSON(SOL_KEY,next))throw new Error('Não foi possível salvar. Seus dados continuam no formulário; tente novamente.');
-      SOLICITACOES=next;resetRequestForm();renderRequests();requestMessage(`${code} salva com sucesso. Nenhum orçamento ou lançamento financeiro foi criado.`);
+      SOLICITACOES=next;resetRequestForm();renderRequests();renderDashboard();requestMessage(`${code} salva com sucesso.`);
     }catch(e){requestMessage(e.message,true);}finally{requestBusy=false;document.getElementById('sol-save').disabled=false;}
   });
-  document.getElementById('sol-new').addEventListener('click',()=>{if(requestBusy)return;if(!confirm('Limpar o formulário? Alterações não salvas serão descartadas.'))return;resetRequestForm();requestMessage('Pronto para uma nova solicitação.');});
+  document.getElementById('sol-new').addEventListener('click',()=>{if(requestBusy)return;if(!confirm('Limpar o formulário? Alterações não salvas serão descartadas.'))return;resetRequestForm();requestMessage('Pronto para uma nova tarefa.');});
+  document.getElementById('task-focus-new').addEventListener('click',()=>{resetRequestForm();document.getElementById('task-form-panel').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>document.getElementById('sol-title').focus(),250);});
   document.getElementById('sol-refresh').addEventListener('click',refreshRequests);
   document.getElementById('sol-search').addEventListener('input',renderRequests);
   ['sol-filter','sol-sort'].forEach(id=>document.getElementById(id).addEventListener('change',renderRequests));
@@ -2105,8 +2165,8 @@
     ORCAMENTOS = await requestRead('orcamentos');
     if(sourceRequestId){
       const requests=await requestRead(SOL_KEY),r=requests.find(x=>x.id===sourceRequestId);
-      if(!r||r.status==='Cancelado')throw new Error('A solicitação foi removida ou cancelada. Revise antes de salvar.');
-      if(ORCAMENTOS.some(o=>o.sourceRequestId===sourceRequestId))throw new Error('Esta solicitação já tem orçamento salvo. Abra a proposta pela aba Pedidos de orçamento.');
+      if(!r||['Cancelado','Cancelada'].includes(r.status))throw new Error('A tarefa vinculada foi removida ou cancelada. Revise antes de salvar.');
+      if(ORCAMENTOS.some(o=>o.sourceRequestId===sourceRequestId))throw new Error('Esta tarefa já tem orçamento salvo. Abra a proposta pela aba Orçamentos.');
     }
     const id = nextSeqId(ORCAMENTOS, 'ORC');
     const total = orcItemsCart.reduce((s,it)=>s+it.qty*it.unitValue,0);
@@ -2125,7 +2185,7 @@
 
   function renderOrcamentos(){
     document.getElementById('orc-list').innerHTML = ORCAMENTOS.length ? ORCAMENTOS.slice().reverse().map(o=>`
-      <div class="quote-saved" id="quote-${escapeHtml(o.id)}"><div class="quote-saved-head"><div><strong>${o.id} · ${escapeHtml(o.clientName)}</strong><div class="quote-saved-meta">Emitido em ${fmtDate(o.date)}${o.sourceRequestId?' · Solicitação: '+escapeHtml(SOLICITACOES.find(r=>r.id===o.sourceRequestId)?.code||'vinculada'):''} · ${(o.items||[]).length} ${(o.items||[]).length===1?'item':'itens'} ${o.convertedToPedido ? ' · <span class="tag concluido">pedido criado</span>' : ''}</div></div><div class="quote-saved-total">${fmtMoney(o.total)}</div></div>
+      <div class="quote-saved" id="quote-${escapeHtml(o.id)}"><div class="quote-saved-head"><div><strong>${o.id} · ${escapeHtml(o.clientName)}</strong><div class="quote-saved-meta">Emitido em ${fmtDate(o.date)}${o.sourceRequestId?' · Tarefa: '+escapeHtml(SOLICITACOES.find(r=>r.id===o.sourceRequestId)?.code||'vinculada'):''} · ${(o.items||[]).length} ${(o.items||[]).length===1?'item':'itens'} ${o.convertedToPedido ? ' · <span class="tag concluido">pedido criado</span>' : ''}</div></div><div class="quote-saved-total">${fmtMoney(o.total)}</div></div>
         <div class="actions"><button data-pdf-orc="${o.id}">📄 Baixar PDF</button><button data-duplicate-orc="${o.id}">⧉ Duplicar</button>${!o.convertedToPedido ? `<button data-convert-orc="${o.id}">✓ Aceito → Produção</button>` : ''}<button data-del-orc="${o.id}">Remover</button></div>
       </div>
     `).join('') : '<div class="empty">Nenhum orçamento salvo ainda.</div>';
