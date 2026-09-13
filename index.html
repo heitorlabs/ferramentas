@@ -1891,6 +1891,7 @@
 
   // ---------- Tarefas e lembretes (inclui pedidos de orçamento antigos) ----------
   const SOL_KEY='pedidos_orcamento';
+  const TASK_KEY='tarefas_empresa';
   const solFields=['date','followup','time','priority','title','category','status','description','client','contact','channel','reference','needed','qty','notes'];
   const solStages=['A fazer','Em andamento','Aguardando','Concluída','Cancelada','Em busca','Localizado','Aguardando retorno','Cancelado'];
   function localRequestDate(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
@@ -1900,8 +1901,18 @@
     if(!Array.isArray(value))throw new Error('Dados em formato inesperado. Nenhum registro foi alterado.');
     return value;
   }
+  function mergeTaskSources(legacy,tasks){
+    const records=new Map();
+    (legacy||[]).forEach(item=>records.set(item.id,{...item}));
+    (tasks||[]).forEach(item=>records.set(item.id,{...item}));
+    return [...records.values()];
+  }
+  async function readAllTasks(){
+    const [legacy,tasks]=await Promise.all([requestRead(SOL_KEY),requestRead(TASK_KEY)]);
+    return mergeTaskSources(legacy,tasks);
+  }
   async function refreshRequests(){
-    try{const [s,o,p]=await Promise.all([requestRead(SOL_KEY),requestRead('orcamentos'),requestRead('producao_pedidos')]);SOLICITACOES=s;ORCAMENTOS=o;PEDIDOS=p;renderRequests();renderOrcamentos();}
+    try{const [legacy,tasks,o,p]=await Promise.all([requestRead(SOL_KEY),requestRead(TASK_KEY),requestRead('orcamentos'),requestRead('producao_pedidos')]);SOLICITACOES=mergeTaskSources(legacy,tasks);ORCAMENTOS=o;PEDIDOS=p;renderRequests();renderOrcamentos();}
     catch(e){requestMessage(e.message,true);}
   }
   function linkedRequestQuotes(r){return ORCAMENTOS.filter(o=>o.sourceRequestId===r.id);}
@@ -1979,11 +1990,11 @@
   }
   async function updateTaskStatus(id,status){
     if(requestBusy)return;requestBusy=true;
-    try{const latest=await requestRead(SOL_KEY),now=new Date().toISOString(),next=latest.map(r=>r.id===id?{...r,status,completedAt:status==='Concluída'?now:null,archivedAt:null,updatedAt:now}:r);if(!await setJSON(SOL_KEY,next))throw new Error('Não foi possível atualizar a tarefa.');SOLICITACOES=next;renderRequests();renderDashboard();requestMessage(status==='Concluída'?'Tarefa concluída.':'Situação atualizada.');}catch(e){requestMessage(e.message,true);}finally{requestBusy=false;}
+    try{const [legacy,tasks]=await Promise.all([requestRead(SOL_KEY),requestRead(TASK_KEY)]),current=mergeTaskSources(legacy,tasks).find(r=>r.id===id);if(!current)throw new Error('Tarefa não encontrada. Atualize a lista.');const now=new Date().toISOString(),record={...current,status,completedAt:status==='Concluída'?now:null,archivedAt:null,updatedAt:now},next=tasks.some(r=>r.id===id)?tasks.map(r=>r.id===id?record:r):[...tasks,record];if(!await setJSON(TASK_KEY,next))throw new Error('Não foi possível atualizar a tarefa.');SOLICITACOES=mergeTaskSources(legacy,next);renderRequests();renderDashboard();requestMessage(status==='Concluída'?'Tarefa concluída.':'Situação atualizada.');}catch(e){requestMessage(e.message,true);}finally{requestBusy=false;}
   }
   async function archiveTask(id){
     if(requestBusy||!confirm('Arquivar esta tarefa? Ela continuará disponível no filtro “Arquivadas”.'))return;requestBusy=true;
-    try{const latest=await requestRead(SOL_KEY),now=new Date().toISOString(),next=latest.map(r=>r.id===id?{...r,archivedAt:now,updatedAt:now}:r);if(!await setJSON(SOL_KEY,next))throw new Error('Não foi possível arquivar a tarefa.');SOLICITACOES=next;renderRequests();renderDashboard();}catch(e){requestMessage(e.message,true);}finally{requestBusy=false;}
+    try{const [legacy,tasks]=await Promise.all([requestRead(SOL_KEY),requestRead(TASK_KEY)]),current=mergeTaskSources(legacy,tasks).find(r=>r.id===id);if(!current)throw new Error('Tarefa não encontrada. Atualize a lista.');const now=new Date().toISOString(),record={...current,archivedAt:now,updatedAt:now},next=tasks.some(r=>r.id===id)?tasks.map(r=>r.id===id?record:r):[...tasks,record];if(!await setJSON(TASK_KEY,next))throw new Error('Não foi possível arquivar a tarefa.');SOLICITACOES=mergeTaskSources(legacy,next);renderRequests();renderDashboard();}catch(e){requestMessage(e.message,true);}finally{requestBusy=false;}
   }
   function openRequestQuote(id){
     root.querySelector('nav button[data-view="orcamentos"]').click();renderOrcamentos();
@@ -1993,7 +2004,7 @@
     if(requestBusy||quoteSaveBusy)return;
     requestBusy=true;
     try{
-      const [requests,quotes,orders]=await Promise.all([requestRead(SOL_KEY),requestRead('orcamentos'),requestRead('producao_pedidos')]);
+      const [requests,quotes,orders]=await Promise.all([readAllTasks(),requestRead('orcamentos'),requestRead('producao_pedidos')]);
       SOLICITACOES=requests;ORCAMENTOS=quotes;PEDIDOS=orders;
       const r=requests.find(x=>x.id===id);if(!r)throw new Error('Tarefa não encontrada. Atualize a lista.');
       const linked=linkedRequestQuotes(r);if(linked.length){openRequestQuote(linked[linked.length-1].id);return;}
@@ -2016,15 +2027,16 @@
     if(fields.reference&&!safeRequestURL(fields.reference)){requestMessage('Informe uma referência começando por https:// ou http://.',true);return;}
     fields.qty=Number(fields.qty);requestBusy=true;document.getElementById('sol-save').disabled=true;
     try{
-      const latest=await requestRead(SOL_KEY),existing=latest.find(r=>r.id===editingRequestId);
+      const [legacy,latest]=await Promise.all([requestRead(SOL_KEY),requestRead(TASK_KEY)]),allLatest=mergeTaskSources(legacy,latest),existing=allLatest.find(r=>r.id===editingRequestId);
       if(editingRequestId&&(!existing||existing.updatedAt!==editingRequestVersion))throw new Error('Esta tarefa foi alterada ou removida em outra sessão. Atualize a lista e abra novamente.');
       const now=new Date().toISOString();
-      const nextTaskNumber=latest.reduce((max,r)=>{const match=String(r.code||'').match(/^TSK-(\d+)$/);return Math.max(max,match?Number(match[1]):0);},0)+1;
+      const nextTaskNumber=allLatest.reduce((max,r)=>{const match=String(r.code||'').match(/^TSK-(\d+)$/);return Math.max(max,match?Number(match[1]):0);},0)+1;
       const code=existing?.code||'TSK-'+String(nextTaskNumber).padStart(3,'0');
       const record={...existing,...fields,id:existing?.id||crypto.randomUUID(),code,createdAt:existing?.createdAt||now,updatedAt:now,archivedAt:existing?.archivedAt||null};
       const next=existing?latest.map(r=>r.id===existing.id?record:r):[...latest,record];
-      if(!await setJSON(SOL_KEY,next))throw new Error('Não foi possível salvar. Seus dados continuam no formulário; tente novamente.');
-      SOLICITACOES=next;resetRequestForm();renderRequests();renderDashboard();requestMessage(`${code} salva com sucesso.`);
+      const taskRecords=existing&&!latest.some(r=>r.id===existing.id)?[...latest,record]:next;
+      if(!await setJSON(TASK_KEY,taskRecords))throw new Error('Não foi possível salvar. Seus dados continuam no formulário; tente novamente.');
+      SOLICITACOES=mergeTaskSources(legacy,taskRecords);resetRequestForm();renderRequests();renderDashboard();requestMessage(`${code} salva com sucesso.`);
     }catch(e){requestMessage(e.message,true);}finally{requestBusy=false;document.getElementById('sol-save').disabled=false;}
   });
   document.getElementById('sol-new').addEventListener('click',()=>{if(requestBusy)return;if(!confirm('Limpar o formulário? Alterações não salvas serão descartadas.'))return;resetRequestForm();requestMessage('Pronto para uma nova tarefa.');});
@@ -2164,7 +2176,7 @@
     if(orcItemsCart.length === 0){ msg.innerHTML = '<div class="msg err">Adicione pelo menos um item.</div>'; return null; }
     ORCAMENTOS = await requestRead('orcamentos');
     if(sourceRequestId){
-      const requests=await requestRead(SOL_KEY),r=requests.find(x=>x.id===sourceRequestId);
+      const requests=await readAllTasks(),r=requests.find(x=>x.id===sourceRequestId);
       if(!r||['Cancelado','Cancelada'].includes(r.status))throw new Error('A tarefa vinculada foi removida ou cancelada. Revise antes de salvar.');
       if(ORCAMENTOS.some(o=>o.sourceRequestId===sourceRequestId))throw new Error('Esta tarefa já tem orçamento salvo. Abra a proposta pela aba Orçamentos.');
     }
