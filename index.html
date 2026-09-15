@@ -1033,7 +1033,10 @@
           dataVersions.set(key,Number(payload?.version)||0);readFailures.delete(key);
           return payload?.value ?? fallback;
         }
-        if(!isPackageFUnavailable(rpc.error))throw rpc.error;
+        // A camada estruturada é uma otimização. Se ela estiver indisponível,
+        // com cache desatualizado ou configuração incompleta, preserva o acesso
+        // usando a kv_store autenticada, que continua sendo a fonte compatível.
+        console.warn('Leitura estruturada indisponível; usando modo compatível.',key,rpc.error);
         structuredBackend=false;
       }
       result=await supabaseClient.from('kv_store').select('value').eq('key', key).maybeSingle();
@@ -1055,10 +1058,8 @@
           if(!error){
             structuredBackend=true;const payload=typeof data==='string'?JSON.parse(data):data;dataVersions.set(key,Number(payload?.version)||0);return;
           }
-          if(!isPackageFUnavailable(error)){
-            if(String(error.message||'').includes('HL_VERSION_CONFLICT'))throw new Error(`Os dados de ${key} foram alterados em outro aparelho ou aba. Recarregue antes de salvar novamente.`);
-            throw error;
-          }
+          if(String(error.message||'').includes('HL_VERSION_CONFLICT'))throw new Error(`Os dados de ${key} foram alterados em outro aparelho ou aba. Recarregue antes de salvar novamente.`);
+          console.warn('Gravação estruturada indisponível; usando modo compatível.',key,error);
           structuredBackend=false;
         }
         const {error}=await supabaseClient.from('kv_store').upsert({key,value,updated_at:new Date().toISOString()});if(error)throw error;
