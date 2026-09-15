@@ -8,7 +8,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
-  *{box-sizing:border-box;}
+*{box-sizing:border-box;}
   body{margin:0;background:#F7F4EF;font-family:'Inter',-apple-system,sans-serif;}
   #app-root{
     --bg:#F7F4EF; --panel:#FFFFFF; --panel-2:#F1ECE3; --line:#E2DCCF; --ink:#211E1A; --muted:#726C62;
@@ -256,6 +256,11 @@
   #app-root .production-tab-panel.active{display:block;}
   #app-root .production-form-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 22px;background:var(--panel-2);border-top:1px solid var(--line);}
   #app-root .production-form-summary{color:var(--muted);font-size:12px;line-height:1.4;}
+  #app-root .production-items-editor{margin:12px 0 16px;padding:14px;border:1px solid color-mix(in srgb,var(--violet) 42%,var(--line));border-radius:13px;background:color-mix(in srgb,var(--violet) 6%,var(--panel));}
+  #app-root .production-items-editor h3{margin:0 0 4px;}
+  #app-root .production-items-editor .hint{margin:0 0 12px;}
+  #app-root .production-item-edit-row{display:grid;grid-template-columns:minmax(180px,2fr) 90px minmax(130px,1fr) minmax(190px,2fr);gap:8px;margin-top:9px;padding-top:9px;border-top:1px solid var(--line);}
+  #app-root .production-item-edit-row:first-of-type{border-top:0;padding-top:0;}
   #app-root .color-palette{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:9px;margin-top:8px;}
   #app-root .color-choice{display:flex;align-items:center;gap:9px;min-height:42px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2);color:var(--ink);font:600 12px inherit;cursor:pointer;text-align:left;}
   #app-root .color-choice:hover{border-color:var(--violet);}
@@ -307,6 +312,7 @@
   #app-root :is(.today-card,.today-item,.search-result){font-family:inherit;}
   @media(max-width:900px){#app-root .production-filters{grid-template-columns:1fr 1fr;}#app-root .production-agenda{grid-template-columns:1fr 1fr;}}
   @media(max-width:560px){#app-root .production-filters,#app-root .production-agenda{grid-template-columns:1fr;}}
+  @media(max-width:700px){#app-root .production-item-edit-row{grid-template-columns:1fr 90px;}#app-root .production-item-edit-row .item-color,#app-root .production-item-edit-row .item-details{grid-column:1/-1;}}
   #app-root :is(.kanban-card .kc-value,.quote-item .muted,.quote-saved-meta,.month-totals){font-size:13px;}
   #app-root :is(.quote-eyebrow,.receipt-net){font-size:12px;}
   #app-root .step{font-size:13px;}
@@ -770,6 +776,7 @@
               <div class="field" style="max-width:120px;"><label>Quantidade</label><input id="ped-qty" type="number" min="1" step="1" value="1"></div>
               <div class="field"><label>Finalidade</label><select id="ped-purpose"><option>Venda</option><option>Brinde</option><option>Uso próprio</option></select></div>
             </div>
+            <div id="ped-items-editor" class="production-items-editor" style="display:none;"></div>
             <div class="row">
               <div class="field" id="ped-value-wrap"><label>Valor da venda (R$)</label><input id="ped-value" type="number" min="0" step="0.01" placeholder="0,00"></div>
               <div class="field" id="ped-cost-wrap"><label>Custo de produção (R$)</label><input id="ped-cost" type="number" min="0" step="0.01" placeholder="0,00"></div>
@@ -1012,6 +1019,7 @@
   const todayISO = () => localISODate(new Date());
   const readFailures = new Set();
   const dataVersions = new Map();
+  const compatibleVersions = new Map();
   let structuredBackend = null;
   function isPackageFUnavailable(error){
     const detail=`${error?.code||''} ${error?.message||''}`.toLowerCase();
@@ -1030,21 +1038,23 @@
         if(!rpc.error){
           structuredBackend=true;
           const payload=typeof rpc.data==='string'?JSON.parse(rpc.data):rpc.data;
-          dataVersions.set(key,Number(payload?.version)||0);readFailures.delete(key);
+          dataVersions.set(key,Number(payload?.version)||0);compatibleVersions.delete(key);readFailures.delete(key);
           return payload?.value ?? fallback;
         }
         // A camada estruturada é uma otimização. Se ela estiver indisponível,
         // com cache desatualizado ou configuração incompleta, preserva o acesso
         // usando a kv_store autenticada, que continua sendo a fonte compatível.
-        console.warn('Leitura estruturada indisponível; usando modo compatível.',key,rpc.error);
+        if(!isPackageFUnavailable(rpc.error))throw rpc.error;
+        console.warn('Função estruturada ausente; usando modo compatível protegido.',key,rpc.error);
         structuredBackend=false;
       }
-      result=await supabaseClient.from('kv_store').select('value').eq('key', key).maybeSingle();
+      result=await supabaseClient.from('kv_store').select('value,updated_at').eq('key', key).maybeSingle();
     }
     catch(e){ readFailures.add(key); throw new Error(`Não foi possível carregar ${key}. Verifique a conexão antes de continuar.`); }
     const {data,error}=result;
     if(error){ readFailures.add(key); console.error('Erro ao carregar',key,error); throw new Error(`Não foi possível carregar ${key}. Nenhum dado será sobrescrito.`); }
     readFailures.delete(key);
+    compatibleVersions.set(key,data?.updated_at||null);
     if(!data) return fallback;
     return data.value ?? fallback;
   }
@@ -1056,17 +1066,31 @@
         if(structuredBackend!==false){
           const {data,error}=await supabaseClient.rpc('hl_set_data',{p_key:key,p_value:value,p_expected_version:dataVersions.has(key)?dataVersions.get(key):null});
           if(!error){
-            structuredBackend=true;const payload=typeof data==='string'?JSON.parse(data):data;dataVersions.set(key,Number(payload?.version)||0);return;
+            structuredBackend=true;const payload=typeof data==='string'?JSON.parse(data):data;dataVersions.set(key,Number(payload?.version)||0);compatibleVersions.delete(key);return;
           }
           if(String(error.message||'').includes('HL_VERSION_CONFLICT'))throw new Error(`Os dados de ${key} foram alterados em outro aparelho ou aba. Recarregue antes de salvar novamente.`);
-          console.warn('Gravação estruturada indisponível; usando modo compatível.',key,error);
+          if(!isPackageFUnavailable(error))throw error;
+          console.warn('Função estruturada ausente; usando modo compatível protegido.',key,error);
           structuredBackend=false;
         }
-        const {error}=await supabaseClient.from('kv_store').upsert({key,value,updated_at:new Date().toISOString()});if(error)throw error;
+        if(!compatibleVersions.has(key))throw new Error(`O modo compatível foi iniciado durante a edição de ${key}. Recarregue os dados antes de salvar.`);
+        const expectedUpdatedAt=compatibleVersions.get(key),nextUpdatedAt=new Date().toISOString();
+        if(expectedUpdatedAt===null){
+          const {error}=await supabaseClient.from('kv_store').insert({key,value,updated_at:nextUpdatedAt});
+          if(error){
+            if(String(error.code||'')==='23505')throw new Error(`Os dados de ${key} foram criados em outro aparelho ou aba. Recarregue antes de salvar novamente.`);
+            throw error;
+          }
+        }else{
+          const {data,error}=await supabaseClient.from('kv_store').update({value,updated_at:nextUpdatedAt}).eq('key',key).eq('updated_at',expectedUpdatedAt).select('updated_at').maybeSingle();
+          if(error)throw error;
+          if(!data)throw new Error(`Os dados de ${key} foram alterados em outro aparelho ou aba. Recarregue antes de salvar novamente.`);
+        }
+        compatibleVersions.set(key,nextUpdatedAt);
       };
       if(navigator.locks?.request)await navigator.locks.request(`hl-kv-${key}`,write);else await write();
       return true;
-    }catch(e){saveBatchFailed=true;console.error('Erro ao salvar',key,e);if(String(e.message||'').includes('outro aparelho ou aba'))throw e;throw new Error(`Não foi possível salvar ${key}. Seus dados continuam na tela.`);}
+    }catch(e){saveBatchFailed=true;console.error('Erro ao salvar',key,e);if(/outro aparelho ou aba|recarregue os dados/i.test(String(e.message||'')))throw e;throw new Error(`Não foi possível salvar ${key}. Seus dados continuam na tela.`);}
     finally{activeSaveCount=Math.max(0,activeSaveCount-1);if(activeSaveCount===0)setSaveState(saveBatchFailed?'error':'saved',saveBatchFailed?'Falha ao salvar':'Salvo');}
   }
   window.addEventListener('unhandledrejection',event=>{
@@ -2072,9 +2096,11 @@
   // ============================================================
   // ORÇAMENTOS
   // ============================================================
+  function catalogAllowsConsignment(p){return !!p&&p.consignmentAvailable!==false&&p.noConsignment!==true;}
   function catalogPublicPrice(p, colorName){
-    const base = p.publicPrice != null ? Number(p.publicPrice) : Number(p.price)||0;
     const color = colorName ? (p.colors||[]).find(c=>c.name===colorName) : null;
+    const colorPrice=Number(color?.publicPrice);
+    const base = Number.isFinite(colorPrice)&&colorPrice>0?colorPrice:(p.publicPrice != null ? Number(p.publicPrice) : Number(p.price)||0);
     const promo = color && Number(color.promoPrice)>0 ? Number(color.promoPrice) : Number(p.promoPrice)>0 ? Number(p.promoPrice) : null;
     return promo != null && promo < base ? promo : base;
   }
@@ -2087,14 +2113,17 @@
   }
   function renderCatalogPreview(){
     const p=selectedCatalogProduct(); const preview=document.getElementById('orc-catalog-preview'); const colorSel=document.getElementById('orc-catalog-color');
-    if(!p){ preview.innerHTML=''; colorSel.innerHTML='<option value="">Sem variação</option>'; return; }
+    const priceType=document.getElementById('orc-catalog-price-type'),consignmentOption=priceType.querySelector('option[value="consignado"]');
+    if(!p){ preview.innerHTML=''; colorSel.innerHTML='<option value="">Sem variação</option>';if(consignmentOption)consignmentOption.disabled=false;return; }
     const current=colorSel.value;
     colorSel.innerHTML='<option value="">Sem variação</option>'+(p.colors||[]).map(c=>`<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`).join('');
     if([...colorSel.options].some(o=>o.value===current)) colorSel.value=current;
     const color=(p.colors||[]).find(c=>c.name===colorSel.value); const img=(color&&color.image)||p.image||'';
-    const publicValue=catalogPublicPrice(p,colorSel.value); const consignado=Number(p.price)||0;
+    const publicValue=catalogPublicPrice(p,colorSel.value),allowsConsignment=catalogAllowsConsignment(p),consignado=Number(p.price)||0;
+    if(consignmentOption)consignmentOption.disabled=!allowsConsignment;
+    if(!allowsConsignment&&priceType.value==='consignado'){priceType.value='public';document.getElementById('orc-catalog-custom-wrap').style.display='none';}
     const cats=(p.categories||[p.category]).filter(Boolean).join(' · ');
-    preview.innerHTML=`<div class="catalog-preview">${img?`<img class="catalog-thumb" src="${escapeHtml(img)}" alt="Imagem de ${escapeHtml(p.name)}">`:'<div class="catalog-thumb" style="display:grid;place-items:center;color:var(--muted);font-size:12px;">sem foto</div>'}<div style="min-width:0;flex:1;"><strong>${escapeHtml(p.name)}</strong><div style="font-size:13px;color:var(--muted);margin-top:2px;">${escapeHtml(cats||p.code)}</div><div class="catalog-price-grid"><span>Portfólio<strong>${fmtMoney(publicValue)}</strong></span><span>Consignante<strong>${fmtMoney(consignado)}</strong></span><span>Variação<strong>${escapeHtml(colorSel.value||'Padrão')}</strong></span></div></div></div>`;
+    preview.innerHTML=`<div class="catalog-preview">${img?`<img class="catalog-thumb" src="${escapeHtml(img)}" alt="Imagem de ${escapeHtml(p.name)}">`:'<div class="catalog-thumb" style="display:grid;place-items:center;color:var(--muted);font-size:12px;">sem foto</div>'}<div style="min-width:0;flex:1;"><strong>${escapeHtml(p.name)}</strong><div style="font-size:13px;color:var(--muted);margin-top:2px;">${escapeHtml(cats||p.code)}</div><div class="catalog-price-grid"><span>Portfólio<strong>${fmtMoney(publicValue)}</strong></span><span>Consignante<strong>${allowsConsignment?fmtMoney(consignado):'Indisponível'}</strong></span><span>Variação<strong>${escapeHtml(colorSel.value||'Padrão')}</strong></span></div></div></div>`;
   }
   document.getElementById('orc-catalog-product').addEventListener('change', renderCatalogPreview);
   document.getElementById('orc-catalog-color').addEventListener('change', renderCatalogPreview);
@@ -2102,6 +2131,7 @@
   document.getElementById('orc-add-catalog-btn').addEventListener('click', ()=>{
     const p=selectedCatalogProduct(); if(!p){ document.getElementById('orc-msg').innerHTML='<div class="msg err">Selecione um produto do portfólio.</div>'; return; }
     const color=document.getElementById('orc-catalog-color').value; const priceType=document.getElementById('orc-catalog-price-type').value;
+    if(priceType==='consignado'&&!catalogAllowsConsignment(p)){document.getElementById('orc-msg').innerHTML='<div class="msg err">Este produto está disponível somente para venda direta.</div>';return;}
     let unitValue=priceType==='consignado' ? Number(p.price)||0 : catalogPublicPrice(p,color);
     if(priceType==='custom') unitValue=parseFloat(document.getElementById('orc-catalog-custom-price').value);
     if(isNaN(unitValue)){ document.getElementById('orc-msg').innerHTML='<div class="msg err">Informe um valor personalizado válido.</div>'; return; }
@@ -2344,7 +2374,24 @@
     if(!await setJSON('producao_pedidos',latest))throw new Error('Não foi possível reexibir. Tente novamente.');
     PEDIDOS=latest;renderPedidos();
   }
-  let selectedPedColor='',editingProductionOrderId=null;
+  let selectedPedColor='',editingProductionOrderId=null,editingProductionItems=[];
+  const multiItemControlIds=['ped-catalog-product','ped-product','ped-qty','ped-color-custom','ped-finish','ped-personalization','ped-letter-style','ped-personalization-notes'];
+  function setMultiItemEditMode(enabled){
+    multiItemControlIds.forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=enabled;});
+    root.querySelectorAll('[data-ped-color]').forEach(button=>button.disabled=enabled);
+  }
+  function renderProductionItemsEditor(){
+    const editor=document.getElementById('ped-items-editor'),multiple=editingProductionOrderId&&editingProductionItems.length>1;
+    setMultiItemEditMode(Boolean(multiple));
+    if(!multiple){editor.style.display='none';editor.innerHTML='';return;}
+    editor.style.display='block';
+    editor.innerHTML=`<h3>Itens deste pedido</h3><p class="hint">Edite cada item separadamente. As alterações abaixo serão usadas no cartão, na ficha e na conferência da produção.</p>${editingProductionItems.map((item,index)=>`<div class="production-item-edit-row"><div class="field"><label>Produto ${index+1}</label><input data-production-item-field="productName" data-production-item-index="${index}" value="${escapeHtml(item.productName||item.desc||'')}"></div><div class="field"><label>Quantidade</label><input type="number" min="1" step="1" data-production-item-field="quantity" data-production-item-index="${index}" value="${Math.max(1,Number(item.quantity)||1)}"></div><div class="field item-color"><label>Cor</label><input data-production-item-field="color" data-production-item-index="${index}" value="${escapeHtml(item.color||'')}"></div><div class="field item-details"><label>Detalhes / personalização</label><input data-production-item-field="details" data-production-item-index="${index}" value="${escapeHtml(item.details||'')}"></div></div>`).join('')}`;
+    editor.querySelectorAll('[data-production-item-field]').forEach(input=>input.addEventListener('input',()=>{
+      const item=editingProductionItems[Number(input.dataset.productionItemIndex)];if(!item)return;
+      const field=input.dataset.productionItemField;item[field]=field==='quantity'?Math.max(1,parseInt(input.value,10)||1):input.value;
+      document.getElementById('ped-form-summary').textContent=`Editando ${editingProductionItems.length} itens separadamente.`;
+    }));
+  }
   function switchPedFormTab(tab){
     root.querySelectorAll('[data-ped-tab]').forEach(button=>{const active=button.dataset.pedTab===tab;button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active));});
     root.querySelectorAll('[data-ped-panel]').forEach(panel=>panel.classList.toggle('active',panel.dataset.pedPanel===tab));
@@ -2384,7 +2431,7 @@
   ['ped-product','ped-qty','ped-personalization'].forEach(id=>document.getElementById(id).addEventListener('input',updatePedFormSummary));
   function resetPedForm(){
     ['ped-client','ped-external-order','ped-product','ped-value','ped-cost','ped-delivery','ped-desc','ped-color-custom','ped-finish','ped-personalization','ped-personalization-notes','ped-print-hours'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('ped-channel').value='';document.getElementById('ped-catalog-product').value='';document.getElementById('ped-priority').value='Normal';document.getElementById('ped-printer').value='';document.getElementById('ped-qty').value='1';document.getElementById('ped-purpose').value='Venda';document.getElementById('ped-letter-style').value='';selectedPedColor='';editingProductionOrderId=null;root.querySelectorAll('[data-ped-color]').forEach(item=>item.classList.remove('selected'));document.getElementById('ped-add-btn').textContent='+ Adicionar à fila';document.getElementById('ped-cancel-edit-btn').style.display='none';updatePedPurpose();switchPedFormTab('produto');updatePedFormSummary();
+    document.getElementById('ped-channel').value='';document.getElementById('ped-catalog-product').value='';document.getElementById('ped-priority').value='Normal';document.getElementById('ped-printer').value='';document.getElementById('ped-qty').value='1';document.getElementById('ped-purpose').value='Venda';document.getElementById('ped-letter-style').value='';selectedPedColor='';editingProductionOrderId=null;editingProductionItems=[];root.querySelectorAll('[data-ped-color]').forEach(item=>item.classList.remove('selected'));document.getElementById('ped-add-btn').textContent='+ Adicionar à fila';document.getElementById('ped-cancel-edit-btn').style.display='none';renderProductionItemsEditor();updatePedPurpose();switchPedFormTab('produto');updatePedFormSummary();
   }
   document.getElementById('ped-cancel-edit-btn').addEventListener('click',resetPedForm);
   function updatePedPurpose(){const purpose=document.getElementById('ped-purpose').value,isSale=purpose==='Venda',value=document.getElementById('ped-value');value.disabled=!isSale;if(!isSale)value.value='0';document.getElementById('ped-client').placeholder=isSale?'Ex.: Mercado Livre, Instagram ou nome do cliente':purpose==='Brinde'?'Destinatário do brinde (opcional)':'Uso interno / responsável (opcional)';}
@@ -2406,10 +2453,17 @@
     orderSaveBusy=true;addButton.disabled=true;addButton.textContent='Salvando…';
     try{
       const current=await getJSON('producao_pedidos',PEDIDOS),existing=current.find(p=>p.id===editingProductionOrderId),id=existing?.id||nextSeqId(current,'PRD');
-      const data={id,client,channel,externalOrder,catalogProductCode,desc,productName,quantity,color,finish,personalization,letterStyle,personalizationNotes,notes,purpose,value,cost,deliveryDate,priority,printer,printHours};
+      const editingMultiple=Boolean(existing&&editingProductionItems.length>1);
+      const singlePreviousItem=existing&&orderItems(existing)[0];
+      const updatedItems=editingMultiple?editingProductionItems.map((item,index)=>({id:item.id||`${id}-${index+1}`,productName:String(item.productName||'').trim(),quantity:Math.max(1,parseInt(item.quantity,10)||1),color:String(item.color||'').trim(),details:String(item.details||'').trim(),catalogProductCode:item.catalogProductCode||'',done:Boolean(item.done)})):[{id:singlePreviousItem?.id||`${id}-1`,productName,quantity,color,details:[finish,personalization,personalizationNotes].filter(Boolean).join(' · '),catalogProductCode,done:Boolean(singlePreviousItem?.done)}];
+      if(updatedItems.some(item=>!item.productName))throw new Error('Informe o nome de todos os itens do pedido.');
+      const effectiveProductName=editingMultiple?updatedItems.map(item=>item.productName).join(' + '):productName;
+      const effectiveQuantity=editingMultiple?updatedItems.reduce((sum,item)=>sum+item.quantity,0):quantity;
+      const effectiveDescription=editingMultiple?[updatedItems.map(item=>`${item.quantity}x ${item.productName}${item.color?' · cor '+item.color:''}${item.details?' · '+item.details:''}`).join(', '),notes].filter(Boolean).join(' · '):desc;
+      const data={id,client,channel,externalOrder,catalogProductCode:editingMultiple?'':catalogProductCode,desc:effectiveDescription,productName:effectiveProductName,quantity:effectiveQuantity,color:editingMultiple?'':color,finish:editingMultiple?'':finish,personalization:editingMultiple?'':personalization,letterStyle:editingMultiple?'':letterStyle,personalizationNotes:editingMultiple?'':personalizationNotes,notes,purpose,value,cost,deliveryDate,priority,printer,printHours,items:updatedItems};
       let next;
       if(existing){Object.assign(existing,data);addOrderEvent(existing,{type:'edit',status:existing.status,label:'Dados do pedido editados'});next=current;}
-      else{next=[...current,{...data,status:'Pendente',date:todayISO(),items:[{id:`${id}-1`,productName,quantity,color,details:[finish,personalization,personalizationNotes].filter(Boolean).join(' · '),done:false}],statusHistory:[{type:'status',status:'Pendente',at:new Date().toISOString(),label:'Pedido incluído'}]}];}
+      else{next=[...current,{...data,status:'Pendente',date:todayISO(),statusHistory:[{type:'status',status:'Pendente',at:new Date().toISOString(),label:'Pedido incluído'}]}];}
       await setJSON('producao_pedidos',next);PEDIDOS=next;
       resetPedForm();
       renderPedidos();
@@ -2456,7 +2510,13 @@
   }
   function editProductionOrder(id){
     const p=PEDIDOS.find(item=>item.id===id);if(!p)return;
-    editingProductionOrderId=id;document.getElementById('ped-channel').value=p.channel||'';document.getElementById('ped-client').value=p.client||'';document.getElementById('ped-external-order').value=p.externalOrder||'';document.getElementById('ped-catalog-product').value=p.catalogProductCode||'';document.getElementById('ped-product').value=p.productName||p.desc||'';document.getElementById('ped-qty').value=Number(p.quantity)||1;document.getElementById('ped-purpose').value=orderPurpose(p);document.getElementById('ped-value').value=Number(p.value||0);document.getElementById('ped-cost').value=Number(p.cost||0)||'';document.getElementById('ped-delivery').value=p.deliveryDate||'';document.getElementById('ped-priority').value=orderPriority(p);document.getElementById('ped-printer').value=p.printer||'';document.getElementById('ped-print-hours').value=Number(p.printHours)||'';document.getElementById('ped-desc').value=p.notes||'';document.getElementById('ped-color-custom').value=p.color||'';selectedPedColor=p.color||'';document.getElementById('ped-finish').value=p.finish||'';document.getElementById('ped-personalization').value=p.personalization||'';document.getElementById('ped-letter-style').value=p.letterStyle||'';document.getElementById('ped-personalization-notes').value=p.personalizationNotes||'';updatePedPurpose();updatePedFormSummary();document.getElementById('ped-add-btn').textContent='Salvar alterações';document.getElementById('ped-cancel-edit-btn').style.display='inline-flex';switchPedFormTab('produto');document.querySelector('.production-entry').scrollIntoView({behavior:'smooth',block:'start'});
+    editingProductionOrderId=id;editingProductionItems=orderItems(p).map(item=>({...item}));
+    const primaryItem=editingProductionItems[0]||{};
+    document.getElementById('ped-channel').value=p.channel||'';document.getElementById('ped-client').value=p.client||'';document.getElementById('ped-external-order').value=p.externalOrder||'';
+    document.getElementById('ped-catalog-product').value=primaryItem.catalogProductCode||p.catalogProductCode||'';document.getElementById('ped-product').value=primaryItem.productName||primaryItem.desc||p.productName||p.desc||'';document.getElementById('ped-qty').value=Number(primaryItem.quantity||p.quantity)||1;
+    document.getElementById('ped-purpose').value=orderPurpose(p);document.getElementById('ped-value').value=Number(p.value||0);document.getElementById('ped-cost').value=Number(p.cost||0)||'';document.getElementById('ped-delivery').value=p.deliveryDate||'';document.getElementById('ped-priority').value=orderPriority(p);document.getElementById('ped-printer').value=p.printer||'';document.getElementById('ped-print-hours').value=Number(p.printHours)||'';document.getElementById('ped-desc').value=p.notes||'';
+    document.getElementById('ped-color-custom').value=primaryItem.color||p.color||'';selectedPedColor=primaryItem.color||p.color||'';document.getElementById('ped-finish').value=p.finish||'';document.getElementById('ped-personalization').value=p.personalization||'';document.getElementById('ped-letter-style').value=p.letterStyle||'';document.getElementById('ped-personalization-notes').value=p.personalizationNotes||primaryItem.details||'';
+    renderProductionItemsEditor();updatePedPurpose();updatePedFormSummary();if(editingProductionItems.length>1)document.getElementById('ped-form-summary').textContent=`Editando ${editingProductionItems.length} itens separadamente.`;document.getElementById('ped-add-btn').textContent='Salvar alterações';document.getElementById('ped-cancel-edit-btn').style.display='inline-flex';switchPedFormTab('produto');document.querySelector('.production-entry').scrollIntoView({behavior:'smooth',block:'start'});
   }
   async function toggleProductionItem(orderId,index){
     const latest=await getJSON('producao_pedidos',PEDIDOS),p=latest.find(item=>item.id===orderId);if(!p)return;
