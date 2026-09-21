@@ -665,8 +665,12 @@
             <div class="field"><label for="calc-history-sort">Ordenar por</label><select id="calc-history-sort"><option value="recent">Mais recentes</option><option value="name">Produto: A–Z</option><option value="name-desc">Produto: Z–A</option><option value="client">Cliente: A–Z</option><option value="price">Preço por peça: menor primeiro</option><option value="price-desc">Preço por peça: maior primeiro</option><option value="total">Total: menor primeiro</option><option value="total-desc">Total: maior primeiro</option></select></div>
             <div class="field" style="flex:0;align-self:flex-end;"><button class="btn secondary small" id="calc-history-refresh" type="button">Atualizar lista</button></div>
           </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:4px 0 12px;">
+            <button class="btn small" id="calc-add-selected-quote" type="button" disabled>Adicionar selecionados ao orçamento (0)</button>
+            <span class="hint">Marque um ou vários cálculos para montar uma única proposta.</span>
+          </div>
           <p class="hint" id="calc-history-count"></p>
-          <div style="overflow-x:auto;"><table><thead><tr><th>Data</th><th>Produto / detalhes</th><th>Cliente</th><th>Quantidade</th><th>Custo total</th><th>Custo por peça</th><th>Preço por peça</th><th>Valor total</th><th>Ação</th></tr></thead><tbody id="calc-history-body"></tbody></table></div>
+          <div style="overflow-x:auto;"><table><thead><tr><th><input id="calc-select-visible" type="checkbox" aria-label="Selecionar cálculos visíveis"></th><th>Data</th><th>Produto / detalhes</th><th>Cliente</th><th>Quantidade</th><th>Custo total</th><th>Custo por peça</th><th>Preço por peça</th><th>Valor total</th><th>Ação</th></tr></thead><tbody id="calc-history-body"></tbody></table></div>
         </div>
       </div>
 
@@ -731,6 +735,7 @@
                 <div class="row"><div class="field" style="flex:2;"><label>Endereço / cidade</label><input id="orc-client-address" placeholder="Opcional"></div><div class="field"><label>Validade</label><input id="orc-validity" placeholder="Ex.: 7 dias"></div><div class="field"><label>Prazo de entrega</label><input id="orc-delivery" placeholder="Ex.: 5 dias úteis"></div></div>
               </div>
               <div class="section-card"><div class="section-title"><span class="step">2</span> Itens do orçamento</div>
+                <div class="catalog-picker" style="margin-bottom:14px;"><h3 style="margin-bottom:4px;">Usar cálculos já salvos</h3><p class="hint" style="margin-bottom:10px;">Selecione um ou vários cálculos registrados e reúna todos no mesmo orçamento.</p><button class="btn secondary small" id="orc-open-saved-calcs" type="button">Selecionar cálculos salvos →</button></div>
                 <div class="catalog-picker"><h3 style="margin-bottom:4px;">Buscar no portfólio</h3><p class="hint" style="margin-bottom:10px;">Selecione um produto cadastrado e escolha qual tabela de preço utilizar.</p>
                   <div class="row"><div class="field" style="flex:2;"><label>Produto</label><select id="orc-catalog-product"><option value="">Selecione um produto...</option></select></div><div class="field"><label>Cor / variação</label><select id="orc-catalog-color"><option value="">Sem variação</option></select></div></div>
                   <div id="orc-catalog-preview"></div>
@@ -1780,12 +1785,13 @@
     if(calcClient && quoteClient.value.trim() && quoteClient.value.trim() !== calcClient){
       if(!confirm('O orçamento aberto está em nome de outra pessoa. Adicionar o item e manter o cliente atual?')) return;
     }else if(calcClient){ quoteClient.value = calcClient; }
-    orcItemsCart.push({ desc: productName, details: productDetails || `Produção em 3D · Material: ${materialName}`, unit:'un.', qty: r.qtyPieces, unitValue: r.precoPorPeca, source:'calculadora' });
+    orcItemsCart.push({ desc: productName, details: productDetails || `Produção em 3D · Material: ${materialName}`, unit:'un.', qty: r.qtyPieces, unitValue: r.precoPorPeca, source:'calculadora', calculationId:editingCalcId||null });
     switchView('orcamentos');
     renderOrcItems();
   });
 
   const CALC_HISTORY_KEY = 'custos_calculos_salvos';
+  const selectedCalcQuoteIds = new Set();
   const calcInputIds = ['calc-product-name','calc-client','calc-product-details','calc-equip-hours','calc-material-qty','calc-qty-pieces','calc-margin','calc-tax','calc-safety'];
   function calcSelectedRate(kind){
     const value = document.getElementById('calc-'+kind).value;
@@ -1828,17 +1834,53 @@
       return compare(b.updatedAt,a.updatedAt);
     });
   }
+  function updateCalcQuoteSelection(){
+    [...selectedCalcQuoteIds].forEach(id=>{if(!CALCULOS.some(r=>r.id===id))selectedCalcQuoteIds.delete(id);});
+    const btn=document.getElementById('calc-add-selected-quote');
+    btn.disabled=selectedCalcQuoteIds.size===0;
+    btn.textContent=`Adicionar selecionados ao orçamento (${selectedCalcQuoteIds.size})`;
+    const visible=calcHistoryRows(),selectVisible=document.getElementById('calc-select-visible');
+    selectVisible.checked=visible.length>0&&visible.every(r=>selectedCalcQuoteIds.has(r.id));
+    selectVisible.indeterminate=visible.some(r=>selectedCalcQuoteIds.has(r.id))&&!selectVisible.checked;
+  }
+  function savedCalcQuoteItem(record){
+    const qty=Math.max(1,Number(record.result?.qtyPieces)||1);
+    const unitValue=Number(record.result?.precoPorPeca);
+    const productName=record.inputs?.['calc-product-name']||'Produto calculado';
+    const typedDetails=record.inputs?.['calc-product-details']||'';
+    const materialName=record.rates?.material?.name||'';
+    return {desc:productName,details:typedDetails||[materialName?'Produção em 3D · Material: '+materialName:'','Cálculo salvo'].filter(Boolean).join(' · '),unit:'un.',qty,unitValue:Number.isFinite(unitValue)?unitValue:0,source:'calculadora_salva',calculationId:record.id,priceLabel:'Valor calculado'};
+  }
+  function addSavedCalculationsToQuote(ids){
+    const records=ids.map(id=>CALCULOS.find(r=>r.id===id)).filter(Boolean);
+    if(!records.length){calcHistoryMessage('Selecione pelo menos um cálculo salvo.',true);return;}
+    const clients=[...new Set(records.map(r=>(r.inputs?.['calc-client']||'').trim()).filter(Boolean))];
+    const quoteClient=document.getElementById('orc-client-name'),currentClient=quoteClient.value.trim();
+    if(currentClient&&clients.some(name=>name!==currentClient)&&!confirm('Há cálculos vinculados a outro cliente. Deseja adicioná-los mantendo o cliente atual do orçamento?'))return;
+    if(!currentClient&&clients.length===1)quoteClient.value=clients[0];
+    orcItemsCart.push(...records.map(savedCalcQuoteItem));
+    records.forEach(r=>selectedCalcQuoteIds.delete(r.id));
+    renderCalcHistory();
+    switchView('orcamentos');
+    renderOrcItems();
+    document.getElementById('orc-msg').innerHTML=`<div class="msg ok">${records.length} ${records.length===1?'cálculo adicionado':'cálculos adicionados'} ao mesmo orçamento. Você ainda pode incluir outros itens.</div>`;
+    document.getElementById('orc-items-list').scrollIntoView({behavior:'smooth',block:'center'});
+  }
   function renderCalcHistory(){
     const rows=calcHistoryRows();
     document.getElementById('calc-history-count').textContent=rows.length+' de '+CALCULOS.length+' cálculo(s)';
     document.getElementById('calc-client-options').innerHTML=[...new Set(CALCULOS.map(r=>r.inputs['calc-client']).filter(Boolean))].map(n=>'<option value="'+escapeHtml(n)+'"></option>').join('');
     document.getElementById('calc-history-body').innerHTML=rows.map(r=>`<tr>
+      <td><input type="checkbox" data-select-calc-quote="${escapeHtml(r.id)}" aria-label="Selecionar ${escapeHtml(r.inputs['calc-product-name']||'cálculo')}" ${selectedCalcQuoteIds.has(r.id)?'checked':''}></td>
       <td title="Última atualização">${escapeHtml(new Date(r.updatedAt).toLocaleDateString('pt-BR'))}</td>
       <td><strong>${escapeHtml(r.inputs['calc-product-name'])}</strong><div class="hint">${escapeHtml(r.inputs['calc-product-details'])}</div></td>
       <td>${escapeHtml(r.inputs['calc-client']||'Não informado')}</td><td>${r.result.qtyPieces}</td>
       <td>${fmtMoney(r.result.custosTotal)}</td><td>${fmtMoney(r.result.custoPorPeca!=null?r.result.custoPorPeca:r.result.custosTotal/Math.max(1,r.result.qtyPieces||1))}</td><td>${fmtMoney(r.result.precoPorPeca)}</td><td><strong>${fmtMoney(r.result.valorFinal)}</strong></td>
-      <td><button type="button" class="btn secondary small" data-edit-calc="${escapeHtml(r.id)}">Consultar / editar</button></td></tr>`).join('')||'<tr><td colspan="9">'+(CALCULOS.length?'Nenhum cálculo corresponde à busca.':'Nenhum cálculo salvo. Preencha a calculadora e clique em Salvar cálculo.')+'</td></tr>';
+      <td><div class="actions"><button type="button" class="btn small" data-add-calc-quote="${escapeHtml(r.id)}">+ Orçamento</button><button type="button" class="btn secondary small" data-edit-calc="${escapeHtml(r.id)}">Consultar / editar</button></div></td></tr>`).join('')||'<tr><td colspan="10">'+(CALCULOS.length?'Nenhum cálculo corresponde à busca.':'Nenhum cálculo salvo. Preencha a calculadora e clique em Salvar cálculo.')+'</td></tr>';
+    document.querySelectorAll('[data-select-calc-quote]').forEach(box=>box.addEventListener('change',()=>{box.checked?selectedCalcQuoteIds.add(box.dataset.selectCalcQuote):selectedCalcQuoteIds.delete(box.dataset.selectCalcQuote);updateCalcQuoteSelection();}));
+    document.querySelectorAll('[data-add-calc-quote]').forEach(btn=>btn.addEventListener('click',()=>addSavedCalculationsToQuote([btn.dataset.addCalcQuote])));
     document.querySelectorAll('[data-edit-calc]').forEach(btn=>btn.addEventListener('click',()=>openSavedCalc(btn.dataset.editCalc)));
+    updateCalcQuoteSelection();
   }
   function openSavedCalc(id){
     if(calcHistoryBusy) return;
@@ -1913,6 +1955,16 @@
   document.getElementById('calc-history-search').addEventListener('input',renderCalcHistory);
   document.getElementById('calc-history-sort').addEventListener('change',renderCalcHistory);
   document.getElementById('calc-history-refresh').addEventListener('click',refreshCalcHistory);
+  document.getElementById('calc-select-visible').addEventListener('change',e=>{
+    calcHistoryRows().forEach(r=>e.target.checked?selectedCalcQuoteIds.add(r.id):selectedCalcQuoteIds.delete(r.id));
+    renderCalcHistory();
+  });
+  document.getElementById('calc-add-selected-quote').addEventListener('click',()=>addSavedCalculationsToQuote([...selectedCalcQuoteIds]));
+  document.getElementById('orc-open-saved-calcs').addEventListener('click',()=>{
+    switchView('calculadora');
+    document.getElementById('calc-history-search').focus();
+    document.getElementById('calc-history-body').closest('table').scrollIntoView({behavior:'smooth',block:'start'});
+  });
 
   // ---------- Tarefas e lembretes (inclui pedidos de orçamento antigos) ----------
   const SOL_KEY='pedidos_orcamento';
@@ -2161,8 +2213,18 @@
     const subtotal = orcItemsCart.reduce((s,it)=>s+Number(it.qty)*Number(it.unitValue),0);
     if(orcItemsCart.length === 0) list.innerHTML='<div class="empty" style="padding:18px;">Nenhum item adicionado.</div>';
     else list.innerHTML = orcItemsCart.map((it,i)=>`
-      <div class="quote-item"><div><strong>${escapeHtml(it.desc)}</strong>${it.details ? `<div class="muted">${escapeHtml(it.details)}</div>` : ''}${it.priceLabel ? `<div class="muted" style="color:var(--violet);">${escapeHtml(it.priceLabel)}</div>` : ''}</div><span>${it.qty} ${escapeHtml(it.unit||'un.')}</span><span>${fmtMoney(it.unitValue)}</span><strong>${fmtMoney(it.qty*it.unitValue)}</strong><button class="btn secondary small" data-del-orc-item="${i}" aria-label="Remover item">Remover</button></div>
+      <div class="quote-item"><div><strong>${escapeHtml(it.desc)}</strong>${it.details ? `<div class="muted">${escapeHtml(it.details)}</div>` : ''}${it.priceLabel ? `<div class="muted" style="color:var(--violet);">${escapeHtml(it.priceLabel)}</div>` : ''}<button type="button" class="btn secondary small" data-edit-orc-item="${i}" style="margin-top:7px;">Editar item</button></div><span>${it.qty} ${escapeHtml(it.unit||'un.')}</span><span>${fmtMoney(it.unitValue)}</span><strong>${fmtMoney(it.qty*it.unitValue)}</strong><button class="btn secondary small" data-del-orc-item="${i}" aria-label="Remover item">Remover</button></div>
     `).join('');
+    document.querySelectorAll('[data-edit-orc-item]').forEach(b=>b.addEventListener('click',()=>{
+      const index=Number(b.dataset.editOrcItem),item=orcItemsCart[index];if(!item)return;
+      const desc=prompt('Descrição do item:',item.desc);if(desc===null)return;
+      const details=prompt('Detalhes ou personalização:',item.details||'');if(details===null)return;
+      const qtyText=prompt('Quantidade:',String(item.qty));if(qtyText===null)return;
+      const valueText=prompt('Valor unitário (R$):',Number(item.unitValue).toFixed(2).replace('.',','));if(valueText===null)return;
+      const qty=Number(String(qtyText).replace(',','.')),unitValue=Number(String(valueText).replace(',','.'));
+      if(!desc.trim()||!Number.isFinite(qty)||qty<=0||!Number.isFinite(unitValue)||unitValue<0){alert('Informe descrição, quantidade e valor válidos.');return;}
+      orcItemsCart[index]={...item,desc:desc.trim(),details:details.trim(),qty,unitValue};renderOrcItems();
+    }));
     document.querySelectorAll('[data-del-orc-item]').forEach(b=>b.addEventListener('click', ()=>{
       orcItemsCart.splice(+b.dataset.delOrcItem,1); renderOrcItems();
     }));
