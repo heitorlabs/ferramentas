@@ -2528,53 +2528,107 @@
 
   function fmtDate(iso){ if(!iso) return '—'; const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }
 
+  function quoteDisplayCode(orc){
+    const rawDate=String(orc?.date||todayISO()).replace(/\D/g,'').padEnd(8,'0').slice(0,8);
+    const rawSequence=(String(orc?.id||'1').match(/\d+/g)||['1']).join('').replace(/^0+(?=\d)/,'').padStart(3,'0');
+    return `HL-${rawDate}-${rawSequence}`;
+  }
+  function quoteValidityDisplay(dateISO,validity){
+    const text=String(validity||'A combinar').trim(),match=text.match(/^(\d+)\s*dias?\b/i);
+    if(!match||!dateISO)return text;
+    const [y,m,d]=dateISO.split('-').map(Number),date=new Date(Date.UTC(y,m-1,d));
+    date.setUTCDate(date.getUTCDate()+Number(match[1]));
+    const deadline=`${String(date.getUTCDate()).padStart(2,'0')}/${String(date.getUTCMonth()+1).padStart(2,'0')}/${date.getUTCFullYear()}`;
+    return `${text} · até ${deadline}`;
+  }
+
   function gerarPdfOrcamento(orc){
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    const pageW = doc.internal.pageSize.getWidth();
+    const pageW=doc.internal.pageSize.getWidth(),pageH=doc.internal.pageSize.getHeight(),margin=14,contentW=pageW-margin*2;
     const company={...EMPRESA,...(orc.companySnapshot||{})},financials=savedQuoteFinancials(orc),showPix=['both','pix'].includes(orc.paymentMode),showCard=['both','card'].includes(orc.paymentMode),hasPricing=showPix||showCard;
     const companyName=company.nome||'HL 3D Solutions',companyPhone=company.telefone||'(34) 99941-6973',companyEmail=company.email||'hl3dsolutions@gmail.com',companyCity=company.cidade||'Uberaba/MG',companyCnpj=company.cnpj||'65.582.951/0001-61';
-    const footer = ()=>{ const h=doc.internal.pageSize.getHeight(); doc.setDrawColor(226,220,207); doc.line(14,h-16,pageW-14,h-16); doc.setFontSize(7.5); doc.setTextColor(115,110,120); doc.text(`${companyName}  |  ${companyPhone}  |  ${companyEmail}  |  ${companyCity}`,14,h-10); doc.text(`Proposta ${orc.id}`,pageW-14,h-10,{align:'right'}); };
-    doc.setFillColor(10,10,13); doc.rect(0,0,pageW,48,'F');
-    [[14,138,150],[105,71,199],[182,46,130],[200,90,40]].forEach((c,i)=>{doc.setFillColor(...c);doc.rect(i*pageW/4,46,pageW/4,2,'F');});
-    try{ doc.addImage(LOGO_B64,'JPEG',14,7,34,34); }catch(e){}
-    doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(17); doc.text('PROPOSTA COMERCIAL',56,17);
-    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(235,232,240); doc.text(companyName,56,24);
-    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(205,200,210); doc.text(`CNPJ: ${companyCnpj}  ·  Tel.: ${companyPhone}`,56,30); doc.text(`${companyEmail}  ·  ${companyCity}`,56,36);
-    doc.setFillColor(105,71,199); doc.roundedRect(pageW-54,12,40,22,3,3,'F'); doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.text(orc.id,pageW-34,21,{align:'center'}); doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.text(fmtDate(orc.date),pageW-34,28,{align:'center'});
-    let y=59;
-    doc.setFillColor(247,244,239); doc.roundedRect(14,y,pageW-28,34,3,3,'F'); doc.setTextColor(105,71,199); doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.text('PREPARADO PARA',20,y+8);
-    doc.setTextColor(30,30,30); doc.setFontSize(13); doc.text(orc.clientName||'Cliente',20,y+17);
-    doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(95,90,100);
-    const contact=[orc.clientDoc,orc.clientContact,orc.clientEmail].filter(Boolean).join('  ·  '); if(contact) doc.text(contact,20,y+24);
-    if(orc.clientAddress) doc.text(doc.splitTextToSize(orc.clientAddress,pageW-45),20,y+30);
-    y+=43;
-    const validity=orc.validity||EMPRESA.validade||'A combinar'; const delivery=orc.delivery||EMPRESA.prazo||'A combinar';
-    doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(105,71,199); doc.text('VALIDADE',14,y); doc.text('PRAZO DE ENTREGA',78,y); doc.text('FORMA DE ENTREGA',145,y);
-    doc.setFont('helvetica','normal'); doc.setTextColor(35,35,35); doc.setFontSize(9); doc.text(validity,14,y+6); doc.text(delivery,78,y+6); doc.text(doc.splitTextToSize(orc.shippingMethod||'A combinar',50),145,y+6); y+=18;
-    const rows=(orc.items||[]).map(it=>{const unitValue=quoteHasTablePrices(orc)?quoteDisplayUnitValue(it,financials,orc.paymentMode):Number(it.unitValue)||0;return [`${it.desc}${it.details?'\n'+it.details:''}`,`${it.qty} ${it.unit||'un.'}`,fmtMoney(unitValue),fmtMoney(it.qty*unitValue)];});
+    const displayCode=quoteDisplayCode(orc),emission=fmtDate(orc.date),violet=[96,69,176],teal=[18,126,132],ink=[30,28,34],muted=[103,98,109],line=[224,220,228],soft=[248,247,250];
+    const drawFirstHeader=()=>{
+      doc.setFillColor(13,12,16);doc.rect(0,0,pageW,42,'F');
+      doc.setFillColor(...violet);doc.rect(0,40,pageW,2,'F');doc.setFillColor(...teal);doc.rect(0,40,38,2,'F');
+      try{doc.addImage(LOGO_B64,'JPEG',margin,7,27,27);}catch(e){}
+      doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text('PROPOSTA COMERCIAL',47,14);
+      doc.setFontSize(9);doc.text(companyName,47,21);
+      doc.setFont('helvetica','normal');doc.setFontSize(7.8);doc.setTextColor(205,201,211);doc.text(`CNPJ ${companyCnpj} · ${companyPhone}`,47,27);doc.text(`${companyEmail} · ${companyCity}`,47,32.5);
+      doc.setFont('helvetica','bold');doc.setFontSize(6.8);doc.setTextColor(174,164,204);doc.text('IDENTIFICAÇÃO DA PROPOSTA',pageW-margin,11,{align:'right'});
+      doc.setTextColor(255,255,255);doc.setFontSize(8.2);doc.text(`${displayCode} · ${emission}`,pageW-margin,17,{align:'right'});
+      doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(205,201,211);doc.text('Versão 01',pageW-margin,22.5,{align:'right'});
+    };
+    const drawContinuationHeader=()=>{
+      doc.setFillColor(13,12,16);doc.rect(0,0,pageW,19,'F');doc.setFillColor(...violet);doc.rect(0,18,pageW,1,'F');
+      doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.setTextColor(255,255,255);doc.text(companyName,margin,11.5);
+      doc.setFont('helvetica','normal');doc.setFontSize(7.2);doc.setTextColor(211,207,217);doc.text(`Proposta ${displayCode} · continuação`,pageW-margin,11.5,{align:'right'});
+    };
+    const addContentPage=()=>{doc.addPage();drawContinuationHeader();return 27;};
+    let y;
+    const ensureSpace=required=>{if(y+required>pageH-24)y=addContentPage();};
+    const drawSectionBox=(title,text,options={})=>{
+      if(!text)return;
+      doc.setFont('helvetica','normal');doc.setFontSize(8.6);const lines=doc.splitTextToSize(String(text),contentW-12),height=14+lines.length*4.35;
+      ensureSpace(height+5);doc.setFillColor(...(options.fill||soft));doc.setDrawColor(...line);doc.roundedRect(margin,y,contentW,height,2,2,'FD');
+      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...violet);doc.text(title.toUpperCase(),margin+6,y+7);
+      doc.setFont('helvetica','normal');doc.setFontSize(8.6);doc.setTextColor(...ink);doc.text(lines,margin+6,y+13);y+=height+5;
+    };
+    drawFirstHeader();y=50;
+    const clientContact=[orc.clientDoc?`CPF/CNPJ: ${orc.clientDoc}`:'',orc.clientContact?`Telefone: ${orc.clientContact}`:'',orc.clientEmail?`E-mail: ${orc.clientEmail}`:''].filter(Boolean).join(' · ');
+    doc.setFont('helvetica','normal');doc.setFontSize(8.3);
+    const contactLines=clientContact?doc.splitTextToSize(clientContact,contentW-12):[],addressLines=orc.clientAddress?doc.splitTextToSize(`Endereço: ${orc.clientAddress}`,contentW-12):[];
+    const clientH=20+(contactLines.length+addressLines.length)*4.2;
+    doc.setFillColor(...soft);doc.setDrawColor(...line);doc.roundedRect(margin,y,contentW,clientH,2,2,'FD');
+    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...violet);doc.text('PREPARADO PARA',margin+6,y+7);
+    doc.setFontSize(10.5);doc.setTextColor(...ink);doc.text(orc.clientName||'Cliente',margin+6,y+14);
+    let clientY=y+19;doc.setFont('helvetica','normal');doc.setFontSize(8.3);doc.setTextColor(...muted);
+    if(contactLines.length){doc.text(contactLines,margin+6,clientY);clientY+=contactLines.length*4.2;}
+    if(addressLines.length)doc.text(addressLines,margin+6,clientY);
+    y+=clientH+5;
+    const validity=quoteValidityDisplay(orc.date,orc.validity||EMPRESA.validade||'A combinar'),delivery=orc.delivery||EMPRESA.prazo||'A combinar';
+    const commercial=[['VALIDADE',validity],['ENTREGA',delivery],['MODALIDADE',orc.shippingMethod||'A combinar'],['PAGAMENTO',quotePaymentDescription(orc.paymentMode,financials,orc.customPayment||'')]];
+    const gap=3,cardW=(contentW-gap*3)/4,valueLines=commercial.map(([,value])=>doc.splitTextToSize(String(value),cardW-8)),commercialH=11+Math.max(...valueLines.map(lines=>lines.length))*4.1;
+    commercial.forEach(([label],index)=>{const x=margin+index*(cardW+gap);doc.setFillColor(255,255,255);doc.setDrawColor(...line);doc.roundedRect(x,y,cardW,commercialH,2,2,'FD');doc.setFont('helvetica','bold');doc.setFontSize(6.6);doc.setTextColor(...violet);doc.text(label,x+4,y+6);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...ink);doc.text(valueLines[index],x+4,y+11);});
+    y+=commercialH+7;
+    const rows=[];(orc.items||[]).forEach(it=>{const unitValue=quoteHasTablePrices(orc)?quoteDisplayUnitValue(it,financials,orc.paymentMode):Number(it.unitValue)||0;rows.push([{content:it.desc||'Produto',styles:{fontStyle:'bold'}},`${it.qty} ${it.unit||'un.'}`,fmtMoney(unitValue),fmtMoney((Number(it.qty)||0)*unitValue)]);if(it.details)rows.push([{content:it.details,colSpan:4,styles:{fontSize:7.7,textColor:muted,fillColor:[249,248,251],cellPadding:{top:1.5,right:4,bottom:3,left:6}}}]);});
     doc.autoTable({
       startY: y,
-      head: [['Produto / serviço','Qtd.','Valor unitário','Subtotal']],
+      head: [['PRODUTO / SERVIÇO','QTD.','VALOR UNITÁRIO','SUBTOTAL']],
       body: rows,
       theme:'plain',
-      headStyles:{fillColor:[22,18,25],textColor:255,fontStyle:'bold',fontSize:9,cellPadding:4},
-      styles:{fontSize:9,cellPadding:4,textColor:[30,30,30],lineColor:[226,220,207],lineWidth:{bottom:.2}},
-      alternateRowStyles: { fillColor: [247,244,239] },
-      columnStyles:{1:{halign:'center',cellWidth:23},2:{halign:'right',cellWidth:34},3:{halign:'right',cellWidth:34}},
-      margin:{left:14,right:14,bottom:24}, didDrawPage:footer
+      headStyles:{fillColor:[30,28,34],textColor:255,fontStyle:'bold',fontSize:7.5,cellPadding:{top:3.3,right:4,bottom:3.3,left:4}},
+      styles:{fontSize:8.5,cellPadding:4,textColor:ink,lineColor:line,lineWidth:{bottom:.18},overflow:'linebreak'},
+      alternateRowStyles:{fillColor:[252,251,253]},
+      columnStyles:{0:{cellWidth:'auto'},1:{halign:'center',cellWidth:22},2:{halign:'right',cellWidth:34},3:{halign:'right',cellWidth:34,fontStyle:'bold'}},
+      rowPageBreak:'avoid',showHead:'everyPage',
+      margin:{left:margin,right:margin,top:27,bottom:24},
+      didDrawPage:()=>{if(doc.internal.getCurrentPageInfo().pageNumber>1)drawContinuationHeader();}
     });
-    let fy=doc.lastAutoTable.finalY+6; if(fy>222){doc.addPage();fy=22;}
-    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(95,90,100);doc.text(`${quoteHasTablePrices(orc)&&hasPricing?'Produtos pelo preço de tabela':'Produtos'}: ${fmtMoney(quoteHasTablePrices(orc)&&hasPricing?financials.cardProductSubtotal:financials.subtotal)}${financials.shippingCost?`  ·  Frete: ${fmtMoney(financials.shippingCost)}`:''}`,14,fy+3);fy+=8;
+    y=doc.lastAutoTable.finalY+6;
+    ensureSpace(hasPricing?43:29);
+    const tableProducts=quoteHasTablePrices(orc)&&hasPricing?financials.cardProductSubtotal:financials.subtotal;
+    doc.setFillColor(...soft);doc.setDrawColor(...line);doc.roundedRect(margin,y,contentW,11,2,2,'FD');doc.setFont('helvetica','normal');doc.setFontSize(7.8);doc.setTextColor(...muted);doc.text(`Produtos: ${fmtMoney(tableProducts)}${financials.shippingCost?` · Frete: ${fmtMoney(financials.shippingCost)}`:''}`,margin+5,y+7);y+=15;
     if(hasPricing){
-      if(showPix){const w=showCard?86:182;doc.setFillColor(14,138,150);doc.roundedRect(14,fy,w,24,3,3,'F');doc.setTextColor(225,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8);doc.text(`À VISTA NO PIX · ${String(financials.pixDiscountPct).replace('.',',')}% DE DESCONTO`,20,fy+7);doc.setTextColor(255,255,255);doc.setFontSize(15);doc.text(fmtMoney(financials.pixTotal),20,fy+17);}
-      if(showCard){const x=showPix?105:14,w=showPix?91:182;doc.setFillColor(105,71,199);doc.roundedRect(x,fy,w,24,3,3,'F');doc.setTextColor(238,233,255);doc.setFont('helvetica','bold');doc.setFontSize(8);doc.text(`CARTÃO · ATÉ ${financials.installments}X SEM JUROS`,x+6,fy+7);doc.setTextColor(255,255,255);doc.setFontSize(15);doc.text(fmtMoney(financials.cardTotal),x+6,fy+17);}fy+=33;
-    }else{doc.setFillColor(22,18,25);doc.roundedRect(pageW-86,fy,72,18,3,3,'F');doc.setTextColor(190,185,195);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text('VALOR TOTAL',pageW-80,fy+7);doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text(fmtMoney(orc.total),pageW-20,fy+12,{align:'right'});fy+=27;}
-    const payment=orc.payment||company.pagamento; if(payment||company.pix){doc.setTextColor(105,71,199);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text('CONDIÇÕES DE PAGAMENTO',14,fy);doc.setTextColor(40,40,40);doc.setFont('helvetica','normal');doc.setFontSize(9);const lines=doc.splitTextToSize([payment,company.pix?`Chave PIX: ${company.pix}`:''].filter(Boolean).join('  ·  '),pageW-28);doc.text(lines,14,fy+6);fy+=lines.length*5+11;}
-    if(orc.notes){doc.setTextColor(105,71,199);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text('OBSERVAÇÕES',14,fy);doc.setTextColor(40,40,40);doc.setFont('helvetica','normal');const lines=doc.splitTextToSize(orc.notes,pageW-28);doc.text(lines,14,fy+6);fy+=lines.length*5+12;}
-    if(fy<252){doc.setDrawColor(190,185,195);doc.line(14,fy+14,86,fy+14);doc.line(124,fy+14,pageW-14,fy+14);doc.setFontSize(8);doc.setTextColor(100,95,105);doc.text(companyName,50,fy+19,{align:'center'});doc.text('Aceite do cliente',160,fy+19,{align:'center'});}
-    for(let p=1;p<=doc.getNumberOfPages();p++){doc.setPage(p);footer();}
-    doc.save(`Orcamento_${orc.id}_${(orc.clientName||'cliente').replace(/\s+/g,'_')}.pdf`);
+      const priceGap=4,visibleCards=(showPix?1:0)+(showCard?1:0),priceW=(contentW-priceGap*(visibleCards-1))/visibleCards;let priceX=margin;
+      if(showPix){doc.setFillColor(...teal);doc.roundedRect(priceX,y,priceW,25,2.5,2.5,'F');doc.setTextColor(224,250,251);doc.setFont('helvetica','bold');doc.setFontSize(7.3);doc.text(`À VISTA NO PIX · ${String(financials.pixDiscountPct).replace('.',',')}% DE DESCONTO`,priceX+6,y+7);doc.setTextColor(255,255,255);doc.setFontSize(14);doc.text(fmtMoney(financials.pixTotal),priceX+6,y+18);priceX+=priceW+priceGap;}
+      if(showCard){doc.setFillColor(...violet);doc.roundedRect(priceX,y,priceW,25,2.5,2.5,'F');doc.setTextColor(238,234,250);doc.setFont('helvetica','bold');doc.setFontSize(7.3);doc.text(`CARTÃO · ATÉ ${financials.installments}X SEM JUROS`,priceX+6,y+7);doc.setTextColor(255,255,255);doc.setFontSize(14);doc.text(fmtMoney(financials.cardTotal),priceX+6,y+18);}y+=31;
+    }else{doc.setFillColor(...ink);doc.roundedRect(pageW-margin-78,y,78,21,2.5,2.5,'F');doc.setTextColor(199,195,204);doc.setFont('helvetica','bold');doc.setFontSize(7);doc.text('VALOR TOTAL',pageW-margin-72,y+7);doc.setTextColor(255,255,255);doc.setFontSize(14);doc.text(fmtMoney(orc.total),pageW-margin-6,y+15,{align:'right'});y+=27;}
+    const payment=orc.payment||company.pagamento;
+    drawSectionBox('Condições de pagamento',[payment,company.pix?`Chave PIX: ${company.pix}`:''].filter(Boolean).join(' · '));
+    drawSectionBox('Observações',orc.notes);
+    const acceptanceH=48;ensureSpace(acceptanceH+4);
+    doc.setFillColor(255,255,255);doc.setDrawColor(...line);doc.roundedRect(margin,y,contentW,acceptanceH,2,2,'FD');
+    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...violet);doc.text('ACEITE DA PROPOSTA',margin+6,y+7);
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...ink);doc.text(doc.splitTextToSize('Declaro estar de acordo com os itens, valores e condições apresentados nesta proposta comercial.',contentW-12),margin+6,y+13);
+    const sigY=y+34,sigGap=18,sigW=(contentW-sigGap)/2;doc.setDrawColor(165,160,170);doc.line(margin+2,sigY,margin+sigW-2,sigY);doc.line(margin+sigW+sigGap+2,sigY,pageW-margin-2,sigY);
+    const companySignature=doc.splitTextToSize(companyName,sigW-6)[0],clientSignature=doc.splitTextToSize(`${orc.clientName||'Cliente'}${orc.clientDoc?` · ${orc.clientDoc}`:''}`,sigW-6)[0];
+    doc.setFontSize(7.5);doc.setTextColor(...muted);doc.text(companySignature,margin+sigW/2,sigY+5,{align:'center'});doc.text(clientSignature,margin+sigW+sigGap+sigW/2,sigY+5,{align:'center'});
+    doc.setFontSize(7);doc.text('Assinatura da empresa',margin+sigW/2,sigY+9,{align:'center'});doc.text('Assinatura do cliente · Data: ____/____/________',margin+sigW+sigGap+sigW/2,sigY+9,{align:'center'});y+=acceptanceH+4;
+    const pages=doc.getNumberOfPages();for(let page=1;page<=pages;page++){doc.setPage(page);doc.setDrawColor(...line);doc.line(margin,pageH-16,pageW-margin,pageH-16);doc.setFont('helvetica','normal');doc.setFontSize(7.2);doc.setTextColor(...muted);doc.text(`${companyName} · ${companyPhone} · ${companyEmail}`,margin,pageH-10);doc.text(`${displayCode} · Página ${page} de ${pages}`,pageW-margin,pageH-10,{align:'right'});doc.setFontSize(6.5);doc.text('Documento gerado eletronicamente pela HL 3D Solutions.',margin,pageH-6.5);}
+    const safeClient=(orc.clientName||'cliente').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'_').replace(/^_+|_+$/g,'');
+    doc.save(`Proposta_${displayCode}_${safeClient||'cliente'}.pdf`);
   }
 
   // ============================================================
