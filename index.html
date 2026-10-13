@@ -732,7 +732,7 @@
               <div class="section-card"><div class="section-title"><span class="step">1</span> Cliente e proposta</div>
                 <div class="row"><div class="field"><label>Nome do cliente *</label><input id="orc-client-name" placeholder="Nome ou razão social"></div><div class="field"><label>CPF/CNPJ</label><input id="orc-client-doc" placeholder="Opcional"></div></div>
                 <div class="row"><div class="field"><label>WhatsApp / telefone</label><input id="orc-client-contact" placeholder="(34) 99999-9999"></div><div class="field"><label>E-mail</label><input id="orc-client-email" type="email" placeholder="cliente@email.com"></div></div>
-                <div class="row"><div class="field" style="flex:2;"><label>Endereço / cidade</label><input id="orc-client-address" placeholder="Opcional"></div><div class="field"><label>Validade</label><input id="orc-validity" placeholder="Ex.: 7 dias"></div><div class="field"><label>Prazo de entrega</label><input id="orc-delivery" placeholder="Ex.: 5 dias úteis"></div></div>
+                <div class="row"><div class="field" style="flex:2;"><label>Endereço / cidade</label><input id="orc-client-address" placeholder="Opcional"></div><div class="field"><label>Validade da proposta</label><select id="orc-validity"><option value="3 dias">3 dias</option><option value="5 dias">5 dias</option><option value="7 dias" selected>7 dias</option><option value="10 dias">10 dias</option><option value="15 dias">15 dias</option><option value="30 dias">30 dias</option><option value="A combinar">A combinar</option><option value="custom">Outro prazo…</option></select><input id="orc-validity-custom" placeholder="Informe a validade" style="display:none;margin-top:7px;"></div><div class="field"><label>Prazo de entrega</label><select id="orc-delivery"><option value="2 dias úteis">2 dias úteis</option><option value="3 dias úteis">3 dias úteis</option><option value="5 dias úteis" selected>5 dias úteis</option><option value="7 dias úteis">7 dias úteis</option><option value="10 dias úteis">10 dias úteis</option><option value="15 dias úteis">15 dias úteis</option><option value="Sob encomenda">Sob encomenda</option><option value="A combinar">A combinar</option><option value="custom">Outro prazo…</option></select><input id="orc-delivery-custom" placeholder="Informe o prazo" style="display:none;margin-top:7px;"></div></div>
               </div>
               <div class="section-card"><div class="section-title"><span class="step">2</span> Itens do orçamento</div>
                 <div class="catalog-picker" style="margin-bottom:14px;"><h3 style="margin-bottom:4px;">Usar cálculos já salvos</h3><p class="hint" style="margin-bottom:10px;">Selecione um ou vários cálculos registrados e reúna todos no mesmo orçamento.</p><button class="btn secondary small" id="orc-open-saved-calcs" type="button">Selecionar cálculos salvos →</button></div>
@@ -748,7 +748,8 @@
                 <div id="orc-items-list"></div>
               </div>
               <div class="section-card"><div class="section-title"><span class="step">3</span> Condições comerciais</div>
-                <div class="row"><div class="field"><label>Forma de pagamento</label><input id="orc-payment" placeholder="Ex.: 50% na aprovação e 50% na entrega"></div><div class="field"><label>Entrega / retirada</label><input id="orc-shipping-method" placeholder="Ex.: Retirada ou envio por conta do cliente"></div></div>
+                <div class="row"><div class="field"><label>Apresentação do pagamento</label><select id="orc-payment-mode"><option value="both" selected>Mostrar PIX e cartão</option><option value="pix">Somente PIX à vista</option><option value="card">Somente cartão parcelado</option><option value="base">Valor padrão, sem ajuste</option><option value="custom">Condição personalizada</option></select><input id="orc-payment" placeholder="Descreva a condição personalizada" style="display:none;margin-top:7px;"></div><div class="field"><label>Forma de entrega</label><select id="orc-shipping-method"><option value="Retirada em Uberaba/MG">Retirada em Uberaba/MG</option><option value="Entrega local">Entrega local</option><option value="Frete por conta do cliente">Frete por conta do cliente</option><option value="Frete incluso">Frete incluso</option><option value="Correios">Correios</option><option value="Transportadora">Transportadora</option><option value="Mercado Envios">Mercado Envios</option><option value="A combinar">A combinar</option><option value="custom">Outra opção…</option></select><input id="orc-shipping-custom" placeholder="Descreva a forma de entrega" style="display:none;margin-top:7px;"></div></div>
+                <div class="row"><div class="field"><label>Desconto no PIX (%)</label><input id="orc-pix-discount" type="number" min="0" max="90" step="0.01" value="10"></div><div class="field"><label>Parcelas sem juros</label><select id="orc-installments"><option value="1">1x</option><option value="2">2x</option><option value="3">3x</option><option value="4" selected>4x</option></select></div><div class="field"><label>Taxa da máquina (%)</label><input id="orc-card-fee" type="number" min="0" max="90" step="0.01" value="9.32"><small class="hint">A taxa é incorporada para preservar o valor líquido.</small></div><div class="field"><label>Valor do frete (R$)</label><input id="orc-shipping-cost" type="number" min="0" step="0.01" value="0"><small class="hint">Opcional. No PIX, o desconto não reduz o frete.</small></div></div>
                 <div class="row"><div class="field"><label>Observações</label><textarea id="orc-notes" rows="3" placeholder="Informações adicionais, limites da personalização e orientações ao cliente."></textarea></div></div>
               </div>
               <div id="orc-msg"></div>
@@ -893,6 +894,15 @@
           <h3>🏢 Dados pro orçamento em PDF</h3>
           <p class="hint">Essas informações aparecem no rodapé de todo orçamento gerado. Preencha uma vez.</p>
           <div class="row">
+            <div class="field"><label>Nome da empresa</label><input id="cfg-empresa-nome" placeholder="HL 3D Solutions"></div>
+            <div class="field"><label>CNPJ</label><input id="cfg-empresa-cnpj" placeholder="65.582.951/0001-61"></div>
+            <div class="field"><label>Telefone</label><input id="cfg-empresa-telefone" placeholder="(34) 99941-6973"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>E-mail</label><input id="cfg-empresa-email" type="email" placeholder="hl3dsolutions@gmail.com"></div>
+            <div class="field"><label>Cidade / UF</label><input id="cfg-empresa-cidade" placeholder="Uberaba/MG"></div>
+          </div>
+          <div class="row">
             <div class="field"><label>Chave PIX</label><input id="cfg-empresa-pix" placeholder="Telefone, e-mail ou CPF/CNPJ"></div>
             <div class="field"><label>Prazo médio de produção</label><input id="cfg-empresa-prazo" placeholder="Ex.: 5 a 10 dias úteis"></div>
             <div class="field"><label>Validade padrão da proposta</label><input id="cfg-empresa-validade" placeholder="Ex.: 7 dias"></div>
@@ -901,8 +911,40 @@
           <div class="row">
             <div class="field" style="flex:1 1 100%;"><label>Condições de pagamento (aparece no PDF)</label><textarea id="cfg-empresa-pagamento" rows="2" placeholder="Ex.: 50% na aprovação do orçamento, 50% na entrega. Aceito PIX e dinheiro."></textarea></div>
           </div>
+          <div class="row"><div class="field"><label>Desconto PIX padrão (%)</label><input id="cfg-empresa-pix-desconto" type="number" min="0" max="90" step="0.01" value="10"></div><div class="field"><label>Taxa do cartão padrão (%)</label><input id="cfg-empresa-cartao-taxa" type="number" min="0" max="90" step="0.01" value="9.32"></div><div class="field"><label>Parcelas padrão</label><select id="cfg-empresa-parcelas"><option value="1">1x</option><option value="2">2x</option><option value="3">3x</option><option value="4" selected>4x</option></select></div></div>
           <button class="btn secondary small" id="cfg-empresa-save-btn" type="button">Salvar dados</button>
           <div id="cfg-empresa-msg"></div>
+        </div>
+
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+            <div><h3 style="margin-bottom:4px;">🧮 Calculadora pública</h3><p class="hint" style="margin:0;max-width:760px;">Defina os valores usados pela calculadora do portal público. Somente esta conta administrativa pode alterá-los; visitantes apenas fazem simulações.</p></div>
+            <label style="display:flex;align-items:center;gap:8px;text-transform:none;"><input id="cfg-public-enabled" type="checkbox" style="width:auto;"> Disponível no portal</label>
+          </div>
+          <div class="row" style="margin-top:14px;">
+            <div class="field"><label>Material padrão</label><input id="cfg-public-material-name" placeholder="PLA"></div>
+            <div class="field"><label>Custo do material (R$/g)</label><input id="cfg-public-material-cost" type="number" min="0" step="0.0001"></div>
+            <div class="field"><label>Máquina padrão</label><input id="cfg-public-machine-name" placeholder="Bambu Lab"></div>
+            <div class="field"><label>Custo da máquina (R$/h)</label><input id="cfg-public-machine-cost" type="number" min="0" step="0.01"></div>
+            <div class="field"><label>Custo fixo (R$/h)</label><input id="cfg-public-fixed-cost" type="number" min="0" step="0.01"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>Margem desejada (%)</label><input id="cfg-public-markup" type="number" min="0" step="0.1"></div>
+            <div class="field"><label>Reserva para perdas (%)</label><input id="cfg-public-safety" type="number" min="0" step="0.1"></div>
+            <div class="field"><label>Impostos gerais (%)</label><input id="cfg-public-tax" type="number" min="0" max="90" step="0.1"></div>
+            <div class="field"><label>WhatsApp para orçamento</label><input id="cfg-public-whatsapp" inputmode="numeric" placeholder="5534999999999"></div>
+          </div>
+          <div style="overflow-x:auto;margin-top:8px;">
+            <table><thead><tr><th>Canal</th><th>Taxa percentual (%)</th><th>Tarifa fixa por unidade (R$)</th></tr></thead><tbody>
+              <tr><td>Venda direta</td><td><input id="cfg-public-direct-pct" type="number" min="0" max="90" step="0.1"></td><td><input id="cfg-public-direct-fixed" type="number" min="0" step="0.01"></td></tr>
+              <tr><td>Mercado Livre Clássico</td><td><input id="cfg-public-ml-classic-pct" type="number" min="0" max="90" step="0.1"></td><td><input id="cfg-public-ml-classic-fixed" type="number" min="0" step="0.01"></td></tr>
+              <tr><td>Mercado Livre Premium</td><td><input id="cfg-public-ml-premium-pct" type="number" min="0" max="90" step="0.1"></td><td><input id="cfg-public-ml-premium-fixed" type="number" min="0" step="0.01"></td></tr>
+              <tr><td>Shopee</td><td><input id="cfg-public-shopee-pct" type="number" min="0" max="90" step="0.1"></td><td><input id="cfg-public-shopee-fixed" type="number" min="0" step="0.01"></td></tr>
+            </tbody></table>
+          </div>
+          <p class="hint" style="margin-top:10px;">As taxas de marketplace mudam por categoria, anúncio, campanha e faixa de preço. Informe aqui os valores atuais mostrados na sua conta de vendedor.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn secondary small" id="cfg-public-use-current-btn" type="button">Usar PLA e Bambu Lab atuais</button><button class="btn small" id="cfg-public-save-btn" type="button">Salvar calculadora pública</button></div>
+          <div id="cfg-public-msg"></div>
         </div>
 
         <div class="panel">
@@ -1119,7 +1161,19 @@
 
   // ---------- estado ----------
   let CFG = { labor:[], fixed:[], equip:[], materials:[], shipping:[], extras:[], globals:{energyKwh:1.34, paybackMonths:12, depreciationPct:10, fixedHoursBase:160} };
-  let EMPRESA = { pix:'', prazo:'', validade:'', pagamento:'', portfolioUrl:'' };
+  let EMPRESA = { nome:'HL 3D Solutions', cnpj:'65.582.951/0001-61', telefone:'(34) 99941-6973', email:'hl3dsolutions@gmail.com', cidade:'Uberaba/MG', pix:'', prazo:'5 dias úteis', validade:'7 dias', pagamento:'', portfolioUrl:'', pixDiscountPct:10, cardFeePct:9.32, installments:4 };
+  const PUBLIC_CALC_DEFAULT = {
+    enabled:false,title:'Calculadora de peças 3D',materialName:'PLA',materialCostPerGram:0,
+    machineName:'Bambu Lab',machineCostPerHour:0,fixedCostPerHour:0,markupPct:100,
+    safetyPct:10,taxPct:0,whatsapp:'5534999416973',updatedAt:null,
+    channels:{
+      direct:{name:'Venda direta',percent:0,fixedPerUnit:0,active:true},
+      ml_classic:{name:'Mercado Livre Clássico',percent:0,fixedPerUnit:0,active:true},
+      ml_premium:{name:'Mercado Livre Premium',percent:0,fixedPerUnit:0,active:true},
+      shopee:{name:'Shopee',percent:0,fixedPerUnit:0,active:true}
+    }
+  };
+  let PUBLIC_CALC_CONFIG = JSON.parse(JSON.stringify(PUBLIC_CALC_DEFAULT));
   const LOGO_B64 = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAEqAVMDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD8qqKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAoooo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";
   let SOLICITACOES = [];
   let editingRequestId=null, editingRequestVersion=null, sourceRequestId=null;
@@ -1149,7 +1203,9 @@
     PRODUCTS = await getJSON('products', []);
     RECEBIMENTOS = await getJSON('empresa_recebimentos', []);
     CLIENTES = await getJSON('empresa_clientes', []);
-    EMPRESA = await getJSON('empresa_config', EMPRESA);
+    EMPRESA = {...EMPRESA,...(await getJSON('empresa_config', EMPRESA)||{})};
+    const savedPublicCalc = await getJSON('public_calculator_config', PUBLIC_CALC_DEFAULT);
+    PUBLIC_CALC_CONFIG = {...PUBLIC_CALC_DEFAULT,...(savedPublicCalc||{}),channels:{...PUBLIC_CALC_DEFAULT.channels,...(savedPublicCalc?.channels||{})}};
   }
 
   function nextSeqId(list, prefix){
@@ -1207,12 +1263,23 @@
     resetRequestForm();
     await refreshRequests();
     document.getElementById('cfg-empresa-pix').value = EMPRESA.pix || '';
+    document.getElementById('cfg-empresa-nome').value = EMPRESA.nome || 'HL 3D Solutions';
+    document.getElementById('cfg-empresa-cnpj').value = EMPRESA.cnpj || '65.582.951/0001-61';
+    document.getElementById('cfg-empresa-telefone').value = EMPRESA.telefone || '(34) 99941-6973';
+    document.getElementById('cfg-empresa-email').value = EMPRESA.email || 'hl3dsolutions@gmail.com';
+    document.getElementById('cfg-empresa-cidade').value = EMPRESA.cidade || 'Uberaba/MG';
     document.getElementById('cfg-empresa-prazo').value = EMPRESA.prazo || '';
     document.getElementById('cfg-empresa-validade').value = EMPRESA.validade || '';
     document.getElementById('cfg-empresa-pagamento').value = EMPRESA.pagamento || '';
     document.getElementById('cfg-empresa-portfolio-url').value = EMPRESA.portfolioUrl || '';
+    document.getElementById('cfg-empresa-pix-desconto').value = Number(EMPRESA.pixDiscountPct ?? 10);
+    document.getElementById('cfg-empresa-cartao-taxa').value = Number(EMPRESA.cardFeePct ?? 9.32);
+    document.getElementById('cfg-empresa-parcelas').value = String(Math.min(4,Math.max(1,Number(EMPRESA.installments)||4)));
+    renderPublicCalculatorConfig();
     applyProductsPortalLink();
+    applyQuoteCommercialDefaults();
     restoreDrafts();
+    toggleQuoteCustomFields();renderOrcItems();
     enhanceAccessibility();
     renderDashboard();
   }
@@ -1282,12 +1349,21 @@
   }
   document.getElementById('cfg-empresa-save-btn').addEventListener('click', async ()=>{
     const nextEmpresa = {
+      nome: document.getElementById('cfg-empresa-nome').value.trim() || 'HL 3D Solutions',
+      cnpj: document.getElementById('cfg-empresa-cnpj').value.trim(),
+      telefone: document.getElementById('cfg-empresa-telefone').value.trim(),
+      email: document.getElementById('cfg-empresa-email').value.trim(),
+      cidade: document.getElementById('cfg-empresa-cidade').value.trim(),
       pix: document.getElementById('cfg-empresa-pix').value.trim(),
       prazo: document.getElementById('cfg-empresa-prazo').value.trim(),
       validade: document.getElementById('cfg-empresa-validade').value.trim(),
       pagamento: document.getElementById('cfg-empresa-pagamento').value.trim(),
       portfolioUrl: document.getElementById('cfg-empresa-portfolio-url').value.trim(),
+      pixDiscountPct: Math.max(0,Number(document.getElementById('cfg-empresa-pix-desconto').value)||0),
+      cardFeePct: Math.max(0,Number(document.getElementById('cfg-empresa-cartao-taxa').value)||0),
+      installments: Math.min(4,Math.max(1,Number(document.getElementById('cfg-empresa-parcelas').value)||4)),
     };
+    if(nextEmpresa.cardFeePct>=95){document.getElementById('cfg-empresa-msg').innerHTML='<div class="msg err">A taxa do cartão precisa ser menor que 95%.</div>';return;}
     try{
       await setJSON('empresa_config', nextEmpresa);
       EMPRESA = nextEmpresa;
@@ -1299,6 +1375,54 @@
     const btn=document.getElementById('products-portal-btn'),url=(EMPRESA.portfolioUrl||'').trim();
     if(/^https?:\/\//i.test(url)){btn.href=url;btn.style.display='inline-flex';}else{btn.removeAttribute('href');btn.style.display='none';}
   }
+
+  const publicCalcNumber=id=>Math.max(0,Number(document.getElementById(id).value)||0);
+  function renderPublicCalculatorConfig(){
+    const c=PUBLIC_CALC_CONFIG,ch=c.channels||{};
+    document.getElementById('cfg-public-enabled').checked=!!c.enabled;
+    document.getElementById('cfg-public-material-name').value=c.materialName||'PLA';
+    document.getElementById('cfg-public-material-cost').value=Number(c.materialCostPerGram)||0;
+    document.getElementById('cfg-public-machine-name').value=c.machineName||'Bambu Lab';
+    document.getElementById('cfg-public-machine-cost').value=Number(c.machineCostPerHour)||0;
+    document.getElementById('cfg-public-fixed-cost').value=Number(c.fixedCostPerHour)||0;
+    document.getElementById('cfg-public-markup').value=Number(c.markupPct)||0;
+    document.getElementById('cfg-public-safety').value=Number(c.safetyPct)||0;
+    document.getElementById('cfg-public-tax').value=Number(c.taxPct)||0;
+    document.getElementById('cfg-public-whatsapp').value=c.whatsapp||'';
+    ['direct','ml_classic','ml_premium','shopee'].forEach(key=>{
+      const prefix='cfg-public-'+key.replaceAll('_','-'),item=ch[key]||{};
+      document.getElementById(prefix+'-pct').value=Number(item.percent)||0;
+      document.getElementById(prefix+'-fixed').value=Number(item.fixedPerUnit)||0;
+    });
+  }
+  document.getElementById('cfg-public-use-current-btn').addEventListener('click',()=>{
+    const material=CFG.materials.find(x=>/\bpla\b/i.test(x.name))||CFG.materials[0];
+    const machine=CFG.equip.find(x=>/bambu/i.test(x.name))||CFG.equip[0];
+    if(material){document.getElementById('cfg-public-material-name').value=material.name;document.getElementById('cfg-public-material-cost').value=materialUnitCost(material).toFixed(4);}
+    if(machine){document.getElementById('cfg-public-machine-name').value=machine.name;document.getElementById('cfg-public-machine-cost').value=equipHourlyRate(machine).toFixed(2);}
+    document.getElementById('cfg-public-fixed-cost').value=fixedHourlyRate().toFixed(2);
+    document.getElementById('cfg-public-msg').innerHTML='<div class="msg ok">Valores atuais carregados no formulário. Revise e clique em salvar.</div>';
+  });
+  document.getElementById('cfg-public-save-btn').addEventListener('click',async()=>{
+    const channels={};
+    [['direct','Venda direta'],['ml_classic','Mercado Livre Clássico'],['ml_premium','Mercado Livre Premium'],['shopee','Shopee']].forEach(([key,name])=>{
+      const prefix='cfg-public-'+key.replaceAll('_','-');
+      channels[key]={name,percent:publicCalcNumber(prefix+'-pct'),fixedPerUnit:publicCalcNumber(prefix+'-fixed'),active:true};
+    });
+    const next={
+      ...PUBLIC_CALC_CONFIG,enabled:document.getElementById('cfg-public-enabled').checked,
+      materialName:document.getElementById('cfg-public-material-name').value.trim()||'PLA',
+      materialCostPerGram:publicCalcNumber('cfg-public-material-cost'),
+      machineName:document.getElementById('cfg-public-machine-name').value.trim()||'Bambu Lab',
+      machineCostPerHour:publicCalcNumber('cfg-public-machine-cost'),fixedCostPerHour:publicCalcNumber('cfg-public-fixed-cost'),
+      markupPct:publicCalcNumber('cfg-public-markup'),safetyPct:publicCalcNumber('cfg-public-safety'),taxPct:publicCalcNumber('cfg-public-tax'),
+      whatsapp:document.getElementById('cfg-public-whatsapp').value.replace(/\D/g,''),channels,updatedAt:new Date().toISOString()
+    };
+    const totalPct=Math.max(...Object.values(channels).map(x=>x.percent+next.taxPct));
+    if(totalPct>=95){document.getElementById('cfg-public-msg').innerHTML='<div class="msg err">A soma de taxa do canal e impostos precisa ser menor que 95%.</div>';return;}
+    try{await setJSON('public_calculator_config',next);PUBLIC_CALC_CONFIG=next;document.getElementById('cfg-public-msg').innerHTML='<div class="msg ok">Calculadora pública atualizada.</div>';}
+    catch(e){document.getElementById('cfg-public-msg').innerHTML=`<div class="msg err">${escapeHtml(e.message)}</div>`;}
+  });
 
   document.getElementById('cfg-import-btn').addEventListener('click', async ()=>{
     if(!confirm('Restaurar os valores iniciais? Isso SUBSTITUIRÁ as configurações atuais. Um backup automático será criado antes da troca.')) return;
@@ -2134,7 +2258,13 @@
       if(!order){
         const now=new Date().toISOString();
         const orderId=nextSeqId(orders,'PRD');
-        order={id:orderId,client:orc.clientName,channel:'',externalOrder:'',priority:'Normal',printer:'',printHours:0,desc:orc.items.map(it=>`${it.qty}x ${it.desc}`).join(', '),items:orc.items.map((it,index)=>({id:`${orderId}-${index+1}`,productName:it.desc,quantity:Number(it.qty)||1,color:it.color||'',details:it.details||'',catalogProductCode:it.productCode||'',done:false})),value:orc.total,status:'Pendente',date:todayISO(),deliveryDate:null,orcamentoId:orc.id,sourceRequestId:orc.sourceRequestId||null,statusHistory:[{type:'status',status:'Pendente',at:now,label:'Pedido incluído'}]};
+        const values=savedQuoteFinancials(orc);let acceptedValue=Number(orc.total)||values.baseTotal,acceptedPayment=orc.payment||'';
+        if(orc.paymentMode==='both'){
+          const choice=prompt(`Qual condição o cliente aceitou?\n1 — PIX à vista: ${fmtMoney(values.pixTotal)}\n2 — Cartão: ${values.installments}x de ${fmtMoney(values.installmentValue)} (total ${fmtMoney(values.cardTotal)})\n3 — Preço-base: ${fmtMoney(values.baseTotal)}`,'1');
+          if(choice===null)return;
+          if(choice==='1'){acceptedValue=values.pixTotal;acceptedPayment='PIX à vista';}else if(choice==='2'){acceptedValue=values.cardTotal;acceptedPayment=`Cartão em ${values.installments}x`;}else if(choice==='3'){acceptedValue=values.baseTotal;acceptedPayment='Preço-base';}else throw new Error('Escolha 1, 2 ou 3 para informar a condição aceita.');
+        }else if(orc.paymentMode==='pix')acceptedValue=values.pixTotal;else if(orc.paymentMode==='card')acceptedValue=values.cardTotal;
+        order={id:orderId,client:orc.clientName,channel:'',externalOrder:'',priority:'Normal',printer:'',printHours:0,desc:orc.items.map(it=>`${it.qty}x ${it.desc}`).join(', '),items:orc.items.map((it,index)=>({id:`${orderId}-${index+1}`,productName:it.desc,quantity:Number(it.qty)||1,color:it.color||'',details:it.details||'',catalogProductCode:it.productCode||'',done:false})),value:acceptedValue,paymentCondition:acceptedPayment,status:'Pendente',date:todayISO(),deliveryDate:null,orcamentoId:orc.id,sourceRequestId:orc.sourceRequestId||null,statusHistory:[{type:'status',status:'Pendente',at:now,label:`Pedido incluído · ${acceptedPayment||'condição não informada'}`}]};
         if(!await setJSON('producao_pedidos',[...orders,order]))throw new Error('Não foi possível criar o pedido. Nenhum aceite foi registrado.');
         PEDIDOS=[...orders,order];
       }else{PEDIDOS=orders;}
@@ -2149,6 +2279,48 @@
   // ORÇAMENTOS
   // ============================================================
   function catalogAllowsConsignment(p){return !!p&&p.consignmentAvailable!==false&&p.noConsignment!==true;}
+  function quoteChoice(selectId,customId){
+    const select=document.getElementById(selectId),custom=document.getElementById(customId);
+    return select.value==='custom'?(custom.value.trim()||'A combinar'):select.value;
+  }
+  function setQuoteChoice(selectId,customId,value,fallback){
+    const select=document.getElementById(selectId),custom=document.getElementById(customId),desired=value||fallback;
+    const option=[...select.options].find(o=>o.value===desired&&o.value!=='custom');
+    select.value=option?desired:'custom';custom.value=option?'':(desired||'');custom.style.display=select.value==='custom'?'block':'none';
+  }
+  function toggleQuoteCustomFields(){
+    [['orc-validity','orc-validity-custom'],['orc-delivery','orc-delivery-custom'],['orc-shipping-method','orc-shipping-custom']].forEach(([selectId,customId])=>{document.getElementById(customId).style.display=document.getElementById(selectId).value==='custom'?'block':'none';});
+    document.getElementById('orc-payment').style.display=document.getElementById('orc-payment-mode').value==='custom'?'block':'none';
+  }
+  function applyQuoteCommercialDefaults(){
+    setQuoteChoice('orc-validity','orc-validity-custom',EMPRESA.validade,'7 dias');
+    setQuoteChoice('orc-delivery','orc-delivery-custom',EMPRESA.prazo,'5 dias úteis');
+    setQuoteChoice('orc-shipping-method','orc-shipping-custom','Retirada em Uberaba/MG','Retirada em Uberaba/MG');
+    document.getElementById('orc-payment-mode').value='both';document.getElementById('orc-payment').value='';
+    document.getElementById('orc-pix-discount').value=Number(EMPRESA.pixDiscountPct ?? 10);
+    document.getElementById('orc-card-fee').value=Number(EMPRESA.cardFeePct ?? 9.32);
+    document.getElementById('orc-installments').value=String(Math.min(4,Math.max(1,Number(EMPRESA.installments)||4)));
+    document.getElementById('orc-shipping-cost').value='0';toggleQuoteCustomFields();
+  }
+  function quoteFinancials(items,options={}){
+    const subtotal=(items||[]).reduce((sum,item)=>sum+(Number(item.qty)||0)*(Number(item.unitValue)||0),0);
+    const shippingCost=Math.max(0,Number(options.shippingCost)||0),pixDiscountPct=Math.min(90,Math.max(0,Number(options.pixDiscountPct)||0));
+    const cardFeePct=Math.min(90,Math.max(0,Number(options.cardFeePct)||0)),installments=Math.min(4,Math.max(1,Math.round(Number(options.installments)||1)));
+    const baseTotal=subtotal+shippingCost,pixTotal=Math.max(0,subtotal*(1-pixDiscountPct/100)+shippingCost),cardTotal=baseTotal/(1-cardFeePct/100);
+    return {subtotal,shippingCost,baseTotal,pixDiscountPct,pixDiscountValue:subtotal*pixDiscountPct/100,pixTotal,cardFeePct,cardFeeValue:cardTotal-baseTotal,cardTotal,installments,installmentValue:cardTotal/installments};
+  }
+  function currentQuoteFinancials(){return quoteFinancials(orcItemsCart,{shippingCost:document.getElementById('orc-shipping-cost').value,pixDiscountPct:document.getElementById('orc-pix-discount').value,cardFeePct:document.getElementById('orc-card-fee').value,installments:document.getElementById('orc-installments').value});}
+  function savedQuoteFinancials(orc){
+    if(Number.isFinite(Number(orc.pixTotal))&&Number.isFinite(Number(orc.cardTotal)))return {subtotal:Number(orc.subtotal)||0,shippingCost:Number(orc.shippingCost)||0,baseTotal:Number(orc.baseTotal??orc.total)||0,pixDiscountPct:Number(orc.pixDiscountPct)||0,pixDiscountValue:Number(orc.pixDiscountValue)||0,pixTotal:Number(orc.pixTotal)||0,cardFeePct:Number(orc.cardFeePct)||0,cardFeeValue:Number(orc.cardFeeValue)||0,cardTotal:Number(orc.cardTotal)||0,installments:Number(orc.installments)||1,installmentValue:Number(orc.installmentValue)||0};
+    const base=Number(orc.total)||0;return {subtotal:Number(orc.subtotal??base)||base,shippingCost:0,baseTotal:base,pixDiscountPct:0,pixDiscountValue:0,pixTotal:base,cardFeePct:0,cardFeeValue:0,cardTotal:base,installments:1,installmentValue:base};
+  }
+  function quotePaymentDescription(mode,financials,custom=''){
+    if(mode==='pix')return `PIX à vista com ${String(financials.pixDiscountPct).replace('.',',')}% de desconto`;
+    if(mode==='card')return `Cartão em até ${financials.installments}x sem juros para o cliente`;
+    if(mode==='base')return 'Valor padrão, sem desconto ou acréscimo';
+    if(mode==='custom')return custom||'Condição a combinar';
+    return `PIX à vista com ${String(financials.pixDiscountPct).replace('.',',')}% de desconto ou cartão em até ${financials.installments}x sem juros para o cliente`;
+  }
   function catalogPublicPrice(p, colorName){
     const color = colorName ? (p.colors||[]).find(c=>c.name===colorName) : null;
     const colorPrice=Number(color?.publicPrice);
@@ -2180,6 +2352,8 @@
   document.getElementById('orc-catalog-product').addEventListener('change', renderCatalogPreview);
   document.getElementById('orc-catalog-color').addEventListener('change', renderCatalogPreview);
   document.getElementById('orc-catalog-price-type').addEventListener('change', e=>{ document.getElementById('orc-catalog-custom-wrap').style.display=e.target.value==='custom'?'flex':'none'; });
+  ['orc-validity','orc-delivery','orc-shipping-method','orc-payment-mode'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{toggleQuoteCustomFields();renderOrcItems();}));
+  ['orc-pix-discount','orc-card-fee','orc-installments','orc-shipping-cost'].forEach(id=>document.getElementById(id).addEventListener('input',renderOrcItems));
   document.getElementById('orc-add-catalog-btn').addEventListener('click', ()=>{
     const p=selectedCatalogProduct(); if(!p){ document.getElementById('orc-msg').innerHTML='<div class="msg err">Selecione um produto do portfólio.</div>'; return; }
     const color=document.getElementById('orc-catalog-color').value; const priceType=document.getElementById('orc-catalog-price-type').value;
@@ -2210,7 +2384,7 @@
   function renderOrcItems(){
     const list = document.getElementById('orc-items-list');
     const summary = document.getElementById('orc-summary');
-    const subtotal = orcItemsCart.reduce((s,it)=>s+Number(it.qty)*Number(it.unitValue),0);
+    const financials=currentQuoteFinancials();
     if(orcItemsCart.length === 0) list.innerHTML='<div class="empty" style="padding:18px;">Nenhum item adicionado.</div>';
     else list.innerHTML = orcItemsCart.map((it,i)=>`
       <div class="quote-item"><div><strong>${escapeHtml(it.desc)}</strong>${it.details ? `<div class="muted">${escapeHtml(it.details)}</div>` : ''}${it.priceLabel ? `<div class="muted" style="color:var(--violet);">${escapeHtml(it.priceLabel)}</div>` : ''}<button type="button" class="btn secondary small" data-edit-orc-item="${i}" style="margin-top:7px;">Editar item</button></div><span>${it.qty} ${escapeHtml(it.unit||'un.')}</span><span>${fmtMoney(it.unitValue)}</span><strong>${fmtMoney(it.qty*it.unitValue)}</strong><button class="btn secondary small" data-del-orc-item="${i}" aria-label="Remover item">Remover</button></div>
@@ -2228,14 +2402,15 @@
     document.querySelectorAll('[data-del-orc-item]').forEach(b=>b.addEventListener('click', ()=>{
       orcItemsCart.splice(+b.dataset.delOrcItem,1); renderOrcItems();
     }));
-    summary.innerHTML = `<div class="summary-row"><span>${orcItemsCart.length} ${orcItemsCart.length===1?'item':'itens'}</span><span>${fmtMoney(subtotal)}</span></div><div class="summary-row big"><span>Total</span><span>${fmtMoney(subtotal)}</span></div><p style="font-size:10.5px;color:#aaa3ad;margin:12px 0 0;line-height:1.45;">Valores, condições e prazo serão consolidados no PDF profissional da proposta.</p>`;
+    summary.innerHTML = `<div class="summary-row"><span>Produtos</span><span>${fmtMoney(financials.subtotal)}</span></div>${financials.shippingCost?`<div class="summary-row"><span>Frete</span><span>${fmtMoney(financials.shippingCost)}</span></div>`:''}<div class="summary-row"><span>Preço-base</span><span>${fmtMoney(financials.baseTotal)}</span></div><div class="summary-row" style="color:#76e4e9;"><span>PIX (${String(financials.pixDiscountPct).replace('.',',')}% desc.)</span><strong>${fmtMoney(financials.pixTotal)}</strong></div><div class="summary-row big"><span>Cartão em ${financials.installments}x</span><span>${fmtMoney(financials.installmentValue)}</span></div><div style="font-size:10.5px;color:#aaa3ad;margin-top:8px;line-height:1.45;">Total parcelado: ${fmtMoney(financials.cardTotal)} · taxa incorporada: ${fmtMoney(financials.cardFeeValue)}.</div>`;
   }
   function clearOrcamentoForm(){
     sourceRequestId=null;requestQuoteNotice();
     ['orc-item-desc','orc-item-details','orc-item-value'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('orc-item-qty').value='1';document.getElementById('orc-item-unit').value='un.';
     orcItemsCart = [];
-    ['orc-client-name','orc-client-doc','orc-client-contact','orc-client-email','orc-client-address','orc-validity','orc-delivery','orc-payment','orc-shipping-method','orc-notes'].forEach(id=>document.getElementById(id).value='');
+    ['orc-client-name','orc-client-doc','orc-client-contact','orc-client-email','orc-client-address','orc-payment','orc-notes','orc-validity-custom','orc-delivery-custom','orc-shipping-custom'].forEach(id=>document.getElementById(id).value='');
+    applyQuoteCommercialDefaults();
     document.getElementById('orc-catalog-product').value=''; document.getElementById('orc-catalog-color').innerHTML='<option value="">Sem variação</option>'; document.getElementById('orc-catalog-price-type').value='public'; document.getElementById('orc-catalog-custom-wrap').style.display='none'; document.getElementById('orc-catalog-preview').innerHTML='';
     renderOrcItems(); document.getElementById('orc-msg').innerHTML='';
   }
@@ -2259,10 +2434,11 @@
     const clientDoc = document.getElementById('orc-client-doc').value.trim();
     const clientEmail = document.getElementById('orc-client-email').value.trim();
     const clientAddress = document.getElementById('orc-client-address').value.trim();
-    const validity = document.getElementById('orc-validity').value.trim();
-    const delivery = document.getElementById('orc-delivery').value.trim();
-    const payment = document.getElementById('orc-payment').value.trim();
-    const shippingMethod = document.getElementById('orc-shipping-method').value.trim();
+    const validity = quoteChoice('orc-validity','orc-validity-custom');
+    const delivery = quoteChoice('orc-delivery','orc-delivery-custom');
+    const paymentMode=document.getElementById('orc-payment-mode').value;
+    const customPayment = document.getElementById('orc-payment').value.trim();
+    const shippingMethod = quoteChoice('orc-shipping-method','orc-shipping-custom');
     const notes = document.getElementById('orc-notes').value.trim();
     const msg = document.getElementById('orc-msg');
     if(!clientName){ msg.innerHTML = '<div class="msg err">Preencha o nome do cliente.</div>'; return null; }
@@ -2274,8 +2450,10 @@
       if(ORCAMENTOS.some(o=>o.sourceRequestId===sourceRequestId))throw new Error('Esta tarefa já tem orçamento salvo. Abra a proposta pela aba Orçamentos.');
     }
     const id = nextSeqId(ORCAMENTOS, 'ORC');
-    const total = orcItemsCart.reduce((s,it)=>s+it.qty*it.unitValue,0);
-    const orc = { id, sourceRequestId:sourceRequestId||null, date: todayISO(), clientName, clientContact, clientDoc, clientEmail, clientAddress, validity, delivery, payment, shippingMethod, notes, items: orcItemsCart.slice(), subtotal:total, total };
+    const financials=currentQuoteFinancials();
+    if(financials.cardFeePct>=95)throw new Error('A taxa do cartão precisa ser menor que 95%.');
+    const payment=quotePaymentDescription(paymentMode,financials,customPayment);
+    const orc = { id, sourceRequestId:sourceRequestId||null, date: todayISO(), clientName, clientContact, clientDoc, clientEmail, clientAddress, validity, delivery, paymentMode, payment, customPayment, shippingMethod, notes, items: orcItemsCart.slice(), ...financials, total:financials.baseTotal, companySnapshot:{nome:EMPRESA.nome,cnpj:EMPRESA.cnpj,telefone:EMPRESA.telefone,email:EMPRESA.email,cidade:EMPRESA.cidade,pix:EMPRESA.pix} };
     const nextQuotes=[...ORCAMENTOS,orc];
     if(!await setJSON('orcamentos', nextQuotes))throw new Error('Não foi possível salvar. O rascunho foi mantido; tente novamente.');
     ORCAMENTOS=nextQuotes;
@@ -2289,11 +2467,11 @@
   document.getElementById('orc-save-only-btn').addEventListener('click', ()=>saveOrcamento(false));
 
   function renderOrcamentos(){
-    document.getElementById('orc-list').innerHTML = ORCAMENTOS.length ? ORCAMENTOS.slice().reverse().map(o=>`
-      <div class="quote-saved" id="quote-${escapeHtml(o.id)}"><div class="quote-saved-head"><div><strong>${o.id} · ${escapeHtml(o.clientName)}</strong><div class="quote-saved-meta">Emitido em ${fmtDate(o.date)}${o.sourceRequestId?' · Tarefa: '+escapeHtml(SOLICITACOES.find(r=>r.id===o.sourceRequestId)?.code||'vinculada'):''} · ${(o.items||[]).length} ${(o.items||[]).length===1?'item':'itens'} ${o.convertedToPedido ? ' · <span class="tag concluido">pedido criado</span>' : ''}</div></div><div class="quote-saved-total">${fmtMoney(o.total)}</div></div>
+    document.getElementById('orc-list').innerHTML = ORCAMENTOS.length ? ORCAMENTOS.slice().reverse().map(o=>{const f=savedQuoteFinancials(o);return `
+      <div class="quote-saved" id="quote-${escapeHtml(o.id)}"><div class="quote-saved-head"><div><strong>${o.id} · ${escapeHtml(o.clientName)}</strong><div class="quote-saved-meta">Emitido em ${fmtDate(o.date)}${o.sourceRequestId?' · Tarefa: '+escapeHtml(SOLICITACOES.find(r=>r.id===o.sourceRequestId)?.code||'vinculada'):''} · ${(o.items||[]).length} ${(o.items||[]).length===1?'item':'itens'} ${o.convertedToPedido ? ' · <span class="tag concluido">pedido criado</span>' : ''}</div><div class="quote-saved-meta">PIX: ${fmtMoney(f.pixTotal)}${o.paymentMode?` · Cartão: ${f.installments}x de ${fmtMoney(f.installmentValue)}`:''}</div></div><div class="quote-saved-total">${fmtMoney(o.total)}</div></div>
         <div class="actions"><button data-pdf-orc="${o.id}">📄 Baixar PDF</button><button data-duplicate-orc="${o.id}">⧉ Duplicar</button>${!o.convertedToPedido ? `<button data-convert-orc="${o.id}">✓ Aceito → Produção</button>` : ''}<button data-del-orc="${o.id}">Remover</button></div>
       </div>
-    `).join('') : '<div class="empty">Nenhum orçamento salvo ainda.</div>';
+    `}).join('') : '<div class="empty">Nenhum orçamento salvo ainda.</div>';
 
     document.querySelectorAll('[data-pdf-orc]').forEach(b=>b.addEventListener('click', ()=>{
       const orc = ORCAMENTOS.find(o=>o.id===b.dataset.pdfOrc);
@@ -2304,7 +2482,9 @@
       const o = ORCAMENTOS.find(x=>x.id===b.dataset.duplicateOrc); if(!o) return;
       if((sourceRequestId||orcItemsCart.length)&&!confirm('Substituir o rascunho aberto pela cópia deste orçamento?'))return;
       clearOrcamentoForm();
-      document.getElementById('orc-client-name').value=o.clientName||''; document.getElementById('orc-client-doc').value=o.clientDoc||''; document.getElementById('orc-client-contact').value=o.clientContact||''; document.getElementById('orc-client-email').value=o.clientEmail||''; document.getElementById('orc-client-address').value=o.clientAddress||''; document.getElementById('orc-validity').value=o.validity||''; document.getElementById('orc-delivery').value=o.delivery||''; document.getElementById('orc-payment').value=o.payment||''; document.getElementById('orc-shipping-method').value=o.shippingMethod||''; document.getElementById('orc-notes').value=o.notes||'';
+      document.getElementById('orc-client-name').value=o.clientName||''; document.getElementById('orc-client-doc').value=o.clientDoc||''; document.getElementById('orc-client-contact').value=o.clientContact||''; document.getElementById('orc-client-email').value=o.clientEmail||''; document.getElementById('orc-client-address').value=o.clientAddress||'';
+      setQuoteChoice('orc-validity','orc-validity-custom',o.validity,EMPRESA.validade||'7 dias');setQuoteChoice('orc-delivery','orc-delivery-custom',o.delivery,EMPRESA.prazo||'5 dias úteis');setQuoteChoice('orc-shipping-method','orc-shipping-custom',o.shippingMethod,'Retirada em Uberaba/MG');
+      document.getElementById('orc-payment-mode').value=o.paymentMode||'both';document.getElementById('orc-payment').value=o.customPayment||(o.paymentMode==='custom'?o.payment:'');document.getElementById('orc-pix-discount').value=Number(o.pixDiscountPct ?? EMPRESA.pixDiscountPct ?? 10);document.getElementById('orc-card-fee').value=Number(o.cardFeePct ?? EMPRESA.cardFeePct ?? 9.32);document.getElementById('orc-installments').value=String(Number(o.installments)||Number(EMPRESA.installments)||4);document.getElementById('orc-shipping-cost').value=Number(o.shippingCost)||0;document.getElementById('orc-notes').value=o.notes||'';toggleQuoteCustomFields();
       orcItemsCart=(o.items||[]).map(it=>({...it})); renderOrcItems(); window.scrollTo({top:0,behavior:'smooth'});
     }));
     document.querySelectorAll('[data-convert-orc]').forEach(b=>b.addEventListener('click',()=>acceptRequestQuote(b.dataset.convertOrc)));
@@ -2325,12 +2505,15 @@
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     const pageW = doc.internal.pageSize.getWidth();
-    const footer = ()=>{ const h=doc.internal.pageSize.getHeight(); doc.setDrawColor(226,220,207); doc.line(14,h-16,pageW-14,h-16); doc.setFontSize(8); doc.setTextColor(115,110,120); doc.text('HL 3D Solutions  |  (34) 99941-6973  |  hl3dsolutions@gmail.com  |  Uberaba/MG',14,h-10); doc.text(`Proposta ${orc.id}`,pageW-14,h-10,{align:'right'}); };
+    const company={...EMPRESA,...(orc.companySnapshot||{})},financials=savedQuoteFinancials(orc),showPix=['both','pix'].includes(orc.paymentMode),showCard=['both','card'].includes(orc.paymentMode),hasPricing=showPix||showCard;
+    const companyName=company.nome||'HL 3D Solutions',companyPhone=company.telefone||'(34) 99941-6973',companyEmail=company.email||'hl3dsolutions@gmail.com',companyCity=company.cidade||'Uberaba/MG',companyCnpj=company.cnpj||'65.582.951/0001-61';
+    const footer = ()=>{ const h=doc.internal.pageSize.getHeight(); doc.setDrawColor(226,220,207); doc.line(14,h-16,pageW-14,h-16); doc.setFontSize(7.5); doc.setTextColor(115,110,120); doc.text(`${companyName}  |  ${companyPhone}  |  ${companyEmail}  |  ${companyCity}`,14,h-10); doc.text(`Proposta ${orc.id}`,pageW-14,h-10,{align:'right'}); };
     doc.setFillColor(10,10,13); doc.rect(0,0,pageW,48,'F');
     [[14,138,150],[105,71,199],[182,46,130],[200,90,40]].forEach((c,i)=>{doc.setFillColor(...c);doc.rect(i*pageW/4,46,pageW/4,2,'F');});
     try{ doc.addImage(LOGO_B64,'JPEG',14,7,34,34); }catch(e){}
-    doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(17); doc.text('PROPOSTA COMERCIAL',56,20);
-    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(205,200,210); doc.text('Soluções personalizadas e impressão 3D',56,27); doc.text('@hl3dsolutions  ·  Uberaba/MG',56,33);
+    doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(17); doc.text('PROPOSTA COMERCIAL',56,17);
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(235,232,240); doc.text(companyName,56,24);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(205,200,210); doc.text(`CNPJ: ${companyCnpj}  ·  Tel.: ${companyPhone}`,56,30); doc.text(`${companyEmail}  ·  ${companyCity}`,56,36);
     doc.setFillColor(105,71,199); doc.roundedRect(pageW-54,12,40,22,3,3,'F'); doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.text(orc.id,pageW-34,21,{align:'center'}); doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.text(fmtDate(orc.date),pageW-34,28,{align:'center'});
     let y=59;
     doc.setFillColor(247,244,239); doc.roundedRect(14,y,pageW-28,34,3,3,'F'); doc.setTextColor(105,71,199); doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.text('PREPARADO PARA',20,y+8);
@@ -2354,11 +2537,15 @@
       columnStyles:{1:{halign:'center',cellWidth:23},2:{halign:'right',cellWidth:34},3:{halign:'right',cellWidth:34}},
       margin:{left:14,right:14,bottom:24}, didDrawPage:footer
     });
-    let fy=doc.lastAutoTable.finalY+6; if(fy>238){doc.addPage();fy=22;}
-    doc.setFillColor(22,18,25); doc.roundedRect(pageW-86,fy,72,18,3,3,'F'); doc.setTextColor(190,185,195); doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.text('VALOR TOTAL',pageW-80,fy+7); doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(15); doc.text(fmtMoney(orc.total),pageW-20,fy+12,{align:'right'}); fy+=27;
-    const payment=orc.payment||EMPRESA.pagamento; if(payment||EMPRESA.pix){doc.setTextColor(105,71,199);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text('CONDIÇÕES DE PAGAMENTO',14,fy);doc.setTextColor(40,40,40);doc.setFont('helvetica','normal');doc.setFontSize(9);const lines=doc.splitTextToSize([payment,EMPRESA.pix?`PIX: ${EMPRESA.pix}`:''].filter(Boolean).join('  ·  '),pageW-28);doc.text(lines,14,fy+6);fy+=lines.length*5+11;}
+    let fy=doc.lastAutoTable.finalY+6; if(fy>222){doc.addPage();fy=22;}
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(95,90,100);doc.text(`Produtos: ${fmtMoney(financials.subtotal)}${financials.shippingCost?`  ·  Frete: ${fmtMoney(financials.shippingCost)}`:''}  ·  Preço-base: ${fmtMoney(financials.baseTotal)}`,14,fy+3);fy+=8;
+    if(hasPricing){
+      if(showPix){const w=showCard?86:182;doc.setFillColor(14,138,150);doc.roundedRect(14,fy,w,24,3,3,'F');doc.setTextColor(225,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8);doc.text(`À VISTA NO PIX · ${String(financials.pixDiscountPct).replace('.',',')}% DE DESCONTO`,20,fy+7);doc.setTextColor(255,255,255);doc.setFontSize(15);doc.text(fmtMoney(financials.pixTotal),20,fy+17);}
+      if(showCard){const x=showPix?105:14,w=showPix?91:182;doc.setFillColor(105,71,199);doc.roundedRect(x,fy,w,24,3,3,'F');doc.setTextColor(238,233,255);doc.setFont('helvetica','bold');doc.setFontSize(8);doc.text(`CARTÃO · ATÉ ${financials.installments}X SEM JUROS`,x+6,fy+7);doc.setTextColor(255,255,255);doc.setFontSize(13);doc.text(`${financials.installments}x de ${fmtMoney(financials.installmentValue)}`,x+6,fy+16);doc.setFont('helvetica','normal');doc.setFontSize(7);doc.text(`Total no cartão: ${fmtMoney(financials.cardTotal)}`,x+6,fy+21);}fy+=33;
+    }else{doc.setFillColor(22,18,25);doc.roundedRect(pageW-86,fy,72,18,3,3,'F');doc.setTextColor(190,185,195);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text('VALOR TOTAL',pageW-80,fy+7);doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text(fmtMoney(orc.total),pageW-20,fy+12,{align:'right'});fy+=27;}
+    const payment=orc.payment||company.pagamento; if(payment||company.pix){doc.setTextColor(105,71,199);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text('CONDIÇÕES DE PAGAMENTO',14,fy);doc.setTextColor(40,40,40);doc.setFont('helvetica','normal');doc.setFontSize(9);const lines=doc.splitTextToSize([payment,company.pix?`Chave PIX: ${company.pix}`:''].filter(Boolean).join('  ·  '),pageW-28);doc.text(lines,14,fy+6);fy+=lines.length*5+11;}
     if(orc.notes){doc.setTextColor(105,71,199);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text('OBSERVAÇÕES',14,fy);doc.setTextColor(40,40,40);doc.setFont('helvetica','normal');const lines=doc.splitTextToSize(orc.notes,pageW-28);doc.text(lines,14,fy+6);fy+=lines.length*5+12;}
-    if(fy<252){doc.setDrawColor(190,185,195);doc.line(14,fy+14,86,fy+14);doc.line(124,fy+14,pageW-14,fy+14);doc.setFontSize(8);doc.setTextColor(100,95,105);doc.text('HL 3D Solutions',50,fy+19,{align:'center'});doc.text('Aceite do cliente',160,fy+19,{align:'center'});}
+    if(fy<252){doc.setDrawColor(190,185,195);doc.line(14,fy+14,86,fy+14);doc.line(124,fy+14,pageW-14,fy+14);doc.setFontSize(8);doc.setTextColor(100,95,105);doc.text(companyName,50,fy+19,{align:'center'});doc.text('Aceite do cliente',160,fy+19,{align:'center'});}
     for(let p=1;p<=doc.getNumberOfPages();p++){doc.setPage(p);footer();}
     doc.save(`Orcamento_${orc.id}_${(orc.clientName||'cliente').replace(/\s+/g,'_')}.pdf`);
   }
