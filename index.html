@@ -743,13 +743,13 @@
                   <div class="row"><div class="field"><label>Detalhes para este orçamento</label><input id="orc-catalog-details" placeholder="Cor, nome, personalização ou observação"></div><div class="field" style="flex:0;align-self:flex-end;"><button class="btn small" id="orc-add-catalog-btn" type="button">+ Adicionar do portfólio</button></div></div>
                 </div>
                 <h3>Ou adicionar item manualmente</h3>
-                <div class="row"><div class="field" style="flex:2;"><label>Descrição do produto/serviço *</label><input id="orc-item-desc" placeholder="Ex.: Vasilha pet personalizada 750 ml"></div><div class="field"><label>Unidade</label><select id="orc-item-unit"><option>un.</option><option>kit</option><option>serviço</option><option>lote</option></select></div><div class="field"><label>Quantidade</label><input id="orc-item-qty" type="number" min="1" value="1"></div><div class="field"><label>Valor unitário (R$)</label><input id="orc-item-value" type="number" min="0" step="0.01" placeholder="0,00"></div></div>
+                <div class="row"><div class="field" style="flex:2;"><label>Descrição do produto/serviço *</label><input id="orc-item-desc" placeholder="Ex.: Vasilha pet personalizada 750 ml"></div><div class="field"><label>Unidade</label><select id="orc-item-unit"><option>un.</option><option>kit</option><option>serviço</option><option>lote</option></select></div><div class="field"><label>Quantidade</label><input id="orc-item-qty" type="number" min="1" value="1"></div><div class="field"><label>Valor desejado por unidade (R$)</label><input id="orc-item-value" type="number" min="0" step="0.01" placeholder="0,00"><small class="hint">Valor líquido de referência; o preço de tabela é calculado automaticamente.</small></div></div>
                 <div class="row"><div class="field"><label>Detalhes / personalização</label><input id="orc-item-details" placeholder="Cor, nome, tamanho, acabamento..."></div><div class="field" style="flex:0;align-self:flex-end;"><button class="btn secondary small" id="orc-add-item-btn" type="button">+ Adicionar item</button></div></div>
                 <div id="orc-items-list"></div>
               </div>
               <div class="section-card"><div class="section-title"><span class="step">3</span> Condições comerciais</div>
-                <div class="row"><div class="field"><label>Apresentação do pagamento</label><select id="orc-payment-mode"><option value="both" selected>Mostrar PIX e cartão</option><option value="pix">Somente PIX à vista</option><option value="card">Somente cartão parcelado</option><option value="base">Valor padrão, sem ajuste</option><option value="custom">Condição personalizada</option></select><input id="orc-payment" placeholder="Descreva a condição personalizada" style="display:none;margin-top:7px;"></div><div class="field"><label>Forma de entrega</label><select id="orc-shipping-method"><option value="Retirada em Uberaba/MG">Retirada em Uberaba/MG</option><option value="Entrega local">Entrega local</option><option value="Frete por conta do cliente">Frete por conta do cliente</option><option value="Frete incluso">Frete incluso</option><option value="Correios">Correios</option><option value="Transportadora">Transportadora</option><option value="Mercado Envios">Mercado Envios</option><option value="A combinar">A combinar</option><option value="custom">Outra opção…</option></select><input id="orc-shipping-custom" placeholder="Descreva a forma de entrega" style="display:none;margin-top:7px;"></div></div>
-                <div class="row"><div class="field"><label>Desconto no PIX (%)</label><input id="orc-pix-discount" type="number" min="0" max="90" step="0.01" value="10"></div><div class="field"><label>Parcelas sem juros</label><select id="orc-installments"><option value="1">1x</option><option value="2">2x</option><option value="3" selected>3x</option></select></div><div class="field"><label>Taxa da máquina (%)</label><input id="orc-card-fee" type="number" min="0" max="90" step="0.01" value="9.32"><small class="hint">A taxa é incorporada para preservar o valor líquido.</small></div><div class="field"><label>Valor do frete (R$)</label><input id="orc-shipping-cost" type="number" min="0" step="0.01" value="0"><small class="hint">Opcional. No PIX, o desconto não reduz o frete.</small></div></div>
+                <div class="row"><div class="field"><label>Apresentação do pagamento</label><select id="orc-payment-mode"><option value="both" selected>Mostrar PIX e cartão</option><option value="pix">Somente PIX à vista</option><option value="card">Somente cartão parcelado</option><option value="base">Valor informado, sem ajuste</option><option value="custom">Condição personalizada</option></select><input id="orc-payment" placeholder="Descreva a condição personalizada" style="display:none;margin-top:7px;"></div><div class="field"><label>Forma de entrega</label><select id="orc-shipping-method"><option value="Retirada em Uberaba/MG">Retirada em Uberaba/MG</option><option value="Entrega local">Entrega local</option><option value="Frete por conta do cliente">Frete por conta do cliente</option><option value="Frete incluso">Frete incluso</option><option value="Correios">Correios</option><option value="Transportadora">Transportadora</option><option value="Mercado Envios">Mercado Envios</option><option value="A combinar">A combinar</option><option value="custom">Outra opção…</option></select><input id="orc-shipping-custom" placeholder="Descreva a forma de entrega" style="display:none;margin-top:7px;"></div></div>
+                <div class="row"><div class="field"><label>Desconto no PIX (%)</label><input id="orc-pix-discount" type="number" min="0" max="90" step="0.01" value="10"><small class="hint">O preço de tabela é calculado para que, após o desconto, o PIX corresponda ao valor desejado.</small></div><div class="field"><label>Parcelas sem juros</label><select id="orc-installments"><option value="1">1x</option><option value="2">2x</option><option value="3" selected>3x</option></select></div><div class="field"><label>Taxa da máquina (%)</label><input id="orc-card-fee" type="number" min="0" max="90" step="0.01" value="9.32"><small class="hint">Uso interno: estima o líquido recebido no cartão; não altera o preço de tabela.</small></div><div class="field"><label>Valor do frete (R$)</label><input id="orc-shipping-cost" type="number" min="0" step="0.01" value="0"><small class="hint">Opcional. O desconto do PIX não reduz o frete.</small></div></div>
                 <div class="row"><div class="field"><label>Observações</label><textarea id="orc-notes" rows="3" placeholder="Informações adicionais, limites da personalização e orientações ao cliente."></textarea></div></div>
               </div>
               <div id="orc-msg"></div>
@@ -2273,11 +2273,11 @@
       if(!order){
         const now=new Date().toISOString();
         const orderId=nextSeqId(orders,'PRD');
-        const values=savedQuoteFinancials(orc);let acceptedValue=Number(orc.total)||values.baseTotal,acceptedPayment=orc.payment||'';
+        const values=savedQuoteFinancials(orc);let acceptedValue=quotePrimaryTotal(orc.paymentMode,values),acceptedPayment=orc.payment||'';
         if(orc.paymentMode==='both'){
-          const choice=prompt(`Qual condição o cliente aceitou?\n1 — PIX à vista: ${fmtMoney(values.pixTotal)}\n2 — Cartão: ${fmtMoney(values.cardTotal)} (até ${values.installments}x sem juros)\n3 — Preço-base: ${fmtMoney(values.baseTotal)}`,'1');
+          const choice=prompt(`Qual condição o cliente aceitou?\n1 — PIX à vista: ${fmtMoney(values.pixTotal)}\n2 — Cartão: ${fmtMoney(values.cardTotal)} (até ${values.installments}x sem juros)`,'1');
           if(choice===null)return;
-          if(choice==='1'){acceptedValue=values.pixTotal;acceptedPayment='PIX à vista';}else if(choice==='2'){acceptedValue=values.cardTotal;acceptedPayment=`Cartão em ${values.installments}x`;}else if(choice==='3'){acceptedValue=values.baseTotal;acceptedPayment='Preço-base';}else throw new Error('Escolha 1, 2 ou 3 para informar a condição aceita.');
+          if(choice==='1'){acceptedValue=values.pixTotal;acceptedPayment='PIX à vista';}else if(choice==='2'){acceptedValue=values.cardTotal;acceptedPayment=`Cartão em ${values.installments}x`;}else throw new Error('Escolha 1 ou 2 para informar a condição aceita.');
         }else if(orc.paymentMode==='pix')acceptedValue=values.pixTotal;else if(orc.paymentMode==='card')acceptedValue=values.cardTotal;
         order={id:orderId,client:orc.clientName,channel:'',externalOrder:'',priority:'Normal',printer:'',printHours:0,desc:orc.items.map(it=>`${it.qty}x ${it.desc}`).join(', '),items:orc.items.map((it,index)=>({id:`${orderId}-${index+1}`,productName:it.desc,quantity:Number(it.qty)||1,color:it.color||'',details:it.details||'',catalogProductCode:it.productCode||'',done:false})),value:acceptedValue,paymentCondition:acceptedPayment,status:'Pendente',date:todayISO(),deliveryDate:null,orcamentoId:orc.id,sourceRequestId:orc.sourceRequestId||null,statusHistory:[{type:'status',status:'Pendente',at:now,label:`Pedido incluído · ${acceptedPayment||'condição não informada'}`}]};
         if(!await setJSON('producao_pedidos',[...orders,order]))throw new Error('Não foi possível criar o pedido. Nenhum aceite foi registrado.');
@@ -2321,18 +2321,30 @@
     const subtotal=(items||[]).reduce((sum,item)=>sum+(Number(item.qty)||0)*(Number(item.unitValue)||0),0);
     const shippingCost=Math.max(0,Number(options.shippingCost)||0),pixDiscountPct=Math.min(90,Math.max(0,Number(options.pixDiscountPct)||0));
     const cardFeePct=Math.min(90,Math.max(0,Number(options.cardFeePct)||0)),installments=Math.min(3,Math.max(1,Math.round(Number(options.installments)||1)));
-    const baseTotal=subtotal+shippingCost,pixTotal=Math.max(0,subtotal*(1-pixDiscountPct/100)+shippingCost),cardTotal=baseTotal/(1-cardFeePct/100);
-    return {subtotal,shippingCost,baseTotal,pixDiscountPct,pixDiscountValue:subtotal*pixDiscountPct/100,pixTotal,cardFeePct,cardFeeValue:cardTotal-baseTotal,cardTotal,installments,installmentValue:cardTotal/installments};
+    const cardProductSubtotal=pixDiscountPct>=100?subtotal:subtotal/(1-pixDiscountPct/100);
+    const baseTotal=subtotal+shippingCost,cardTotal=cardProductSubtotal+shippingCost;
+    const pixDiscountValue=cardProductSubtotal*pixDiscountPct/100,pixTotal=Math.max(0,cardProductSubtotal-pixDiscountValue+shippingCost);
+    const cardFeeValue=cardProductSubtotal*cardFeePct/100,cardNet=cardProductSubtotal-cardFeeValue+shippingCost;
+    return {pricingModel:'pix_preserved_list_price',subtotal,cardProductSubtotal,shippingCost,baseTotal,pixDiscountPct,pixDiscountValue,pixTotal,cardFeePct,cardFeeValue,cardNet,cardCoverage:cardNet-baseTotal,cardTotal,installments,installmentValue:cardTotal/installments};
   }
   function currentQuoteFinancials(){return quoteFinancials(orcItemsCart,{shippingCost:document.getElementById('orc-shipping-cost').value,pixDiscountPct:document.getElementById('orc-pix-discount').value,cardFeePct:document.getElementById('orc-card-fee').value,installments:document.getElementById('orc-installments').value});}
   function savedQuoteFinancials(orc){
-    if(Number.isFinite(Number(orc.pixTotal))&&Number.isFinite(Number(orc.cardTotal)))return {subtotal:Number(orc.subtotal)||0,shippingCost:Number(orc.shippingCost)||0,baseTotal:Number(orc.baseTotal??orc.total)||0,pixDiscountPct:Number(orc.pixDiscountPct)||0,pixDiscountValue:Number(orc.pixDiscountValue)||0,pixTotal:Number(orc.pixTotal)||0,cardFeePct:Number(orc.cardFeePct)||0,cardFeeValue:Number(orc.cardFeeValue)||0,cardTotal:Number(orc.cardTotal)||0,installments:Number(orc.installments)||1,installmentValue:Number(orc.installmentValue)||0};
-    const base=Number(orc.total)||0;return {subtotal:Number(orc.subtotal??base)||base,shippingCost:0,baseTotal:base,pixDiscountPct:0,pixDiscountValue:0,pixTotal:base,cardFeePct:0,cardFeeValue:0,cardTotal:base,installments:1,installmentValue:base};
+    if(Number.isFinite(Number(orc.pixTotal))&&Number.isFinite(Number(orc.cardTotal))){
+      const shippingCost=Number(orc.shippingCost)||0,subtotal=Number(orc.subtotal)||0,cardTotal=Number(orc.cardTotal)||0;
+      const pricingModel=orc.pricingModel||'legacy',cardProductSubtotal=Number(orc.cardProductSubtotal)||(['card_table_pix_discount','pix_preserved_list_price'].includes(pricingModel)?Math.max(0,cardTotal-shippingCost):subtotal),baseTotal=Number(orc.baseTotal??orc.total)||0,cardFeePct=Number(orc.cardFeePct)||0;
+      const cardFeeValue=Number.isFinite(Number(orc.cardFeeValue))?Number(orc.cardFeeValue):cardProductSubtotal*cardFeePct/100,cardNet=Number.isFinite(Number(orc.cardNet))?Number(orc.cardNet):cardProductSubtotal-cardFeeValue+shippingCost;
+      return {pricingModel,subtotal,cardProductSubtotal,shippingCost,baseTotal,pixDiscountPct:Number(orc.pixDiscountPct)||0,pixDiscountValue:Number(orc.pixDiscountValue)||0,pixTotal:Number(orc.pixTotal)||0,cardFeePct,cardFeeValue,cardNet,cardCoverage:Number.isFinite(Number(orc.cardCoverage))?Number(orc.cardCoverage):cardNet-baseTotal,cardTotal,installments:Number(orc.installments)||1,installmentValue:Number(orc.installmentValue)||0};
+    }
+    const base=Number(orc.total)||0;return {pricingModel:'legacy',subtotal:Number(orc.subtotal??base)||base,cardProductSubtotal:Number(orc.subtotal??base)||base,shippingCost:0,baseTotal:base,pixDiscountPct:0,pixDiscountValue:0,pixTotal:base,cardFeePct:0,cardFeeValue:0,cardNet:base,cardCoverage:0,cardTotal:base,installments:1,installmentValue:base};
   }
+  function quoteUsesAdjustedPrices(mode){return ['both','pix','card'].includes(mode);}
+  function quoteHasTablePrices(orc){return ['card_table_pix_discount','pix_preserved_list_price'].includes(orc?.pricingModel);}
+  function quoteDisplayUnitValue(item,financials,mode){const base=Number(item.unitValue)||0,factor=financials.subtotal>0?financials.cardProductSubtotal/financials.subtotal:1;return quoteUsesAdjustedPrices(mode)?base*factor:base;}
+  function quotePrimaryTotal(mode,financials){if(mode==='pix')return financials.pixTotal;if(mode==='base'||mode==='custom')return financials.baseTotal;return financials.cardTotal;}
   function quotePaymentDescription(mode,financials,custom=''){
     if(mode==='pix')return `PIX à vista com ${String(financials.pixDiscountPct).replace('.',',')}% de desconto`;
     if(mode==='card')return `Cartão em até ${financials.installments}x sem juros para o cliente`;
-    if(mode==='base')return 'Valor padrão, sem desconto ou acréscimo';
+    if(mode==='base')return 'Valor informado, sem ajuste';
     if(mode==='custom')return custom||'Condição a combinar';
     return `PIX à vista com ${String(financials.pixDiscountPct).replace('.',',')}% de desconto ou cartão em até ${financials.installments}x sem juros para o cliente`;
   }
@@ -2399,11 +2411,11 @@
   function renderOrcItems(){
     const list = document.getElementById('orc-items-list');
     const summary = document.getElementById('orc-summary');
-    const financials=currentQuoteFinancials();
+    const financials=currentQuoteFinancials(),paymentMode=document.getElementById('orc-payment-mode').value;
     if(orcItemsCart.length === 0) list.innerHTML='<div class="empty" style="padding:18px;">Nenhum item adicionado.</div>';
-    else list.innerHTML = orcItemsCart.map((it,i)=>`
-      <div class="quote-item"><div><strong>${escapeHtml(it.desc)}</strong>${it.details ? `<div class="muted">${escapeHtml(it.details)}</div>` : ''}${it.priceLabel ? `<div class="muted" style="color:var(--violet);">${escapeHtml(it.priceLabel)}</div>` : ''}<button type="button" class="btn secondary small" data-edit-orc-item="${i}" style="margin-top:7px;">Editar item</button></div><span>${it.qty} ${escapeHtml(it.unit||'un.')}</span><span>${fmtMoney(it.unitValue)}</span><strong>${fmtMoney(it.qty*it.unitValue)}</strong><button class="btn secondary small" data-del-orc-item="${i}" aria-label="Remover item">Remover</button></div>
-    `).join('');
+    else list.innerHTML = orcItemsCart.map((it,i)=>{const displayUnit=quoteDisplayUnitValue(it,financials,paymentMode);return `
+      <div class="quote-item"><div><strong>${escapeHtml(it.desc)}</strong>${it.details ? `<div class="muted">${escapeHtml(it.details)}</div>` : ''}${it.priceLabel ? `<div class="muted" style="color:var(--violet);">${escapeHtml(it.priceLabel)}</div>` : ''}<button type="button" class="btn secondary small" data-edit-orc-item="${i}" style="margin-top:7px;">Editar item</button></div><span>${it.qty} ${escapeHtml(it.unit||'un.')}</span><span>${fmtMoney(displayUnit)}${quoteUsesAdjustedPrices(paymentMode)?`<small class="muted" style="display:block;">ref. interna ${fmtMoney(it.unitValue)}</small>`:''}</span><strong>${fmtMoney(it.qty*displayUnit)}</strong><button class="btn secondary small" data-del-orc-item="${i}" aria-label="Remover item">Remover</button></div>
+    `;}).join('');
     document.querySelectorAll('[data-edit-orc-item]').forEach(b=>b.addEventListener('click',()=>{
       const index=Number(b.dataset.editOrcItem),item=orcItemsCart[index];if(!item)return;
       const desc=prompt('Descrição do item:',item.desc);if(desc===null)return;
@@ -2417,7 +2429,7 @@
     document.querySelectorAll('[data-del-orc-item]').forEach(b=>b.addEventListener('click', ()=>{
       orcItemsCart.splice(+b.dataset.delOrcItem,1); renderOrcItems();
     }));
-    summary.innerHTML = `<div class="summary-row"><span>Produtos</span><span>${fmtMoney(financials.subtotal)}</span></div>${financials.shippingCost?`<div class="summary-row"><span>Frete</span><span>${fmtMoney(financials.shippingCost)}</span></div>`:''}<div class="summary-row"><span>Preço-base</span><span>${fmtMoney(financials.baseTotal)}</span></div><div class="summary-row" style="color:#76e4e9;"><span>PIX (${String(financials.pixDiscountPct).replace('.',',')}% desc.)</span><strong>${fmtMoney(financials.pixTotal)}</strong></div><div class="summary-row big"><span>Cartão</span><span>${fmtMoney(financials.cardTotal)}</span></div><div style="font-size:10.5px;color:#aaa3ad;margin-top:8px;line-height:1.45;">Até ${financials.installments}x sem juros · taxa incorporada: ${fmtMoney(financials.cardFeeValue)}.</div>`;
+    summary.innerHTML = `<div class="summary-row"><span>Valor desejado</span><span>${fmtMoney(financials.subtotal)}</span></div><div class="summary-row"><span>Preço de tabela dos produtos</span><span>${fmtMoney(financials.cardProductSubtotal)}</span></div>${financials.shippingCost?`<div class="summary-row"><span>Frete</span><span>${fmtMoney(financials.shippingCost)}</span></div>`:''}<div class="summary-row" style="color:#76e4e9;"><span>PIX (${String(financials.pixDiscountPct).replace('.',',')}% desc.)</span><strong>${fmtMoney(financials.pixTotal)}</strong></div><div class="summary-row big"><span>Cartão · até ${financials.installments}x</span><span>${fmtMoney(financials.cardTotal)}</span></div><div style="font-size:10.5px;color:#aaa3ad;margin-top:8px;line-height:1.45;">Líquido estimado no cartão após taxa: ${fmtMoney(financials.cardNet)} · diferença sobre o valor desejado: ${fmtMoney(financials.cardCoverage)}. Essas informações são apenas internas.</div>`;
   }
   function clearOrcamentoForm(){
     sourceRequestId=null;requestQuoteNotice();
@@ -2468,7 +2480,7 @@
     const financials=currentQuoteFinancials();
     if(financials.cardFeePct>=95)throw new Error('A taxa do cartão precisa ser menor que 95%.');
     const payment=quotePaymentDescription(paymentMode,financials,customPayment);
-    const orc = { id, sourceRequestId:sourceRequestId||null, date: todayISO(), clientName, clientContact, clientDoc, clientEmail, clientAddress, validity, delivery, paymentMode, payment, customPayment, shippingMethod, notes, items: orcItemsCart.slice(), ...financials, total:financials.baseTotal, companySnapshot:{nome:EMPRESA.nome,cnpj:EMPRESA.cnpj,telefone:EMPRESA.telefone,email:EMPRESA.email,cidade:EMPRESA.cidade,pix:EMPRESA.pix} };
+    const orc = { id, sourceRequestId:sourceRequestId||null, date: todayISO(), clientName, clientContact, clientDoc, clientEmail, clientAddress, validity, delivery, paymentMode, payment, customPayment, shippingMethod, notes, items: orcItemsCart.slice(), ...financials, total:quotePrimaryTotal(paymentMode,financials), companySnapshot:{nome:EMPRESA.nome,cnpj:EMPRESA.cnpj,telefone:EMPRESA.telefone,email:EMPRESA.email,cidade:EMPRESA.cidade,pix:EMPRESA.pix} };
     const nextQuotes=[...ORCAMENTOS,orc];
     if(!await setJSON('orcamentos', nextQuotes))throw new Error('Não foi possível salvar. O rascunho foi mantido; tente novamente.');
     ORCAMENTOS=nextQuotes;
@@ -2483,7 +2495,7 @@
 
   function renderOrcamentos(){
     document.getElementById('orc-list').innerHTML = ORCAMENTOS.length ? ORCAMENTOS.slice().reverse().map(o=>{const f=savedQuoteFinancials(o);return `
-      <div class="quote-saved" id="quote-${escapeHtml(o.id)}"><div class="quote-saved-head"><div><strong>${o.id} · ${escapeHtml(o.clientName)}</strong><div class="quote-saved-meta">Emitido em ${fmtDate(o.date)}${o.sourceRequestId?' · Tarefa: '+escapeHtml(SOLICITACOES.find(r=>r.id===o.sourceRequestId)?.code||'vinculada'):''} · ${(o.items||[]).length} ${(o.items||[]).length===1?'item':'itens'} ${o.convertedToPedido ? ' · <span class="tag concluido">pedido criado</span>' : ''}</div><div class="quote-saved-meta">PIX: ${fmtMoney(f.pixTotal)}${o.paymentMode?` · Cartão: ${fmtMoney(f.cardTotal)} · até ${f.installments}x sem juros`:''}</div></div><div class="quote-saved-total">${fmtMoney(o.total)}</div></div>
+      <div class="quote-saved" id="quote-${escapeHtml(o.id)}"><div class="quote-saved-head"><div><strong>${o.id} · ${escapeHtml(o.clientName)}</strong><div class="quote-saved-meta">Emitido em ${fmtDate(o.date)}${o.sourceRequestId?' · Tarefa: '+escapeHtml(SOLICITACOES.find(r=>r.id===o.sourceRequestId)?.code||'vinculada'):''} · ${(o.items||[]).length} ${(o.items||[]).length===1?'item':'itens'} ${o.convertedToPedido ? ' · <span class="tag concluido">pedido criado</span>' : ''}</div><div class="quote-saved-meta">PIX: ${fmtMoney(f.pixTotal)}${o.paymentMode?` · Cartão: ${fmtMoney(f.cardTotal)} · até ${f.installments}x sem juros`:''}</div></div><div class="quote-saved-total">${fmtMoney(quotePrimaryTotal(o.paymentMode,f))}</div></div>
         <div class="actions"><button data-pdf-orc="${o.id}">📄 Baixar PDF</button><button data-duplicate-orc="${o.id}">⧉ Duplicar</button>${!o.convertedToPedido ? `<button data-convert-orc="${o.id}">✓ Aceito → Produção</button>` : ''}<button data-del-orc="${o.id}">Remover</button></div>
       </div>
     `}).join('') : '<div class="empty">Nenhum orçamento salvo ainda.</div>';
@@ -2540,7 +2552,7 @@
     const validity=orc.validity||EMPRESA.validade||'A combinar'; const delivery=orc.delivery||EMPRESA.prazo||'A combinar';
     doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.setTextColor(105,71,199); doc.text('VALIDADE',14,y); doc.text('PRAZO DE ENTREGA',78,y); doc.text('FORMA DE ENTREGA',145,y);
     doc.setFont('helvetica','normal'); doc.setTextColor(35,35,35); doc.setFontSize(9); doc.text(validity,14,y+6); doc.text(delivery,78,y+6); doc.text(doc.splitTextToSize(orc.shippingMethod||'A combinar',50),145,y+6); y+=18;
-    const rows=(orc.items||[]).map(it=>[`${it.desc}${it.details?'\n'+it.details:''}`,`${it.qty} ${it.unit||'un.'}`,fmtMoney(it.unitValue),fmtMoney(it.qty*it.unitValue)]);
+    const rows=(orc.items||[]).map(it=>{const unitValue=quoteHasTablePrices(orc)?quoteDisplayUnitValue(it,financials,orc.paymentMode):Number(it.unitValue)||0;return [`${it.desc}${it.details?'\n'+it.details:''}`,`${it.qty} ${it.unit||'un.'}`,fmtMoney(unitValue),fmtMoney(it.qty*unitValue)];});
     doc.autoTable({
       startY: y,
       head: [['Produto / serviço','Qtd.','Valor unitário','Subtotal']],
@@ -2553,7 +2565,7 @@
       margin:{left:14,right:14,bottom:24}, didDrawPage:footer
     });
     let fy=doc.lastAutoTable.finalY+6; if(fy>222){doc.addPage();fy=22;}
-    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(95,90,100);doc.text(`Produtos: ${fmtMoney(financials.subtotal)}${financials.shippingCost?`  ·  Frete: ${fmtMoney(financials.shippingCost)}`:''}  ·  Preço-base: ${fmtMoney(financials.baseTotal)}`,14,fy+3);fy+=8;
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(95,90,100);doc.text(`${quoteHasTablePrices(orc)&&hasPricing?'Produtos pelo preço de tabela':'Produtos'}: ${fmtMoney(quoteHasTablePrices(orc)&&hasPricing?financials.cardProductSubtotal:financials.subtotal)}${financials.shippingCost?`  ·  Frete: ${fmtMoney(financials.shippingCost)}`:''}`,14,fy+3);fy+=8;
     if(hasPricing){
       if(showPix){const w=showCard?86:182;doc.setFillColor(14,138,150);doc.roundedRect(14,fy,w,24,3,3,'F');doc.setTextColor(225,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8);doc.text(`À VISTA NO PIX · ${String(financials.pixDiscountPct).replace('.',',')}% DE DESCONTO`,20,fy+7);doc.setTextColor(255,255,255);doc.setFontSize(15);doc.text(fmtMoney(financials.pixTotal),20,fy+17);}
       if(showCard){const x=showPix?105:14,w=showPix?91:182;doc.setFillColor(105,71,199);doc.roundedRect(x,fy,w,24,3,3,'F');doc.setTextColor(238,233,255);doc.setFont('helvetica','bold');doc.setFontSize(8);doc.text(`CARTÃO · ATÉ ${financials.installments}X SEM JUROS`,x+6,fy+7);doc.setTextColor(255,255,255);doc.setFontSize(15);doc.text(fmtMoney(financials.cardTotal),x+6,fy+17);}fy+=33;
