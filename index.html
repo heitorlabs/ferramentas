@@ -122,6 +122,12 @@
   #app-root .quote-total-card input{background:#27212a;border-color:#3b343e;color:#fff;}
   #app-root .quote-item{display:grid;grid-template-columns:minmax(0,1fr) 64px 105px 105px auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:12.5px;}
   #app-root .quote-item .muted{color:var(--muted);font-size:11px;}
+  #app-root .quote-item-main{display:flex;gap:10px;align-items:flex-start;min-width:0;}
+  #app-root .quote-item-thumb{width:58px;height:58px;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);object-fit:cover;flex:0 0 auto;}
+  #app-root .quote-item-photo-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;}
+  #app-root .quote-image-picker{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px;margin:2px 0 12px;background:var(--panel-2);border:1px dashed var(--line);border-radius:10px;}
+  #app-root .quote-image-preview{width:76px;height:76px;border-radius:10px;border:1px solid var(--line);background:var(--panel);object-fit:cover;display:none;}
+  #app-root .quote-image-picker-info{flex:1;min-width:210px;}
   #app-root .quote-saved{border:1px solid var(--line);border-left:4px solid var(--violet);border-radius:10px;padding:14px;margin-bottom:10px;background:var(--panel);}
   #app-root .quote-saved-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:9px;}
   #app-root .quote-saved-meta{color:var(--muted);font-size:11px;margin-top:3px;}
@@ -744,7 +750,8 @@
                 </div>
                 <h3>Ou adicionar item manualmente</h3>
                 <div class="row"><div class="field" style="flex:2;"><label>Descrição do produto/serviço *</label><input id="orc-item-desc" placeholder="Ex.: Vasilha pet personalizada 750 ml"></div><div class="field"><label>Unidade</label><select id="orc-item-unit"><option>un.</option><option>kit</option><option>serviço</option><option>lote</option></select></div><div class="field"><label>Quantidade</label><input id="orc-item-qty" type="number" min="1" value="1"></div><div class="field"><label>Valor desejado por unidade (R$)</label><input id="orc-item-value" type="number" min="0" step="0.01" placeholder="0,00"><small class="hint">Valor líquido de referência; o preço de tabela é calculado automaticamente.</small></div></div>
-                <div class="row"><div class="field"><label>Detalhes / personalização</label><input id="orc-item-details" placeholder="Cor, nome, tamanho, acabamento..."></div><div class="field" style="flex:0;align-self:flex-end;"><button class="btn secondary small" id="orc-add-item-btn" type="button">+ Adicionar item</button></div></div>
+                <div class="row"><div class="field"><label>Detalhes / personalização</label><input id="orc-item-details" placeholder="Cor, nome, tamanho, acabamento..."></div></div>
+                <div class="quote-image-picker"><img id="orc-item-image-preview" class="quote-image-preview" alt="Prévia da imagem do item"><div class="quote-image-picker-info"><label for="orc-item-image" style="display:block;font-weight:700;font-size:12px;margin-bottom:5px;">Imagem do item (opcional)</label><input id="orc-item-image" type="file" accept="image/jpeg,image/png,image/webp"><small class="hint" style="display:block;margin-top:5px;">A imagem será reduzida automaticamente para economizar espaço e poderá aparecer no PDF.</small></div><button class="btn secondary small" id="orc-item-image-remove" type="button" style="display:none;">Remover imagem</button><button class="btn secondary small" id="orc-add-item-btn" type="button">+ Adicionar item</button></div>
                 <div id="orc-items-list"></div>
               </div>
               <div class="section-card"><div class="section-title"><span class="step">3</span> Condições comerciais</div>
@@ -1204,6 +1211,7 @@
   let calcHistoryBusy = false;
   let calcExtrasCart = [];
   let orcItemsCart = [];
+  let pendingManualQuoteImage = '';
 
   async function loadAllData(){
     CFG.labor = await getJSON('custos_labor', []);
@@ -2348,6 +2356,29 @@
     if(mode==='custom')return custom||'Condição a combinar';
     return `PIX ou débito à vista com ${String(financials.pixDiscountPct).replace('.',',')}% de desconto ou cartão em até ${financials.installments}x sem juros para o cliente`;
   }
+  function loadQuoteImage(source,crossOrigin=true){
+    return new Promise((resolve,reject)=>{const img=new Image();if(crossOrigin&&!String(source).startsWith('data:')&&!String(source).startsWith('blob:'))img.crossOrigin='anonymous';img.onload=()=>resolve(img);img.onerror=()=>reject(new Error('Não foi possível abrir a imagem.'));img.src=source;});
+  }
+  async function normalizeQuoteImageSource(source,maxSide=720,quality=.76){
+    if(!source)return '';
+    const img=await loadQuoteImage(source);
+    const naturalW=img.naturalWidth||img.width,naturalH=img.naturalHeight||img.height;if(!naturalW||!naturalH)throw new Error('A imagem selecionada é inválida.');
+    const scale=Math.min(1,maxSide/Math.max(naturalW,naturalH)),width=Math.max(1,Math.round(naturalW*scale)),height=Math.max(1,Math.round(naturalH*scale));
+    const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;const ctx=canvas.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,width,height);ctx.drawImage(img,0,0,width,height);return canvas.toDataURL('image/jpeg',quality);
+  }
+  async function quoteImageFromFile(file){
+    if(!file)return '';
+    if(!/^image\/(jpeg|png|webp)$/i.test(file.type||''))throw new Error('Escolha uma imagem JPG, PNG ou WebP.');
+    if(file.size>12*1024*1024)throw new Error('A imagem deve ter no máximo 12 MB antes da redução.');
+    const objectUrl=URL.createObjectURL(file);try{return await normalizeQuoteImageSource(objectUrl);}finally{URL.revokeObjectURL(objectUrl);}
+  }
+  function renderPendingQuoteImage(){
+    const preview=document.getElementById('orc-item-image-preview'),remove=document.getElementById('orc-item-image-remove');if(!preview||!remove)return;
+    preview.src=pendingManualQuoteImage||'';preview.style.display=pendingManualQuoteImage?'block':'none';remove.style.display=pendingManualQuoteImage?'inline-flex':'none';
+  }
+  const manualQuoteImageInput=document.getElementById('orc-item-image');
+  manualQuoteImageInput.addEventListener('change',async()=>{const file=manualQuoteImageInput.files&&manualQuoteImageInput.files[0];if(!file)return;manualQuoteImageInput.disabled=true;try{pendingManualQuoteImage=await quoteImageFromFile(file);renderPendingQuoteImage();document.getElementById('orc-msg').innerHTML='<div class="msg ok">Imagem preparada para o item.</div>';}catch(e){manualQuoteImageInput.value='';document.getElementById('orc-msg').innerHTML='<div class="msg err">'+escapeHtml(e.message||'Não foi possível preparar a imagem.')+'</div>';}finally{manualQuoteImageInput.disabled=false;}});
+  document.getElementById('orc-item-image-remove').addEventListener('click',()=>{pendingManualQuoteImage='';manualQuoteImageInput.value='';renderPendingQuoteImage();});
   function catalogPublicPrice(p, colorName){
     const color = colorName ? (p.colors||[]).find(c=>c.name===colorName) : null;
     const colorPrice=Number(color?.publicPrice);
@@ -2381,7 +2412,8 @@
   document.getElementById('orc-catalog-price-type').addEventListener('change', e=>{ document.getElementById('orc-catalog-custom-wrap').style.display=e.target.value==='custom'?'flex':'none'; });
   ['orc-validity','orc-delivery','orc-shipping-method','orc-payment-mode'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{toggleQuoteCustomFields();renderOrcItems();}));
   ['orc-pix-discount','orc-card-fee','orc-installments','orc-shipping-cost'].forEach(id=>document.getElementById(id).addEventListener('input',renderOrcItems));
-  document.getElementById('orc-add-catalog-btn').addEventListener('click', ()=>{
+  document.getElementById('orc-add-catalog-btn').addEventListener('click', async ()=>{
+    const addButton=document.getElementById('orc-add-catalog-btn');if(addButton.disabled)return;
     const p=selectedCatalogProduct(); if(!p){ document.getElementById('orc-msg').innerHTML='<div class="msg err">Selecione um produto do portfólio.</div>'; return; }
     const color=document.getElementById('orc-catalog-color').value; const priceType=document.getElementById('orc-catalog-price-type').value;
     if(priceType==='consignado'&&!catalogAllowsConsignment(p)){document.getElementById('orc-msg').innerHTML='<div class="msg err">Este produto está disponível somente para venda direta.</div>';return;}
@@ -2392,7 +2424,10 @@
     const priceLabel=priceType==='public'?'Preço do portfólio':priceType==='consignado'?'Preço para consignante':'Valor personalizado';
     const details=[color?`Variação: ${color}`:'',typedDetails].filter(Boolean).join(' · ');
     const colorObj=(p.colors||[]).find(c=>c.name===color);
-    orcItemsCart.push({desc:p.name,details,unit:'un.',qty,unitValue,productCode:p.code,priceType,priceLabel,image:(colorObj&&colorObj.image)||p.image||'',source:'portfolio'});
+    const sourceImage=(colorObj&&colorObj.image)||p.image||'';let quoteImage=sourceImage;
+    if(sourceImage){addButton.disabled=true;addButton.textContent='Preparando foto…';try{quoteImage=await normalizeQuoteImageSource(sourceImage);}catch(e){quoteImage=sourceImage;}}
+    orcItemsCart.push({desc:p.name,details,unit:'un.',qty,unitValue,productCode:p.code,priceType,priceLabel,image:quoteImage,includeImage:Boolean(quoteImage),source:'portfolio'});
+    addButton.disabled=false;addButton.textContent='+ Adicionar do portfólio';
     document.getElementById('orc-catalog-details').value=''; document.getElementById('orc-catalog-qty').value='1'; document.getElementById('orc-msg').innerHTML=''; renderOrcItems();
   });
 
@@ -2403,9 +2438,9 @@
     const qty = parseFloat(document.getElementById('orc-item-qty').value)||1;
     const unitValue = parseFloat(document.getElementById('orc-item-value').value);
     if(!desc || isNaN(unitValue)){ document.getElementById('orc-msg').innerHTML='<div class="msg err">Informe a descrição e o valor do item.</div>'; return; }
-    orcItemsCart.push({desc, details, unit, qty, unitValue});
+    orcItemsCart.push({desc, details, unit, qty, unitValue,image:pendingManualQuoteImage,includeImage:Boolean(pendingManualQuoteImage),source:'manual'});
     document.getElementById('orc-item-desc').value=''; document.getElementById('orc-item-details').value=''; document.getElementById('orc-item-value').value='';
-    document.getElementById('orc-item-qty').value='1'; document.getElementById('orc-msg').innerHTML='';
+    document.getElementById('orc-item-qty').value='1';pendingManualQuoteImage='';manualQuoteImageInput.value='';renderPendingQuoteImage();document.getElementById('orc-msg').innerHTML='';
     renderOrcItems();
   });
   function renderOrcItems(){
@@ -2413,8 +2448,8 @@
     const summary = document.getElementById('orc-summary');
     const financials=currentQuoteFinancials(),paymentMode=document.getElementById('orc-payment-mode').value;
     if(orcItemsCart.length === 0) list.innerHTML='<div class="empty" style="padding:18px;">Nenhum item adicionado.</div>';
-    else list.innerHTML = orcItemsCart.map((it,i)=>{const displayUnit=quoteDisplayUnitValue(it,financials,paymentMode);return `
-      <div class="quote-item"><div><strong>${escapeHtml(it.desc)}</strong>${it.details ? `<div class="muted">${escapeHtml(it.details)}</div>` : ''}${it.priceLabel ? `<div class="muted" style="color:var(--violet);">${escapeHtml(it.priceLabel)}</div>` : ''}<button type="button" class="btn secondary small" data-edit-orc-item="${i}" style="margin-top:7px;">Editar item</button></div><span>${it.qty} ${escapeHtml(it.unit||'un.')}</span><span>${fmtMoney(displayUnit)}${quoteUsesAdjustedPrices(paymentMode)?`<small class="muted" style="display:block;">ref. interna ${fmtMoney(it.unitValue)}</small>`:''}</span><strong>${fmtMoney(it.qty*displayUnit)}</strong><button class="btn secondary small" data-del-orc-item="${i}" aria-label="Remover item">Remover</button></div>
+    else list.innerHTML = orcItemsCart.map((it,i)=>{const displayUnit=quoteDisplayUnitValue(it,financials,paymentMode),hasImage=Boolean(it.image),usesImage=hasImage&&it.includeImage!==false;return `
+      <div class="quote-item"><div class="quote-item-main">${hasImage?`<img class="quote-item-thumb" src="${escapeHtml(it.image)}" alt="Foto de ${escapeHtml(it.desc)}" style="${usesImage?'':'opacity:.38;filter:grayscale(1);'}">`:''}<div style="min-width:0;"><strong>${escapeHtml(it.desc)}</strong>${it.details ? `<div class="muted">${escapeHtml(it.details)}</div>` : ''}${it.priceLabel ? `<div class="muted" style="color:var(--violet);">${escapeHtml(it.priceLabel)}</div>` : ''}${hasImage?`<div class="muted" style="margin-top:3px;">${usesImage?'Imagem incluída no PDF':'Imagem mantida, mas oculta no PDF'}</div>`:''}<div class="quote-item-photo-actions"><button type="button" class="btn secondary small" data-edit-orc-item="${i}">Editar item</button><button type="button" class="btn secondary small" data-photo-orc-item="${i}">${hasImage?'Trocar foto':'Adicionar foto'}</button>${hasImage?`<button type="button" class="btn secondary small" data-toggle-photo-orc-item="${i}">${usesImage?'Ocultar do PDF':'Usar no PDF'}</button><button type="button" class="btn secondary small" data-remove-photo-orc-item="${i}">Remover foto</button>`:''}</div></div></div><span>${it.qty} ${escapeHtml(it.unit||'un.')}</span><span>${fmtMoney(displayUnit)}${quoteUsesAdjustedPrices(paymentMode)?`<small class="muted" style="display:block;">ref. interna ${fmtMoney(it.unitValue)}</small>`:''}</span><strong>${fmtMoney(it.qty*displayUnit)}</strong><button class="btn secondary small" data-del-orc-item="${i}" aria-label="Remover item">Remover</button></div>
     `;}).join('');
     document.querySelectorAll('[data-edit-orc-item]').forEach(b=>b.addEventListener('click',()=>{
       const index=Number(b.dataset.editOrcItem),item=orcItemsCart[index];if(!item)return;
@@ -2426,6 +2461,11 @@
       if(!desc.trim()||!Number.isFinite(qty)||qty<=0||!Number.isFinite(unitValue)||unitValue<0){alert('Informe descrição, quantidade e valor válidos.');return;}
       orcItemsCart[index]={...item,desc:desc.trim(),details:details.trim(),qty,unitValue};renderOrcItems();
     }));
+    document.querySelectorAll('[data-photo-orc-item]').forEach(b=>b.addEventListener('click',()=>{
+      const index=Number(b.dataset.photoOrcItem),input=document.createElement('input');input.type='file';input.accept='image/jpeg,image/png,image/webp';input.addEventListener('change',async()=>{const file=input.files&&input.files[0];if(!file)return;b.disabled=true;b.textContent='Preparando…';try{const image=await quoteImageFromFile(file);orcItemsCart[index]={...orcItemsCart[index],image,includeImage:true};renderOrcItems();}catch(e){alert(e.message||'Não foi possível preparar a imagem.');b.disabled=false;}});input.click();
+    }));
+    document.querySelectorAll('[data-toggle-photo-orc-item]').forEach(b=>b.addEventListener('click',()=>{const index=Number(b.dataset.togglePhotoOrcItem),item=orcItemsCart[index];if(!item)return;orcItemsCart[index]={...item,includeImage:item.includeImage===false};renderOrcItems();}));
+    document.querySelectorAll('[data-remove-photo-orc-item]').forEach(b=>b.addEventListener('click',()=>{const index=Number(b.dataset.removePhotoOrcItem);if(!orcItemsCart[index]||!confirm('Remover a foto deste item?'))return;orcItemsCart[index]={...orcItemsCart[index],image:'',includeImage:false};renderOrcItems();}));
     document.querySelectorAll('[data-del-orc-item]').forEach(b=>b.addEventListener('click', ()=>{
       orcItemsCart.splice(+b.dataset.delOrcItem,1); renderOrcItems();
     }));
@@ -2434,7 +2474,7 @@
   function clearOrcamentoForm(){
     sourceRequestId=null;requestQuoteNotice();
     ['orc-item-desc','orc-item-details','orc-item-value'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('orc-item-qty').value='1';document.getElementById('orc-item-unit').value='un.';
+    document.getElementById('orc-item-qty').value='1';document.getElementById('orc-item-unit').value='un.';pendingManualQuoteImage='';manualQuoteImageInput.value='';renderPendingQuoteImage();
     orcItemsCart = [];
     ['orc-client-name','orc-client-doc','orc-client-contact','orc-client-email','orc-client-address','orc-payment','orc-notes','orc-validity-custom','orc-delivery-custom','orc-shipping-custom'].forEach(id=>document.getElementById(id).value='');
     applyQuoteCommercialDefaults();
@@ -2487,22 +2527,22 @@
     clearOrcamentoForm();
     msg.innerHTML = `<div class="msg ok">${generatePdf?'Orçamento salvo e PDF gerado.':'Orçamento salvo com sucesso.'}</div>`;
     renderOrcamentos();renderRequests();
-    if(generatePdf){try{gerarPdfOrcamento(orc);}catch(e){msg.innerHTML='<div class="msg err">Orçamento salvo, mas não foi possível gerar o PDF. Use Baixar PDF na lista; não é necessário salvar novamente.</div>';}}
+    if(generatePdf){try{await gerarPdfOrcamento(orc);}catch(e){msg.innerHTML='<div class="msg err">Orçamento salvo, mas não foi possível gerar o PDF. Use Baixar PDF na lista; não é necessário salvar novamente.</div>';}}
     return orc;
   }
   document.getElementById('orc-save-btn').addEventListener('click', ()=>saveOrcamento(true));
   document.getElementById('orc-save-only-btn').addEventListener('click', ()=>saveOrcamento(false));
 
   function renderOrcamentos(){
-    document.getElementById('orc-list').innerHTML = ORCAMENTOS.length ? ORCAMENTOS.slice().reverse().map(o=>{const f=savedQuoteFinancials(o);return `
-      <div class="quote-saved" id="quote-${escapeHtml(o.id)}"><div class="quote-saved-head"><div><strong>${o.id} · ${escapeHtml(o.clientName)}</strong><div class="quote-saved-meta">Emitido em ${fmtDate(o.date)}${o.sourceRequestId?' · Tarefa: '+escapeHtml(SOLICITACOES.find(r=>r.id===o.sourceRequestId)?.code||'vinculada'):''} · ${(o.items||[]).length} ${(o.items||[]).length===1?'item':'itens'} ${o.convertedToPedido ? ' · <span class="tag concluido">pedido criado</span>' : ''}</div><div class="quote-saved-meta">PIX ou débito: ${fmtMoney(f.pixTotal)}${o.paymentMode?` · Cartão: ${fmtMoney(f.cardTotal)} · até ${f.installments}x sem juros`:''}</div></div><div class="quote-saved-total">${fmtMoney(quotePrimaryTotal(o.paymentMode,f))}</div></div>
+    document.getElementById('orc-list').innerHTML = ORCAMENTOS.length ? ORCAMENTOS.slice().reverse().map(o=>{const f=savedQuoteFinancials(o),photoCount=(o.items||[]).filter(it=>it.image&&it.includeImage!==false).length;return `
+      <div class="quote-saved" id="quote-${escapeHtml(o.id)}"><div class="quote-saved-head"><div><strong>${o.id} · ${escapeHtml(o.clientName)}</strong><div class="quote-saved-meta">Emitido em ${fmtDate(o.date)}${o.sourceRequestId?' · Tarefa: '+escapeHtml(SOLICITACOES.find(r=>r.id===o.sourceRequestId)?.code||'vinculada'):''} · ${(o.items||[]).length} ${(o.items||[]).length===1?'item':'itens'}${photoCount?` · ${photoCount} ${photoCount===1?'imagem':'imagens'} no PDF`:''} ${o.convertedToPedido ? ' · <span class="tag concluido">pedido criado</span>' : ''}</div><div class="quote-saved-meta">PIX ou débito: ${fmtMoney(f.pixTotal)}${o.paymentMode?` · Cartão: ${fmtMoney(f.cardTotal)} · até ${f.installments}x sem juros`:''}</div></div><div class="quote-saved-total">${fmtMoney(quotePrimaryTotal(o.paymentMode,f))}</div></div>
         <div class="actions"><button data-pdf-orc="${o.id}">📄 Baixar PDF</button><button data-duplicate-orc="${o.id}">⧉ Duplicar</button>${!o.convertedToPedido ? `<button data-convert-orc="${o.id}">✓ Aceito → Produção</button>` : ''}<button data-del-orc="${o.id}">Remover</button></div>
       </div>
     `}).join('') : '<div class="empty">Nenhum orçamento salvo ainda.</div>';
 
-    document.querySelectorAll('[data-pdf-orc]').forEach(b=>b.addEventListener('click', ()=>{
+    document.querySelectorAll('[data-pdf-orc]').forEach(b=>b.addEventListener('click', async ()=>{
       const orc = ORCAMENTOS.find(o=>o.id===b.dataset.pdfOrc);
-      if(orc) gerarPdfOrcamento(orc);
+      if(!orc)return;b.disabled=true;const original=b.textContent;b.textContent='Preparando PDF…';try{await gerarPdfOrcamento(orc);}catch(e){alert('Não foi possível gerar o PDF. Verifique as imagens e tente novamente.');}finally{b.disabled=false;b.textContent=original;}
     }));
     document.querySelectorAll('[data-duplicate-orc]').forEach(b=>b.addEventListener('click', ()=>{
       if(quoteSaveBusy)return;
@@ -2542,13 +2582,15 @@
     return `${text} · até ${deadline}`;
   }
 
-  function gerarPdfOrcamento(orc){
+  async function gerarPdfOrcamento(orc){
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     const pageW=doc.internal.pageSize.getWidth(),pageH=doc.internal.pageSize.getHeight(),margin=14,contentW=pageW-margin*2;
     const company={...EMPRESA,...(orc.companySnapshot||{})},financials=savedQuoteFinancials(orc),showPix=['both','pix'].includes(orc.paymentMode),showCard=['both','card'].includes(orc.paymentMode),hasPricing=showPix||showCard;
     const companyName=company.nome||'HL 3D Solutions',companyPhone=company.telefone||'(34) 99941-6973',companyEmail=company.email||'hl3dsolutions@gmail.com',companyCity=company.cidade||'Uberaba/MG',companyCnpj=company.cnpj||'65.582.951/0001-61';
     const displayCode=quoteDisplayCode(orc),emission=fmtDate(orc.date),violet=[96,69,176],teal=[18,126,132],ink=[30,28,34],muted=[103,98,109],line=[224,220,228],soft=[248,247,250];
+    const pdfItemImages=[];
+    for(const item of (orc.items||[])){if(!item.image||item.includeImage===false)continue;try{const data=await normalizeQuoteImageSource(item.image,900,.8);const props=doc.getImageProperties(data);pdfItemImages.push({item,data,width:Number(props.width)||1,height:Number(props.height)||1});}catch(e){}}
     const drawFirstHeader=()=>{
       doc.setFillColor(13,12,16);doc.rect(0,0,pageW,42,'F');
       doc.setFillColor(...violet);doc.rect(0,40,pageW,2,'F');doc.setFillColor(...teal);doc.rect(0,40,38,2,'F');
@@ -2607,6 +2649,14 @@
       didDrawPage:()=>{if(doc.internal.getCurrentPageInfo().pageNumber>1)drawContinuationHeader();}
     });
     y=doc.lastAutoTable.finalY+6;
+    if(pdfItemImages.length){
+      const galleryTitle=()=>{ensureSpace(12);doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...violet);doc.text('IMAGENS DOS ITENS',margin,y+5);doc.setDrawColor(...line);doc.line(margin+34,y+3.5,pageW-margin,y+3.5);y+=10;};
+      galleryTitle();const galleryGap=4,galleryW=(contentW-galleryGap)/2,cardH=38,imageBoxW=31,imageBoxH=30;
+      for(let rowStart=0;rowStart<pdfItemImages.length;rowStart+=2){
+        if(y+cardH>pageH-24){y=addContentPage();galleryTitle();}
+        pdfItemImages.slice(rowStart,rowStart+2).forEach((entry,column)=>{const x=margin+column*(galleryW+galleryGap);doc.setFillColor(...soft);doc.setDrawColor(...line);doc.roundedRect(x,y,galleryW,cardH,2,2,'FD');const ratio=Math.min(imageBoxW/entry.width,imageBoxH/entry.height),drawW=entry.width*ratio,drawH=entry.height*ratio,imageX=x+4+(imageBoxW-drawW)/2,imageY=y+4+(imageBoxH-drawH)/2;try{doc.addImage(entry.data,'JPEG',imageX,imageY,drawW,drawH);}catch(e){}doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...ink);const textX=x+39,textW=galleryW-43,nameLines=doc.splitTextToSize(String(entry.item.desc||'Produto'),textW).slice(0,3);doc.text(nameLines,textX,y+9);let detailY=y+10+nameLines.length*4;if(entry.item.details&&detailY<y+31){doc.setFont('helvetica','normal');doc.setFontSize(6.8);doc.setTextColor(...muted);doc.text(doc.splitTextToSize(String(entry.item.details),textW).slice(0,2),textX,detailY);}});y+=cardH+4;
+      }
+    }
     ensureSpace(hasPricing?50:29);
     const tableProducts=quoteHasTablePrices(orc)&&hasPricing?financials.cardProductSubtotal:financials.subtotal;
     doc.setFillColor(...soft);doc.setDrawColor(...line);doc.roundedRect(margin,y,contentW,11,2,2,'FD');doc.setFont('helvetica','normal');doc.setFontSize(7.8);doc.setTextColor(...muted);doc.text(`Produtos: ${fmtMoney(tableProducts)}${financials.shippingCost?` · Frete: ${fmtMoney(financials.shippingCost)}`:''}`,margin+5,y+7);y+=15;
