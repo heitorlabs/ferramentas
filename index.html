@@ -2570,7 +2570,7 @@
   function abrirReciboOrcamento(orc){
   const f=savedQuoteFinancials(orc);
   const methods=['PIX ou débito','Cartão','Dinheiro','Outra'];
-  const choice=prompt('Forma de pagamento recebida:\n1 - PIX ou débito\n2 - Cartão\n3 - Dinheiro\n4 - Outra','1');
+  const choice=prompt('Forma de pagamento recebida:\n1 - PIX ou débito\n2 - Cartão\n3 - Dinheiro\n4 - Outra',orc.paymentMode==='card'?'2':'1');
   if(choice===null)return;
   if(!['1','2','3','4'].includes(choice)){alert('Selecione uma opção válida.');return;}
   let method=methods[Number(choice)-1];
@@ -2578,7 +2578,7 @@
   const automatic=choice==='1'?f.pixTotal:choice==='2'?f.cardTotal:f.baseTotal;
   const received=prompt('Valor efetivamente recebido em R$ (pode ser parcial):',Number(automatic||0).toFixed(2).replace('.',','));
   if(received===null)return;
-  const amount=Number(received.trim().replace(/\./g,'').replace(',','.'));
+  const rawValue=received.trim().replace(/\s/g,'');const normalized=/,/.test(rawValue)?rawValue.replace(/\./g,'').replace(',','.'):rawValue;const amount=Number(normalized);
   if(!Number.isFinite(amount)||amount<=0){alert('Valor recebido inválido.');return;}
   const date=prompt('Data do recebimento (AAAA-MM-DD):',todayISO());
   if(date===null)return;
@@ -2602,7 +2602,7 @@
   if(orc.clientDoc)text('CPF/CNPJ:',orc.clientDoc);
   text('Orçamento:',code);text('Data:',fmtDate(receipt.date));
   y+=5;
-  const rows=(orc.items||[]).map(it=>[String(it.name||it.description||it.productName||it.title||'Produto / serviço'),String(it.qty||1)+' '+String(it.unit||'un.')]);
+  const rows=(orc.items||[]).map(it=>[String(it.desc||it.name||it.description||it.productName||it.title||'Produto / serviço'),String(it.qty||1)+' '+String(it.unit||'un.')]);
   if(rows.length&&typeof doc.autoTable==='function'){
     doc.autoTable({startY:y,head:[['PRODUTO / SERVIÇO','QUANTIDADE']],body:rows,margin:{left:margin,right:margin,bottom:70},theme:'plain',headStyles:{fillColor:[30,28,34],textColor:255,fontSize:8},styles:{fontSize:8,cellPadding:3.5,lineWidth:{bottom:.15},lineColor:[224,220,228]},columnStyles:{1:{cellWidth:37,halign:'center'}}});
     y=doc.lastAutoTable.finalY+10;
