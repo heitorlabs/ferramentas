@@ -2536,7 +2536,7 @@
   function renderOrcamentos(){
     document.getElementById('orc-list').innerHTML = ORCAMENTOS.length ? ORCAMENTOS.slice().reverse().map(o=>{const f=savedQuoteFinancials(o),photoCount=(o.items||[]).filter(it=>it.image&&it.includeImage!==false).length;return `
       <div class="quote-saved" id="quote-${escapeHtml(o.id)}"><div class="quote-saved-head"><div><strong>${o.id} · ${escapeHtml(o.clientName)}</strong><div class="quote-saved-meta">Emitido em ${fmtDate(o.date)}${o.sourceRequestId?' · Tarefa: '+escapeHtml(SOLICITACOES.find(r=>r.id===o.sourceRequestId)?.code||'vinculada'):''} · ${(o.items||[]).length} ${(o.items||[]).length===1?'item':'itens'}${photoCount?` · ${photoCount} ${photoCount===1?'imagem':'imagens'} no PDF`:''} ${o.convertedToPedido ? ' · <span class="tag concluido">pedido criado</span>' : ''}</div><div class="quote-saved-meta">PIX ou débito: ${fmtMoney(f.pixTotal)}${o.paymentMode?` · Cartão: ${fmtMoney(f.cardTotal)} · até ${f.installments}x sem juros`:''}</div></div><div class="quote-saved-total">${fmtMoney(quotePrimaryTotal(o.paymentMode,f))}</div></div>
-        <div class="actions"><button data-pdf-orc="${o.id}">📄 Baixar PDF</button><button data-duplicate-orc="${o.id}">⧉ Duplicar</button>${!o.convertedToPedido ? `<button data-convert-orc="${o.id}">✓ Aceito → Produção</button>` : ''}<button data-del-orc="${o.id}">Remover</button></div>
+        <div class="actions"><button data-pdf-orc="${o.id}">📄 Baixar PDF</button><button data-receipt-orc="${o.id}">🧾 Gerar recibo</button><button data-duplicate-orc="${o.id}">⧉ Duplicar</button>${!o.convertedToPedido ? `<button data-convert-orc="${o.id}">✓ Aceito → Produção</button>` : ''}<button data-del-orc="${o.id}">Remover</button></div>
       </div>
     `}).join('') : '<div class="empty">Nenhum orçamento salvo ainda.</div>';
 
@@ -2544,6 +2544,7 @@
       const orc = ORCAMENTOS.find(o=>o.id===b.dataset.pdfOrc);
       if(!orc)return;b.disabled=true;const original=b.textContent;b.textContent='Preparando PDF…';try{await gerarPdfOrcamento(orc);}catch(e){alert('Não foi possível gerar o PDF. Verifique as imagens e tente novamente.');}finally{b.disabled=false;b.textContent=original;}
     }));
+    document.querySelectorAll('[data-receipt-orc]').forEach(b=>b.addEventListener('click',()=>{const o=ORCAMENTOS.find(x=>x.id===b.dataset.receiptOrc);if(o)abrirReciboOrcamento(o);}));
     document.querySelectorAll('[data-duplicate-orc]').forEach(b=>b.addEventListener('click', ()=>{
       if(quoteSaveBusy)return;
       const o = ORCAMENTOS.find(x=>x.id===b.dataset.duplicateOrc); if(!o) return;
@@ -2566,6 +2567,63 @@
     }));
   }
 
+  function abrirReciboOrcamento(orc){
+  const f=savedQuoteFinancials(orc);
+  const methods=['PIX ou débito','Cartão','Dinheiro','Outra'];
+  const choice=prompt('Forma de pagamento recebida:\n1 - PIX ou débito\n2 - Cartão\n3 - Dinheiro\n4 - Outra',orc.paymentMode==='card'?'2':'1');
+  if(choice===null)return;
+  if(!['1','2','3','4'].includes(choice)){alert('Selecione uma opção válida.');return;}
+  let method=methods[Number(choice)-1];
+  if(choice==='4'){method=prompt('Descreva a forma de pagamento:','');if(!method?.trim())return;}
+  const automatic=choice==='1'?f.pixTotal:choice==='2'?f.cardTotal:f.baseTotal;
+  const received=prompt('Valor efetivamente recebido em R$ (pode ser parcial):',Number(automatic||0).toFixed(2).replace('.',','));
+  if(received===null)return;
+  const rawValue=received.trim().replace(/\s/g,'');const normalized=/,/.test(rawValue)?rawValue.replace(/\./g,'').replace(',','.'):rawValue;const amount=Number(normalized);
+  if(!Number.isFinite(amount)||amount<=0){alert('Valor recebido inválido.');return;}
+  const date=prompt('Data do recebimento (AAAA-MM-DD):',todayISO());
+  if(date===null)return;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||isNaN(Date.parse(date))){alert('Data inválida.');return;}
+  gerarPdfReciboOrcamento(orc,{method,amount,date});
+}
+  function gerarPdfReciboOrcamento(orc,receipt){
+  if(!window.jspdf?.jsPDF)throw new Error('Gerador de PDF indisponível');
+  const {jsPDF}=window.jspdf,doc=new jsPDF(),width=doc.internal.pageSize.getWidth(),height=doc.internal.pageSize.getHeight(),margin=15;
+  const company={...EMPRESA,...(orc.companySnapshot||{})};
+  const name=company.nome||'Heitor Lab',cnpj=company.cnpj||'Não informado',code=quoteDisplayCode(orc);
+  doc.setFillColor(13,12,16);doc.rect(0,0,width,42,'F');
+  doc.setFillColor(96,69,176);doc.rect(0,40,width,2,'F');
+  try{doc.addImage(LOGO_B64,'JPEG',margin,7,27,27);}catch(e){}
+  doc.setFont('helvetica','bold');doc.setTextColor(255);doc.setFontSize(16);doc.text('RECIBO DE PAGAMENTO',47,15);
+  doc.setFontSize(9);doc.text(String(name),47,23);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.text('CNPJ: '+cnpj,47,29);doc.text('Orçamento: '+code,47,35);
+  let y=54;
+  function text(label,value){doc.setTextColor(103,98,109);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text(label,margin,y);doc.setTextColor(30,28,34);doc.setFont('helvetica','bold');const lines=doc.splitTextToSize(String(value||'—'),width-75);doc.text(lines,margin+50,y);y+=Math.max(8,lines.length*5);}
+  text('Cliente:',orc.clientName);
+  if(orc.clientDoc)text('CPF/CNPJ:',orc.clientDoc);
+  text('Orçamento:',code);text('Data:',fmtDate(receipt.date));
+  y+=5;
+  const rows=(orc.items||[]).map(it=>[String(it.desc||it.name||it.description||it.productName||it.title||'Produto / serviço'),String(it.qty||1)+' '+String(it.unit||'un.')]);
+  if(rows.length&&typeof doc.autoTable==='function'){
+    doc.autoTable({startY:y,head:[['PRODUTO / SERVIÇO','QUANTIDADE']],body:rows,margin:{left:margin,right:margin,bottom:70},theme:'plain',headStyles:{fillColor:[30,28,34],textColor:255,fontSize:8},styles:{fontSize:8,cellPadding:3.5,lineWidth:{bottom:.15},lineColor:[224,220,228]},columnStyles:{1:{cellWidth:37,halign:'center'}}});
+    y=doc.lastAutoTable.finalY+10;
+  }
+  if(y>height-93){doc.addPage();y=25;}
+  text('Forma de pagamento:',receipt.method);
+  text('Valor recebido:',fmtMoney(receipt.amount));
+  y+=8;
+  const declaration='Declaro, para os devidos fins, que recebi do cliente acima identificado a importância de '+fmtMoney(receipt.amount)+', referente aos produtos e/ou serviços discriminados no orçamento '+code+', conforme a forma de pagamento e a data registradas neste recibo.';
+  doc.setFont('helvetica','normal');doc.setTextColor(30,28,34);doc.setFontSize(9);
+  const lines=doc.splitTextToSize(declaration,width-2*margin);
+  if(y+lines.length*5+43>height-15){doc.addPage();y=25;}
+  doc.text(lines,margin,y);y+=lines.length*5+22;
+  doc.setDrawColor(103,98,109);doc.line(margin+25,y,width-margin-25,y);
+  doc.setFontSize(8);doc.text(String(name)+' · CNPJ '+cnpj,width/2,y+6,{align:'center'});
+  doc.text('Assinatura do responsável',width/2,y+12,{align:'center'});
+  const count=doc.internal.getNumberOfPages();
+  for(let p=1;p<=count;p++){doc.setPage(p);doc.setFontSize(7);doc.setTextColor(103,98,109);doc.text('Recibo vinculado ao orçamento '+code+' · Documento não fiscal',margin,height-8);}
+  const safeClient=String(orc.clientName||'cliente').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'_').slice(0,60);
+  doc.save('Recibo_'+code+'_'+safeClient+'.pdf');
+}
   function fmtDate(iso){ if(!iso) return '—'; const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }
 
   function quoteDisplayCode(orc){
